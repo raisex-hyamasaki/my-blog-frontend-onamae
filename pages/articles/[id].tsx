@@ -8,6 +8,7 @@
 // SNSシェアボタン表示対応
 // SSR化された詳細ページ。Markdown、メルマード、コードコピー、SNSシェアなどすべて統合
 
+// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -18,6 +19,23 @@ import dynamic from 'next/dynamic'
 import { HTMLAttributes, DetailedHTMLProps } from 'react'
 
 const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
+
+function getShareUrl(base: string, url: string, title?: string) {
+  const encodedUrl = encodeURIComponent(url)
+  const encodedTitle = title ? encodeURIComponent(title) : ''
+  switch (base) {
+    case 'twitter':
+      return `https://twitter.com/share?url=${encodedUrl}&text=${encodedTitle}`
+    case 'facebook':
+      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
+    case 'line':
+      return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`
+    case 'hatena':
+      return `https://b.hatena.ne.jp/entry/panel/?url=${encodedUrl}`
+    default:
+      return '#'
+  }
+}
 
 type Tag = {
   id: number
@@ -73,6 +91,23 @@ export default function ArticleDetail({ article }: Props) {
 
   useEffect(() => {
     setUrl(window.location.href)
+    document.querySelectorAll('.copy-button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const code = btn.parentElement?.querySelector('code')?.textContent
+        if (code) {
+          navigator.clipboard.writeText(code)
+          btn.textContent = '✅ Copied!'
+          setTimeout(() => {
+            btn.textContent = '📋 Copy'
+          }, 1500)
+        }
+      })
+    })
+    const script = document.createElement('script')
+    script.id = 'engage-widget-script'
+    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
+    script.async = true
+    document.body.appendChild(script)
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -90,6 +125,12 @@ export default function ArticleDetail({ article }: Props) {
       <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
+          <div className="flex gap-4 mt-1">
+            <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
+            <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
+            <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
+            <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
+          </div>
         </div>
       </div>
       <div className="h-14" />
@@ -97,7 +138,7 @@ export default function ArticleDetail({ article }: Props) {
       <article>
         <header className="mb-8">
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
-          {tags?.length && (
+          {tags?.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((tag) => (
                 <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{tag.name}</span>
@@ -156,22 +197,34 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
     const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`)
     const json = await res.json()
-
     if (!json.data || json.data.length === 0) return { props: { article: null } }
 
     const item = json.data[0]
-    const rawThumbnail = item.thumbnail?.[0]?.formats?.medium?.url || item.thumbnail?.[0]?.url || null
-    const thumbnailUrl = rawThumbnail || null
+    console.log('🧪 json.data[0]:', JSON.stringify(item, null, 2))
+    console.log('🧪 item.tags:', JSON.stringify(item.tags))
+    console.log('🧪 item.attributes.tags:', JSON.stringify(item.attributes?.tags))
+    console.log('🧪 item.attributes.tags.data:', JSON.stringify(item.attributes?.tags?.data))
+
+    const attr = item.attributes || {}
+    const tagList =
+      Array.isArray(item.tags)
+        ? item.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
+        : Array.isArray(attr.tags?.data)
+        ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
+        : []
+
+    const rawUrl = attr.thumbnail?.data?.attributes?.url
+    const thumbnailUrl = rawUrl ? `${apiUrl}${rawUrl}` : null
 
     return {
       props: {
         article: {
           id: item.id,
-          title: item.title ?? '',
-          content: item.content ?? '',
-          publishedAt: item.publishedAt ?? '',
-          updatedAt: item.updatedAt ?? '',
-          tags: [],
+          title: attr.title ?? '',
+          content: attr.content ?? '',
+          publishedAt: attr.publishedAt ?? '',
+          updatedAt: attr.updatedAt ?? '',
+          tags: tagList,
           thumbnailUrl,
         },
       },
