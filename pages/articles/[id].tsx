@@ -249,7 +249,7 @@ export default function ArticleDetail({ article }: Props) {
 }
 
 export const getStaticPaths = async () => {
-  console.log('🔍 getStaticPaths() API URL:', process.env.NEXT_PUBLIC_API_URL); // ← この行を追加
+  console.log('🔍 getStaticPaths() API URL:', process.env.NEXT_PUBLIC_API_URL);
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles?fields=documentId&pagination[pageSize]=100`);
     const json = await res.json();
@@ -264,7 +264,7 @@ export const getStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps<Props> = async (context: GetStaticPropsContext) => {
-  console.log('🔍 [id].tsx getStaticProps() API URL:', process.env.NEXT_PUBLIC_API_URL); // ← 追加
+  console.log('🔍 [id].tsx getStaticProps() API URL:', process.env.NEXT_PUBLIC_API_URL);
   const { id } = context.params ?? {};
   if (typeof id !== 'string') {
     return { props: { article: null } };
