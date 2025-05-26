@@ -175,8 +175,8 @@ export default function Home({ articles }: { articles: Article[] }) {
 export const getServerSideProps: GetServerSideProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
-  console.log('🚀 SSR: getServerSideProps 呼び出し')
-  console.log('🔗 API URL:', apiUrl)
+  console.log('⚡ getServerSideProps 呼び出し')
+  console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
 
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
@@ -190,8 +190,12 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    // 🔍 1件目を確認用ログ出力
-    console.log('🧪 json.data[0]:', JSON.stringify(json.data?.[0], null, 2))
+    console.log('📦 JSON length:', json?.data?.length)
+    if (!json.data?.[0]) {
+      console.warn('⚠ json.data[0] is null or undefined!')
+    } else {
+      console.log('🧪 json.data[0]:', JSON.stringify(json.data[0], null, 2))
+    }
 
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
@@ -214,10 +218,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
         }
       })
       .filter((article: Article) => article.documentId !== null)
-      .sort(
-        (a: Article, b: Article) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      )
+      .sort((a: Article, b: Article) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 
     return {
       props: { articles: sorted },
