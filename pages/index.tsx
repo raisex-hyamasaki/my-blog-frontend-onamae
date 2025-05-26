@@ -181,7 +181,7 @@ export const getStaticProps: GetStaticProps = async () => {
   }
 
   try {
-    const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=100`
+    const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=999999`
     console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
     console.log('🟡 API fetch:', fetchUrl)
 
