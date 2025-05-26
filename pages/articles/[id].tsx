@@ -6,9 +6,8 @@
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
-// SSR化された詳細ページ。Markdown、メルマード、コードコピー、SNSシェアなどすべて統合
+// SSR 詳細ページ (Strapi v5 構造完全対応)
 
-// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -138,7 +137,7 @@ export default function ArticleDetail({ article }: Props) {
       <article>
         <header className="mb-8">
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
-          {tags?.length > 0 && (
+          {Array.isArray(tags) && tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((tag) => (
                 <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{tag.name}</span>
@@ -182,6 +181,14 @@ export default function ArticleDetail({ article }: Props) {
         </Link>
       </div>
 
+      <div className="mt-16 text-center">
+        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
+        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
+        <div className="flex justify-center mt-4">
+          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
+        </div>
+      </div>
+
       <footer className="text-center text-gray-400 text-sm mt-12">
         © 2024 raisex, LLC. All rights reserved.
       </footer>
@@ -195,26 +202,33 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`)
+    console.log('⚡ getServerSideProps 呼び出し')
+    console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
+
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
+    console.log('📡 Fetching from:', fetchUrl)
+
+    const res = await fetch(fetchUrl)
     const json = await res.json()
-    if (!json.data || json.data.length === 0) return { props: { article: null } }
+    console.log('📦 JSON length:', json?.data?.length)
+
+    if (!json.data?.[0]) {
+      console.warn('⚠ json.data[0] is null or undefined!')
+      return { props: { article: null } }
+    } else {
+      console.log('🧪 json.data[0]:', JSON.stringify(json.data[0], null, 2))
+    }
 
     const item = json.data[0]
-    console.log('🧪 json.data[0]:', JSON.stringify(item, null, 2))
-    console.log('🧪 item.tags:', JSON.stringify(item.tags))
-    console.log('🧪 item.attributes.tags:', JSON.stringify(item.attributes?.tags))
-    console.log('🧪 item.attributes.tags.data:', JSON.stringify(item.attributes?.tags?.data))
+    const attr = item.attributes || item // ← attributesなし対応
+    const tagList = Array.isArray(attr.tags?.data)
+      ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
+      : []
 
-    const attr = item.attributes || {}
-    const tagList =
-      Array.isArray(item.tags)
-        ? item.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
-        : Array.isArray(attr.tags?.data)
-        ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
-        : []
-
-    const rawUrl = attr.thumbnail?.data?.attributes?.url
-    const thumbnailUrl = rawUrl ? `${apiUrl}${rawUrl}` : null
+    let thumbnailUrl = null
+    if (Array.isArray(attr.thumbnail) && attr.thumbnail[0]?.formats?.medium?.url) {
+      thumbnailUrl = attr.thumbnail[0].formats.medium.url
+    }
 
     return {
       props: {
