@@ -1,6 +1,6 @@
 // pages/index.tsx
 // 記事一覧ページ（サムネイル/リスト切替、投稿更新日とタグ表示）
-// getStaticProps による静的生成対応（Strapi v5 完全対応）
+// getStaticProps による静的生成対応（Strapi v5 完全対応）＋APIログ出力強化
 
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
@@ -185,19 +185,20 @@ export default function Home({ articles }: { articles: Article[] }) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
 
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
     return { props: { articles: [] } }
   }
 
-  try {
-    const fetchUrl = `${apiUrl}/api/articles?populate=thumbnail,tags&pagination[pageSize]=100`
-    console.log('🟡 API fetch:', fetchUrl)
+  const endpoint = `${apiUrl}/api/articles?populate=thumbnail,tags&pagination[pageSize]=100`
+  console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
+  console.log('🟡 API fetch:', endpoint)
 
-    const res = await fetch(fetchUrl)
+  try {
+    const res = await fetch(endpoint)
     const json = await res.json()
+
     console.log('🟡 json:', JSON.stringify(json, null, 2))
 
     const sorted: Article[] = (json.data || [])
