@@ -1,7 +1,6 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export', ← この行を削除 or コメントアウト
+  reactStrictMode: true,
 
   images: {
     domains: ['18.183.140.58'],
@@ -20,4 +19,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-
