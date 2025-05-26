@@ -1,0 +1,5 @@
+// vercel.json（プロジェクトルートに追加）
+{
+  "rewrites": [{ "source": "/", "destination": "/" }],
+  "headers": [{ "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }]
+}
