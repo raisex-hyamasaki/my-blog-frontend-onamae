@@ -132,11 +132,11 @@ export default function ArticleDetail({ article }: Props) {
                   onClick={() => src && setModalImage(src)}
                 />
               ),
-              code: ({ inline, children, ...props }: { inline?: boolean; children?: React.ReactNode }) =>
+              code: ({ inline, children }) =>
                 inline ? (
                   <code className="bg-yellow-200 text-black px-1 rounded text-sm">{children}</code>
                 ) : (
-                  <code className={`${props.className ?? ''} text-sm font-mono`} {...props}>{children}</code>
+                  <code className="text-sm font-mono">{children}</code>
                 ),
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
