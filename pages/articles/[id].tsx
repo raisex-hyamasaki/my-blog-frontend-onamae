@@ -15,7 +15,6 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { HTMLAttributes, DetailedHTMLProps } from 'react'
 
 const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
 
@@ -36,55 +35,7 @@ function getShareUrl(base: string, url: string, title?: string) {
   }
 }
 
-type Tag = {
-  id: number
-  name: string
-}
-
-type Article = {
-  id: number
-  title: string
-  content: string
-  publishedAt: string
-  updatedAt: string
-  tags?: Tag[]
-  thumbnailUrl?: string | null
-}
-
-type Props = {
-  article: Article | null
-}
-
-type CodeBlockProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> & {
-  inline?: boolean
-  children?: React.ReactNode
-}
-
-const CodeBlock: React.FC<CodeBlockProps> = ({ inline, children, className = '', ...props }) => {
-  if (inline) {
-    return (
-      <code
-        {...props}
-        style={{
-          backgroundColor: '#fef08a',
-          color: '#1f2937',
-          padding: '0.2rem 0.4rem',
-          borderRadius: '0.25rem',
-          fontFamily: 'monospace',
-          fontSize: '0.85rem',
-        }}
-      >
-        {children}
-      </code>
-    )
-  }
-  if ((className || '').trim() === 'language-mermaid') {
-    return <Mermaid chart={String(children).trim()} />
-  }
-  return <code className={`${className} text-sm font-mono`} {...props}>{children}</code>
-}
-
-export default function ArticleDetail({ article }: Props) {
+export default function ArticleDetail({ article }: { article: any }) {
   const [modalImage, setModalImage] = useState<string | null>(null)
   const [url, setUrl] = useState('')
 
@@ -139,7 +90,7 @@ export default function ArticleDetail({ article }: Props) {
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
           {Array.isArray(tags) && tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
-              {tags.map((tag) => (
+              {tags.map((tag: any) => (
                 <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{tag.name}</span>
               ))}
             </div>
@@ -156,18 +107,19 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code: CodeBlock,
+              code: ({ inline, children }) => (
+                inline ? (
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm">{children}</code>
+                ) : (
+                  <code className="text-sm font-mono">{children}</code>
+                )
+              ),
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
                   <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
                   <pre className="p-4 text-sm">{children}</pre>
                 </div>
               ),
-              a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>,
-              table: ({ children }) => <table className="table-auto border border-gray-300 w-full text-sm">{children}</table>,
-              thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
-              th: ({ children }) => <th className="border px-4 py-2 text-left font-semibold">{children}</th>,
-              td: ({ children }) => <td className="border px-4 py-2">{children}</td>,
             }}
           >
             {content}
@@ -181,14 +133,6 @@ export default function ArticleDetail({ article }: Props) {
         </Link>
       </div>
 
-      <div className="mt-16 text-center">
-        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
-        <div className="flex justify-center mt-4">
-          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
-        </div>
-      </div>
-
       <footer className="text-center text-gray-400 text-sm mt-12">
         © 2024 raisex, LLC. All rights reserved.
       </footer>
@@ -196,55 +140,45 @@ export default function ArticleDetail({ article }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
-  if (typeof id !== 'string') return { props: { article: null } }
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+
+  console.log('⚡ getServerSideProps 呼び出し')
+  console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
+  console.log('🔎 記事ID =', id)
+
+  if (!id || typeof id !== 'string' || !apiUrl) return { props: { article: null } }
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    console.log('⚡ getServerSideProps 呼び出し')
-    console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
-
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=*`
     console.log('📡 Fetching from:', fetchUrl)
-
     const res = await fetch(fetchUrl)
     const json = await res.json()
-    console.log('📦 JSON length:', json?.data?.length)
 
-    if (!json.data?.[0]) {
-      console.warn('⚠ json.data[0] is null or undefined!')
-      return { props: { article: null } }
-    } else {
-      console.log('🧪 json.data[0]:', JSON.stringify(json.data[0], null, 2))
-    }
+    console.log('📦 JSON length:', json.data?.length)
+    if (!json.data?.[0]) return { props: { article: null } }
 
     const item = json.data[0]
-    const attr = item.attributes || item // ← attributesなし対応
-    const tagList = Array.isArray(attr.tags?.data)
-      ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
-      : []
+    console.log('🧪 json.data[0]:', JSON.stringify(item, null, 2))
 
-    let thumbnailUrl = null
-    if (Array.isArray(attr.thumbnail) && attr.thumbnail[0]?.formats?.medium?.url) {
-      thumbnailUrl = attr.thumbnail[0].formats.medium.url
-    }
+    const thumbnailUrl = item.thumbnail?.[0]?.formats?.medium?.url || item.thumbnail?.[0]?.url || null
 
     return {
       props: {
         article: {
           id: item.id,
-          title: attr.title ?? '',
-          content: attr.content ?? '',
-          publishedAt: attr.publishedAt ?? '',
-          updatedAt: attr.updatedAt ?? '',
-          tags: tagList,
+          title: item.title,
+          content: item.content,
+          updatedAt: item.updatedAt,
+          publishedAt: item.publishedAt,
+          tags: item.tags || [],
           thumbnailUrl,
         },
       },
     }
   } catch (err) {
-    console.error('記事取得エラー:', err)
+    console.error('❌ 記事取得エラー:', err)
     return { props: { article: null } }
   }
 }
