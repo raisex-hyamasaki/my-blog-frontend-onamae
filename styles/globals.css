@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ Markdown 内のインラインコードのみスタイル適用 */
+.prose code:not(pre code) {
+  background-color: #fef08a !important; /* bg-yellow-200 */
+  color: #1f2937 !important;            /* text-gray-800 */
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+/* ✅ Markdown の見出し内 code を本文と同じサイズに */
+.prose h1 code,
+.prose h2 code,
+.prose h3 code,
+.prose h4 code,
+.prose h5 code,
+.prose h6 code {
+  font-size: inherit !important;
+  padding: 0.2rem 0.4rem;
+  background-color: #fef08a;
+  color: #1f2937;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
