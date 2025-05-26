@@ -185,6 +185,7 @@ export default function Home({ articles }: { articles: Article[] }) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
+  console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
 
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
@@ -192,13 +193,12 @@ export const getStaticProps: GetStaticProps = async () => {
   }
 
   try {
-    const res = await fetch(
-      `${apiUrl}/api/articles?populate=thumbnail,tags&pagination[pageSize]=100`
-    )
-    const json = await res.json()
+    const fetchUrl = `${apiUrl}/api/articles?populate=thumbnail,tags&pagination[pageSize]=100`
+    console.log('🟡 API fetch:', fetchUrl)
 
-    console.log('📦 記事取得件数:', json.data?.length ?? 0)
-    console.log('🧾 サンプル記事:', JSON.stringify(json.data?.[0], null, 2))
+    const res = await fetch(fetchUrl)
+    const json = await res.json()
+    console.log('🟡 json:', JSON.stringify(json, null, 2))
 
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
@@ -225,8 +225,6 @@ export const getStaticProps: GetStaticProps = async () => {
         (a: Article, b: Article) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       )
-
-    console.log('✅ 最終的に表示する記事数:', sorted.length)
 
     return {
       props: {
