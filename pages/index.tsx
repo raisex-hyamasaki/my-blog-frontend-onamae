@@ -1,8 +1,6 @@
 // pages/index.tsx
 // 記事一覧ページ（サムネイル/リスト切替、投稿更新日とタグ表示）
-// SSR（getServerSideProps）＋ログ付き確認用
-
-export const dynamic = 'force-dynamic'
+// SSR（getServerSideProps）による動的レンダリング対応（Strapi v5完全対応）
 
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
@@ -174,12 +172,11 @@ export default function Home({ articles }: { articles: Article[] }) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
-  console.log('⚡ getServerSideProps 呼び出し:', new Date().toISOString())
-  console.log('🌐 ctx.query:', ctx.query)
-  console.log('🔗 NEXT_PUBLIC_API_URL =', apiUrl)
+  console.log('🚀 SSR: getServerSideProps 呼び出し')
+  console.log('🔗 API URL:', apiUrl)
 
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
@@ -193,7 +190,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    console.log('📦 JSON length:', json.data?.length)
+    // 🔍 1件目を確認用ログ出力
+    console.log('🧪 json.data[0]:', JSON.stringify(json.data?.[0], null, 2))
 
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
