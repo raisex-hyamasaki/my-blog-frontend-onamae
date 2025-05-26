@@ -2,6 +2,7 @@
 // 記事一覧ページ（サムネイル/リスト切替、投稿更新日とタグ表示）
 // SSR（getServerSideProps）による動的レンダリング対応（Strapi v5完全対応）
 
+// pages/index.tsx
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -33,7 +34,6 @@ export default function Home({ articles }: { articles: Article[] }) {
   })
 
   const totalPages = Math.ceil(filteredArticles.length / PAGE_SIZE)
-
   const paginatedArticles = filteredArticles.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
@@ -73,7 +73,6 @@ export default function Home({ articles }: { articles: Article[] }) {
 
       <div className="flex flex-wrap sm:flex-nowrap justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold whitespace-nowrap">📝 レイズクロス Tech Blog</h1>
-
         <input
           type="text"
           placeholder="記事検索"
@@ -82,9 +81,8 @@ export default function Home({ articles }: { articles: Article[] }) {
             setSearchQuery(e.target.value)
             setCurrentPage(1)
           }}
-          className="flex-grow sm:flex-grow-0 w-full sm:w-60 px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring focus:border-blue-300 text-sm"
+          className="flex-grow sm:flex-grow-0 w-full sm:w-60 px-3 py-2 border rounded shadow-sm text-sm"
         />
-
         <div className="flex">
           <button
             onClick={() => setViewMode('card')}
@@ -174,7 +172,6 @@ export default function Home({ articles }: { articles: Article[] }) {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-
   console.log('⚡ getServerSideProps 呼び出し')
   console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
 
@@ -190,7 +187,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    console.log('📦 JSON length:', json?.data?.length)
+    console.log('📦 JSON length:', json.data?.length)
     if (!json.data?.[0]) {
       console.warn('⚠ json.data[0] is null or undefined!')
     } else {
@@ -199,21 +196,16 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
-        const attr = item.attributes || {}
-        const thumbnailUrl = attr.thumbnail?.data?.attributes?.url ?? null
+        const thumbnailItem = Array.isArray(item.thumbnail) ? item.thumbnail[0] : null
         return {
           id: item.id,
-          documentId: attr.documentId ?? null,
-          title: attr.title,
-          content: attr.content,
-          updatedAt: attr.updatedAt,
-          tags:
-            attr.tags?.data?.map((tag: any) => ({
-              id: tag.id,
-              name: tag.attributes?.name || '',
-            })) || [],
+          documentId: item.documentId ?? null,
+          title: item.title,
+          content: item.content,
+          updatedAt: item.updatedAt,
+          tags: item.tags ?? [],
           thumbnail: {
-            url: thumbnailUrl ? `${apiUrl}${thumbnailUrl}` : null,
+            url: thumbnailItem?.formats?.medium?.url ?? thumbnailItem?.url ?? null,
           },
         }
       })
