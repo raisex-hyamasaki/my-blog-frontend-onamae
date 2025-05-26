@@ -88,17 +88,13 @@ export default function Home({ articles }: { articles: Article[] }) {
         <div className="flex">
           <button
             onClick={() => setViewMode('card')}
-            className={`px-3 py-1 text-sm rounded-l border ${
-              viewMode === 'card' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'
-            }`}
+            className={`px-3 py-1 text-sm rounded-l border ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
           >
             カード
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`px-3 py-1 text-sm rounded-r border ${
-              viewMode === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'
-            }`}
+            className={`px-3 py-1 text-sm rounded-r border ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
           >
             リスト
           </button>
@@ -107,52 +103,45 @@ export default function Home({ articles }: { articles: Article[] }) {
 
       {viewMode === 'card' ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {paginatedArticles.map((article) => {
-            const { id, title, updatedAt, documentId, thumbnail, tags } = article
-            const imageUrl = thumbnail?.url
-            return (
-              <Link
-                key={id}
-                href={`/articles/${documentId}`}
-                className="block border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition bg-white"
-              >
-                {imageUrl && (
-                  <div className="w-full h-40 relative">
-                    <Image
-                      src={imageUrl}
-                      alt={title}
-                      layout="fill"
-                      objectFit="cover"
-                    />
-                  </div>
-                )}
-                <div className="p-4">
-                  <h2 className="text-lg font-semibold text-blue-600 mb-2">{title}</h2>
-                  <p className="text-sm text-gray-500">
-                    投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}
-                  </p>
-                  {Array.isArray(tags) && renderTags(tags)}
+          {paginatedArticles.map(({ id, title, updatedAt, documentId, thumbnail, tags }) => (
+            <Link
+              key={id}
+              href={`/articles/${documentId}`}
+              className="block border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition bg-white"
+            >
+              {thumbnail?.url && (
+                <div className="w-full h-40 relative">
+                  <Image
+                    src={thumbnail.url}
+                    alt={title}
+                    layout="fill"
+                    objectFit="cover"
+                  />
                 </div>
-              </Link>
-            )
-          })}
-        </div>
-      ) : (
-        <ul className="space-y-6">
-          {paginatedArticles.map((article) => {
-            const { id, title, updatedAt, documentId, tags } = article
-            return (
-              <li key={id} className="border rounded-lg p-4 hover:shadow-md transition bg-white">
-                <Link href={`/articles/${documentId}`}>
-                  <h2 className="text-xl font-semibold text-blue-600 hover:underline">{title}</h2>
-                </Link>
-                <p className="text-gray-500 text-sm mt-1">
+              )}
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-blue-600 mb-2">{title}</h2>
+                <p className="text-sm text-gray-500">
                   投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}
                 </p>
                 {Array.isArray(tags) && renderTags(tags)}
-              </li>
-            )
-          })}
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <ul className="space-y-6">
+          {paginatedArticles.map(({ id, title, updatedAt, documentId, tags }) => (
+            <li key={id} className="border rounded-lg p-4 hover:shadow-md transition bg-white">
+              <Link href={`/articles/${documentId}`}>
+                <h2 className="text-xl font-semibold text-blue-600 hover:underline">{title}</h2>
+              </Link>
+              <p className="text-gray-500 text-sm mt-1">
+                投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}
+              </p>
+              {Array.isArray(tags) && renderTags(tags)}
+            </li>
+          ))}
         </ul>
       )}
 
@@ -191,12 +180,12 @@ export const getStaticProps: GetStaticProps = async () => {
     return { props: { articles: [] } }
   }
 
-  const endpoint = `${apiUrl}/api/articles?populate=thumbnail,tags&pagination[pageSize]=100`
-  console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
-  console.log('🟡 API fetch:', endpoint)
-
   try {
-    const res = await fetch(endpoint)
+    const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=100`
+    console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
+    console.log('🟡 API fetch:', fetchUrl)
+
+    const res = await fetch(fetchUrl)
     const json = await res.json()
 
     console.log('🟡 json:', JSON.stringify(json, null, 2))
@@ -222,22 +211,13 @@ export const getStaticProps: GetStaticProps = async () => {
         }
       })
       .filter((article: Article) => article.documentId !== null)
-      .sort(
-        (a: Article, b: Article) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      )
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 
     return {
-      props: {
-        articles: sorted,
-      },
+      props: { articles: sorted },
     }
   } catch (err) {
     console.error('❌ 記事取得中にエラー:', err)
-    return {
-      props: {
-        articles: [],
-      },
-    }
+    return { props: { articles: [] } }
   }
 }
