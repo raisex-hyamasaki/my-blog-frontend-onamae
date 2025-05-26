@@ -202,23 +202,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}`)
+    const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=*`)
     const json = await res.json()
-    if (!json.data?.[0]) {
-      console.warn('⚠ json.data[0] is null or undefined!')
-      return { props: { article: null } }
-    }
+    if (!json.data || json.data.length === 0) return { props: { article: null } }
 
     const item = json.data[0]
-    console.log('🧪 item:', JSON.stringify(item, null, 2))
-
-    const tagList = item.tags?.map((tag: any) => ({
-      id: tag.id,
-      name: tag.name,
-    })) ?? []
-
-    const thumbUrl = Array.isArray(item.thumbnail) ? item.thumbnail[0]?.url ?? null : null
-
+    const thumbnailUrl = item.thumbnail?.[0]?.formats?.medium?.url || item.thumbnail?.[0]?.url || null
     return {
       props: {
         article: {
@@ -227,8 +216,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
           content: item.content ?? '',
           publishedAt: item.publishedAt ?? '',
           updatedAt: item.updatedAt ?? '',
-          tags: tagList,
-          thumbnailUrl: thumbUrl,
+          tags: Array.isArray(item.tags)
+            ? item.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
+            : [],
+          thumbnailUrl,
         },
       },
     }
