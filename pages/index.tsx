@@ -1,6 +1,6 @@
 // pages/index.tsx
 // 記事一覧ページ（サムネイル/リスト切替、投稿更新日とタグ表示）
-// SSR版：Strapi v5対応・サムネイル/タグ表示・検索/ページング対応
+// SSR（getServerSideProps）による動的レンダリング対応（Strapi v5完全対応）
 
 import { GetServerSideProps } from 'next'
 import Link from 'next/link'
@@ -182,7 +182,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
   try {
     const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=999999`
-    console.log('🟡 SSR API fetch:', fetchUrl)
+    console.log('🟡 API fetch:', fetchUrl)
 
     const res = await fetch(fetchUrl)
     const json = await res.json()
@@ -208,9 +208,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
         }
       })
       .filter((article: Article) => article.documentId !== null)
-      .sort((a: Article, b: Article) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      )
+      .sort((a: Article, b: Article) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 
     return {
       props: { articles: sorted },
