@@ -186,6 +186,8 @@ export default function Home({ articles }: { articles: Article[] }) {
 export const getStaticProps: GetStaticProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
+  console.log('🔍 [getStaticProps] NEXT_PUBLIC_API_URL =', apiUrl)
+
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
     return { props: { articles: [] } }
