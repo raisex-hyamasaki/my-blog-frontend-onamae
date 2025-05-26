@@ -19,23 +19,6 @@ import { HTMLAttributes, DetailedHTMLProps } from 'react'
 
 const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
 
-function getShareUrl(base: string, url: string, title?: string) {
-  const encodedUrl = encodeURIComponent(url)
-  const encodedTitle = title ? encodeURIComponent(title) : ''
-  switch (base) {
-    case 'twitter':
-      return `https://twitter.com/share?url=${encodedUrl}&text=${encodedTitle}`
-    case 'facebook':
-      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
-    case 'line':
-      return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`
-    case 'hatena':
-      return `https://b.hatena.ne.jp/entry/panel/?url=${encodedUrl}`
-    default:
-      return '#'
-  }
-}
-
 type Tag = {
   id: number
   name: string
@@ -90,23 +73,6 @@ export default function ArticleDetail({ article }: Props) {
 
   useEffect(() => {
     setUrl(window.location.href)
-    document.querySelectorAll('.copy-button').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const code = btn.parentElement?.querySelector('code')?.textContent
-        if (code) {
-          navigator.clipboard.writeText(code)
-          btn.textContent = '✅ Copied!'
-          setTimeout(() => {
-            btn.textContent = '📋 Copy'
-          }, 1500)
-        }
-      })
-    })
-    const script = document.createElement('script')
-    script.id = 'engage-widget-script'
-    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
-    script.async = true
-    document.body.appendChild(script)
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -124,12 +90,6 @@ export default function ArticleDetail({ article }: Props) {
       <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
-          <div className="flex gap-4 mt-1">
-            <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
-            <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
-            <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
-            <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
-          </div>
         </div>
       </div>
       <div className="h-14" />
@@ -181,14 +141,6 @@ export default function ArticleDetail({ article }: Props) {
         </Link>
       </div>
 
-      <div className="mt-16 text-center">
-        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
-        <div className="flex justify-center mt-4">
-          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
-        </div>
-      </div>
-
       <footer className="text-center text-gray-400 text-sm mt-12">
         © 2024 raisex, LLC. All rights reserved.
       </footer>
@@ -202,12 +154,15 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=*`)
+    const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`)
     const json = await res.json()
+
     if (!json.data || json.data.length === 0) return { props: { article: null } }
 
     const item = json.data[0]
-    const thumbnailUrl = item.thumbnail?.[0]?.formats?.medium?.url || item.thumbnail?.[0]?.url || null
+    const rawThumbnail = item.thumbnail?.[0]?.formats?.medium?.url || item.thumbnail?.[0]?.url || null
+    const thumbnailUrl = rawThumbnail || null
+
     return {
       props: {
         article: {
@@ -216,9 +171,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
           content: item.content ?? '',
           publishedAt: item.publishedAt ?? '',
           updatedAt: item.updatedAt ?? '',
-          tags: Array.isArray(item.tags)
-            ? item.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
-            : [],
+          tags: [],
           thumbnailUrl,
         },
       },
