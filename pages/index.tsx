@@ -175,6 +175,9 @@ export default function Home({ articles }: { articles: Article[] }) {
 export const getServerSideProps: GetServerSideProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
+  console.log('🚀 SSR: getServerSideProps 呼び出し')
+  console.log('🔗 API URL:', apiUrl)
+
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
     return { props: { articles: [] } }
@@ -182,34 +185,38 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
   try {
     const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=999999`
-    console.log('🟡 API fetch:', fetchUrl)
+    console.log('📡 Fetching:', fetchUrl)
 
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    const mapped = (json.data || []).map((item: any) => {
-      const attr = item.attributes || {}
-      const thumbnailUrl = attr.thumbnail?.data?.attributes?.url ?? null
-      return {
-        id: item.id,
-        documentId: attr.documentId ?? null,
-        title: attr.title,
-        content: attr.content,
-        updatedAt: attr.updatedAt,
-        tags:
-          attr.tags?.data?.map((tag: any) => ({
-            id: tag.id,
-            name: tag.attributes?.name || '',
-          })) || [],
-        thumbnail: {
-          url: thumbnailUrl ? `${apiUrl}${thumbnailUrl}` : null,
-        },
-      }
-    }) as Article[]
+    console.log('📦 JSON:', JSON.stringify(json, null, 2))
 
-    const sorted = mapped
-      .filter((article) => article.documentId !== null)
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    const sorted: Article[] = (json.data || [])
+      .map((item: any) => {
+        const attr = item.attributes || {}
+        const thumbnailUrl = attr.thumbnail?.data?.attributes?.url ?? null
+        return {
+          id: item.id,
+          documentId: attr.documentId ?? null,
+          title: attr.title,
+          content: attr.content,
+          updatedAt: attr.updatedAt,
+          tags:
+            attr.tags?.data?.map((tag: any) => ({
+              id: tag.id,
+              name: tag.attributes?.name || '',
+            })) || [],
+          thumbnail: {
+            url: thumbnailUrl ? `${apiUrl}${thumbnailUrl}` : null,
+          },
+        }
+      })
+      .filter((article: Article) => article.documentId !== null)
+      .sort(
+        (a: Article, b: Article) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
 
     return {
       props: { articles: sorted },
