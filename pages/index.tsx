@@ -1,8 +1,8 @@
 // pages/index.tsx
 // 記事一覧ページ（サムネイル/リスト切替、投稿更新日とタグ表示）
-// getStaticProps による静的生成対応（Strapi v5 完全対応）＋APIログ出力強化
+// SSR版：Strapi v5対応・サムネイル/タグ表示・検索/ページング対応
 
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -33,7 +33,6 @@ export default function Home({ articles }: { articles: Article[] }) {
   })
 
   const totalPages = Math.ceil(filteredArticles.length / PAGE_SIZE)
-
   const paginatedArticles = filteredArticles.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
@@ -48,10 +47,7 @@ export default function Home({ articles }: { articles: Article[] }) {
   const renderTags = (tags: { id: number; name: string }[]) => (
     <div className="flex flex-wrap gap-1 mt-2">
       {tags.map((tag) => (
-        <span
-          key={tag.id}
-          className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
-        >
+        <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
           {tag.name}
         </span>
       ))}
@@ -86,16 +82,10 @@ export default function Home({ articles }: { articles: Article[] }) {
         />
 
         <div className="flex">
-          <button
-            onClick={() => setViewMode('card')}
-            className={`px-3 py-1 text-sm rounded-l border ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-          >
+          <button onClick={() => setViewMode('card')} className={`px-3 py-1 text-sm rounded-l border ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}>
             カード
           </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`px-3 py-1 text-sm rounded-r border ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-          >
+          <button onClick={() => setViewMode('list')} className={`px-3 py-1 text-sm rounded-r border ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700'}`}>
             リスト
           </button>
         </div>
@@ -104,26 +94,15 @@ export default function Home({ articles }: { articles: Article[] }) {
       {viewMode === 'card' ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {paginatedArticles.map(({ id, title, updatedAt, documentId, thumbnail, tags }) => (
-            <Link
-              key={id}
-              href={`/articles/${documentId}`}
-              className="block border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition bg-white"
-            >
+            <Link key={id} href={`/articles/${documentId}`} className="block border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition bg-white">
               {thumbnail?.url && (
                 <div className="w-full h-40 relative">
-                  <Image
-                    src={thumbnail.url}
-                    alt={title}
-                    layout="fill"
-                    objectFit="cover"
-                  />
+                  <Image src={thumbnail.url} alt={title} layout="fill" objectFit="cover" />
                 </div>
               )}
               <div className="p-4">
                 <h2 className="text-lg font-semibold text-blue-600 mb-2">{title}</h2>
-                <p className="text-sm text-gray-500">
-                  投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}
-                </p>
+                <p className="text-sm text-gray-500">投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}</p>
                 {Array.isArray(tags) && renderTags(tags)}
               </div>
             </Link>
@@ -136,9 +115,7 @@ export default function Home({ articles }: { articles: Article[] }) {
               <Link href={`/articles/${documentId}`}>
                 <h2 className="text-xl font-semibold text-blue-600 hover:underline">{title}</h2>
               </Link>
-              <p className="text-gray-500 text-sm mt-1">
-                投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}
-              </p>
+              <p className="text-gray-500 text-sm mt-1">投稿更新日: {updatedAt ? new Date(updatedAt).toLocaleString() : '不明'}</p>
               {Array.isArray(tags) && renderTags(tags)}
             </li>
           ))}
@@ -146,23 +123,9 @@ export default function Home({ articles }: { articles: Article[] }) {
       )}
 
       <div className="flex justify-center items-center mt-10 gap-4">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-          disabled={currentPage === 1}
-        >
-          ← 前へ
-        </button>
-        <span className="text-sm text-gray-700">
-          {currentPage} / {totalPages}
-        </span>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          className="px-3 py-1 border rounded disabled:opacity-50"
-          disabled={currentPage === totalPages}
-        >
-          次へ →
-        </button>
+        <button onClick={() => handlePageChange(currentPage - 1)} className="px-3 py-1 border rounded disabled:opacity-50" disabled={currentPage === 1}>← 前へ</button>
+        <span className="text-sm text-gray-700">{currentPage} / {totalPages}</span>
+        <button onClick={() => handlePageChange(currentPage + 1)} className="px-3 py-1 border rounded disabled:opacity-50" disabled={currentPage === totalPages}>次へ →</button>
       </div>
 
       <footer className="text-center text-gray-400 text-sm mt-12">
@@ -172,9 +135,8 @@ export default function Home({ articles }: { articles: Article[] }) {
   )
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
     return { props: { articles: [] } }
@@ -182,13 +144,10 @@ export const getStaticProps: GetStaticProps = async () => {
 
   try {
     const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=999999`
-    console.log('🟡 NEXT_PUBLIC_API_URL =', apiUrl)
-    console.log('🟡 API fetch:', fetchUrl)
+    console.log('🟡 SSR fetch:', fetchUrl)
 
     const res = await fetch(fetchUrl)
     const json = await res.json()
-
-    console.log('🟡 json:', JSON.stringify(json, null, 2))
 
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
@@ -200,11 +159,7 @@ export const getStaticProps: GetStaticProps = async () => {
           title: attr.title,
           content: attr.content,
           updatedAt: attr.updatedAt,
-          tags:
-            attr.tags?.data?.map((tag: any) => ({
-              id: tag.id,
-              name: tag.attributes?.name || '',
-            })) || [],
+          tags: attr.tags?.data?.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' })) || [],
           thumbnail: {
             url: thumbnailUrl ? `${apiUrl}${thumbnailUrl}` : null,
           },
@@ -217,7 +172,7 @@ export const getStaticProps: GetStaticProps = async () => {
       props: { articles: sorted },
     }
   } catch (err) {
-    console.error('❌ 記事取得中にエラー:', err)
+    console.error('❌ SSR記事取得エラー:', err)
     return { props: { articles: [] } }
   }
 }

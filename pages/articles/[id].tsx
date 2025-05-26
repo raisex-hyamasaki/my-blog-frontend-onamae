@@ -6,59 +6,59 @@
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
+// SSR化された詳細ページ。Markdown、メルマード、コードコピー、SNSシェアなどすべて統合
 
-import { GetStaticProps, GetStaticPaths, GetStaticPropsContext } from 'next';
-import Link from 'next/link';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
-import { HTMLAttributes, DetailedHTMLProps } from 'react';
+import { GetServerSideProps } from 'next'
+import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import { HTMLAttributes, DetailedHTMLProps } from 'react'
 
-const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false });
+const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
 
 function getShareUrl(base: string, url: string, title?: string) {
-  const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = title ? encodeURIComponent(title) : '';
+  const encodedUrl = encodeURIComponent(url)
+  const encodedTitle = title ? encodeURIComponent(title) : ''
   switch (base) {
     case 'twitter':
-      return `https://twitter.com/share?url=${encodedUrl}&text=${encodedTitle}`;
+      return `https://twitter.com/share?url=${encodedUrl}&text=${encodedTitle}`
     case 'facebook':
-      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
     case 'line':
-      return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`;
+      return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`
     case 'hatena':
-      return `https://b.hatena.ne.jp/entry/panel/?url=${encodedUrl}`;
+      return `https://b.hatena.ne.jp/entry/panel/?url=${encodedUrl}`
     default:
-      return '#';
+      return '#'
   }
 }
 
 type Tag = {
-  id: number;
-  name: string;
-};
+  id: number
+  name: string
+}
 
 type Article = {
-  id: number;
-  title: string;
-  content: string;
-  publishedAt: string;
-  updatedAt: string;
-  tags?: Tag[];
-  thumbnailUrl?: string | null;
-};
+  id: number
+  title: string
+  content: string
+  publishedAt: string
+  updatedAt: string
+  tags?: Tag[]
+  thumbnailUrl?: string | null
+}
 
 type Props = {
-  article: Article | null;
-};
+  article: Article | null
+}
 
 type CodeBlockProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> & {
-  inline?: boolean;
-  children?: React.ReactNode;
-};
+  inline?: boolean
+  children?: React.ReactNode
+}
 
 const CodeBlock: React.FC<CodeBlockProps> = ({ inline, children, className = '', ...props }) => {
   if (inline) {
@@ -76,51 +76,48 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ inline, children, className = '',
       >
         {children}
       </code>
-    );
+    )
   }
   if ((className || '').trim() === 'language-mermaid') {
-    return <Mermaid chart={String(children).trim()} />;
+    return <Mermaid chart={String(children).trim()} />
   }
   return (
     <code className={`${className} text-sm font-mono`} {...props}>
       {children}
     </code>
-  );
-};
+  )
+}
 
 export default function ArticleDetail({ article }: Props) {
-  const [modalImage, setModalImage] = useState<string | null>(null);
-  const [url, setUrl] = useState('');
-  const router = useRouter();
+  const [modalImage, setModalImage] = useState<string | null>(null)
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
-    setUrl(window.location.href);
-    const buttons = document.querySelectorAll('.copy-button');
-    buttons.forEach((btn) => {
+    setUrl(window.location.href)
+    document.querySelectorAll('.copy-button').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const code = btn.parentElement?.querySelector('code')?.textContent;
+        const code = btn.parentElement?.querySelector('code')?.textContent
         if (code) {
-          navigator.clipboard.writeText(code);
-          btn.textContent = '✅ Copied!';
+          navigator.clipboard.writeText(code)
+          btn.textContent = '✅ Copied!'
           setTimeout(() => {
-            btn.textContent = '📋 Copy';
-          }, 1500);
+            btn.textContent = '📋 Copy'
+          }, 1500)
         }
-      });
-    });
-    const scriptId = 'engage-widget-script';
-    const existingScript = document.getElementById(scriptId);
-    if (existingScript) existingScript.remove();
-    const script = document.createElement('script');
-    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7';
-    script.id = scriptId;
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
+      })
+    })
+    const scriptId = 'engage-widget-script'
+    if (document.getElementById(scriptId)) return
+    const script = document.createElement('script')
+    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d...'
+    script.id = scriptId
+    script.async = true
+    document.body.appendChild(script)
+  }, [])
 
-  if (!article) return <p>記事が見つかりません</p>;
+  if (!article) return <p>記事が見つかりません</p>
 
-  const { title, content, updatedAt, tags, thumbnailUrl } = article;
+  const { title, content, updatedAt, tags, thumbnailUrl } = article
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto relative">
@@ -129,39 +126,13 @@ export default function ArticleDetail({ article }: Props) {
           className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center cursor-zoom-out"
           onClick={() => setModalImage(null)}
         >
-          <img
-            src={modalImage}
-            alt="拡大画像"
-            className="max-w-full max-h-full rounded-lg shadow-lg"
-          />
+          <img src={modalImage} alt="拡大画像" className="max-w-full max-h-full rounded-lg shadow-lg" />
         </div>
       )}
-      <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
-          <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold transition-colors">
-            📝 レイズクロス Tech Blog
-          </Link>
-          <div className="flex gap-4 mt-1">
-            <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/x.svg" alt="X" className="w-8 h-8" />
-            </a>
-            <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" />
-            </a>
-            <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/line.svg" alt="LINE" className="w-8 h-8" />
-            </a>
-            <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/hatena.svg" alt="はてなブックマーク" className="w-8 h-8" />
-            </a>
-          </div>
-        </div>
-      </div>
-      <div className="h-14" />
       <article>
         <header className="mb-8">
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
-          {Array.isArray(tags) && tags.length > 0 && (
+          {Array.isArray(tags) && (
             <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((tag) => (
                 <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
@@ -206,10 +177,6 @@ export default function ArticleDetail({ article }: Props) {
                   {children}
                 </a>
               ),
-              table: ({ children }) => <table className="table-auto border border-gray-300 w-full text-sm">{children}</table>,
-              thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
-              th: ({ children }) => <th className="border px-4 py-2 text-left font-semibold">{children}</th>,
-              td: ({ children }) => <td className="border px-4 py-2">{children}</td>,
             }}
           >
             {content}
@@ -223,63 +190,34 @@ export default function ArticleDetail({ article }: Props) {
           </button>
         </Link>
       </div>
-      <div className="mt-16">
-        <p className="text-center text-gray-700 text-base font-medium">
-          合同会社raisexでは一緒に働く仲間を募集中です。
-        </p>
-        <p className="text-center text-gray-600 text-sm mt-1">
-          ご興味のある方は以下の採用情報をご確認ください。
-        </p>
-        <div className="flex justify-center mt-4">
-          <a
-            href=""
-            className="engage-recruit-widget"
-            data-height="300"
-            data-width="500"
-            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            target="_blank"
-          />
-        </div>
-      </div>
       <footer className="text-center text-gray-400 text-sm mt-12">
         © 2024 raisex, LLC. All rights reserved.
       </footer>
     </main>
-  );
+  )
 }
 
-export const getStaticPaths = async () => {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles?fields=documentId&pagination[pageSize]=100`);
-    const json = await res.json();
-    const paths = Array.isArray(json.data)
-      ? json.data.map((item: any) => ({ params: { id: item.documentId } }))
-      : [];
-    return { paths, fallback: false };
-  } catch (err) {
-    console.error('getStaticPaths エラー:', err);
-    return { paths: [], fallback: false };
-  }
-};
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+  const { id } = context.params ?? {}
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
-export const getStaticProps: GetStaticProps<Props> = async (context: GetStaticPropsContext) => {
-  const { id } = context.params ?? {};
-  if (typeof id !== 'string') {
-    return { props: { article: null } };
-  }
+  if (typeof id !== 'string' || !apiUrl) return { props: { article: null } }
+
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`);
-    const json = await res.json();
-    if (!json.data || json.data.length === 0) {
-      return { props: { article: null } };
-    }
-    const item = json.data[0];
-    const attr = item.attributes || {};
+    const res = await fetch(
+      `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
+    )
+    const json = await res.json()
+    if (!json.data || json.data.length === 0) return { props: { article: null } }
+
+    const item = json.data[0]
+    const attr = item.attributes || {}
     const tagList = Array.isArray(attr.tags?.data)
       ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
-      : [];
-    const rawUrl = attr.thumbnail?.data?.attributes?.url;
-    const thumbnailUrl = rawUrl ? `${process.env.NEXT_PUBLIC_API_URL}${rawUrl}` : null;
+      : []
+    const rawUrl = attr.thumbnail?.data?.attributes?.url
+    const thumbnailUrl = rawUrl ? `${apiUrl}${rawUrl}` : null
+
     return {
       props: {
         article: {
@@ -292,9 +230,9 @@ export const getStaticProps: GetStaticProps<Props> = async (context: GetStaticPr
           thumbnailUrl,
         },
       },
-    };
+    }
   } catch (err) {
-    console.error('記事取得エラー:', err);
-    return { props: { article: null } };
+    console.error('記事取得エラー:', err)
+    return { props: { article: null } }
   }
-};
+}
