@@ -1,4 +1,3 @@
-// vercel.json（プロジェクトルートに追加）
 {
   "rewrites": [
     {
