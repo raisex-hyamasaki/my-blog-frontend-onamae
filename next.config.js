@@ -7,12 +7,10 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    // Vercel に SSG ではなく Node.js ランタイムでの実行を強制
-    appDir: false,
     instrumentationHook: true,
     typedRoutes: true
   },
-  output: 'standalone', // ← これが重要
+  output: 'standalone',
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
