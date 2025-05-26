@@ -185,7 +185,6 @@ export default function Home({ articles }: { articles: Article[] }) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  console.log('🔍 index.tsx getStaticProps() API URL:', apiUrl)
 
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
@@ -197,7 +196,6 @@ export const getStaticProps: GetStaticProps = async () => {
       `${apiUrl}/api/articles?populate=thumbnail,tags&pagination[pageSize]=100`
     )
     const json = await res.json()
-    console.log('📦 記事取得件数:', json.data?.length ?? 0)
 
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
