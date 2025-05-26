@@ -187,28 +187,29 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    const sorted: Article[] = (json.data || [])
-      .map((item: any) => {
-        const attr = item.attributes || {}
-        const thumbnailUrl = attr.thumbnail?.data?.attributes?.url ?? null
-        return {
-          id: item.id,
-          documentId: attr.documentId ?? null,
-          title: attr.title,
-          content: attr.content,
-          updatedAt: attr.updatedAt,
-          tags:
-            attr.tags?.data?.map((tag: any) => ({
-              id: tag.id,
-              name: tag.attributes?.name || '',
-            })) || [],
-          thumbnail: {
-            url: thumbnailUrl ? `${apiUrl}${thumbnailUrl}` : null,
-          },
-        }
-      })
-      .filter((article: Article) => article.documentId !== null)
-      .sort((a: Article, b: Article) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    const mapped = (json.data || []).map((item: any) => {
+      const attr = item.attributes || {}
+      const thumbnailUrl = attr.thumbnail?.data?.attributes?.url ?? null
+      return {
+        id: item.id,
+        documentId: attr.documentId ?? null,
+        title: attr.title,
+        content: attr.content,
+        updatedAt: attr.updatedAt,
+        tags:
+          attr.tags?.data?.map((tag: any) => ({
+            id: tag.id,
+            name: tag.attributes?.name || '',
+          })) || [],
+        thumbnail: {
+          url: thumbnailUrl ? `${apiUrl}${thumbnailUrl}` : null,
+        },
+      }
+    }) as Article[]
+
+    const sorted = mapped
+      .filter((article) => article.documentId !== null)
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 
     return {
       props: { articles: sorted },
