@@ -211,7 +211,7 @@ export const getStaticProps: GetStaticProps = async () => {
         }
       })
       .filter((article: Article) => article.documentId !== null)
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .sort((a: Article, b: Article) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 
     return {
       props: { articles: sorted },

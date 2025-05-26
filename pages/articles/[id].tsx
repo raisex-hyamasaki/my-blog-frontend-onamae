@@ -249,7 +249,6 @@ export default function ArticleDetail({ article }: Props) {
 }
 
 export const getStaticPaths = async () => {
-  console.log('🔍 getStaticPaths() API URL:', process.env.NEXT_PUBLIC_API_URL);
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles?fields=documentId&pagination[pageSize]=100`);
     const json = await res.json();
@@ -264,7 +263,6 @@ export const getStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps<Props> = async (context: GetStaticPropsContext) => {
-  console.log('🔍 [id].tsx getStaticProps() API URL:', process.env.NEXT_PUBLIC_API_URL);
   const { id } = context.params ?? {};
   if (typeof id !== 'string') {
     return { props: { article: null } };
@@ -276,27 +274,20 @@ export const getStaticProps: GetStaticProps<Props> = async (context: GetStaticPr
       return { props: { article: null } };
     }
     const item = json.data[0];
-    const attributes = item.attributes || {};
-    const title = attributes.title ?? null;
-    const content = attributes.content ?? '';
-    const publishedAt = attributes.publishedAt ?? null;
-    const updatedAt = attributes.updatedAt ?? null;
-    if (!title || !publishedAt || !updatedAt) {
-      return { props: { article: null } };
-    }
-    const tagList = Array.isArray(attributes.tags?.data)
-      ? attributes.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
+    const attr = item.attributes || {};
+    const tagList = Array.isArray(attr.tags?.data)
+      ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
       : [];
-    const rawUrl = attributes.thumbnail?.data?.attributes?.url;
+    const rawUrl = attr.thumbnail?.data?.attributes?.url;
     const thumbnailUrl = rawUrl ? `${process.env.NEXT_PUBLIC_API_URL}${rawUrl}` : null;
     return {
       props: {
         article: {
           id: item.id,
-          title,
-          content,
-          publishedAt,
-          updatedAt,
+          title: attr.title ?? '',
+          content: attr.content ?? '',
+          publishedAt: attr.publishedAt ?? '',
+          updatedAt: attr.updatedAt ?? '',
           tags: tagList,
           thumbnailUrl,
         },
