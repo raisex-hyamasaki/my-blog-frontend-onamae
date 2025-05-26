@@ -125,28 +125,27 @@ export default function ArticleDetail({ article }: Props) {
             rehypePlugins={[rehypeRaw]}
             components={{
               img: ({ src, alt }) => (
-                <img
-                  src={src ?? ''}
-                  alt={alt ?? '画像'}
-                  className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in"
-                  onClick={() => src && setModalImage(src)}
-                />
+                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code: ({ inline, children }) =>
-                inline ? (
-                  <code className="bg-yellow-200 text-black px-1 rounded text-sm">{children}</code>
+              code: (props) => {
+                const { inline, className, children, ...rest } = props as {
+                  inline?: boolean;
+                  className?: string;
+                  children?: React.ReactNode;
+                }
+                return inline ? (
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...rest}>{children}</code>
                 ) : (
-                  <code className="text-sm font-mono">{children}</code>
-                ),
+                  <code className={`${className ?? ''} text-sm font-mono`} {...rest}>{children}</code>
+                )
+              },
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
                   <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
                   <pre className="p-4 text-sm">{children}</pre>
                 </div>
               ),
-              a: ({ href, children, ...props }) => (
-                <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>
-              ),
+              a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>,
               table: ({ children }) => <table className="table-auto border border-gray-300 w-full text-sm">{children}</table>,
               thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
               th: ({ children }) => <th className="border px-4 py-2 text-left font-semibold">{children}</th>,
@@ -204,8 +203,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
     const item = json.data[0]
     const attr = item.attributes || item
-    const tagList = Array.isArray(attr.tags)
-      ? attr.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
+    const tagList = Array.isArray(attr.tags?.data)
+      ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
       : []
 
     let thumbnailUrl = null
