@@ -13,13 +13,34 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import { HTMLAttributes } from 'react'
 
-interface Tag {
+const Mermaid = dynamic(() => import('@/components/Mermaid'), { ssr: false })
+
+function getShareUrl(base: string, url: string, title?: string) {
+  const encodedUrl = encodeURIComponent(url)
+  const encodedTitle = title ? encodeURIComponent(title) : ''
+  switch (base) {
+    case 'twitter':
+      return `https://twitter.com/share?url=${encodedUrl}&text=${encodedTitle}`
+    case 'facebook':
+      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
+    case 'line':
+      return `https://social-plugins.line.me/lineit/share?url=${encodedUrl}`
+    case 'hatena':
+      return `https://b.hatena.ne.jp/entry/panel/?url=${encodedUrl}`
+    default:
+      return '#'
+  }
+}
+
+type Tag = {
   id: number
   name: string
 }
 
-interface Article {
+type Article = {
   id: number
   title: string
   content: string
@@ -29,7 +50,7 @@ interface Article {
   thumbnailUrl?: string | null
 }
 
-interface Props {
+type Props = {
   article: Article | null
 }
 
@@ -47,44 +68,33 @@ export default function ArticleDetail({ article }: Props) {
   const { title, content, updatedAt, tags, thumbnailUrl } = article
 
   return (
-    <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      <div className="mb-6">
-        <Link href="/" className="inline-block">
-          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
-            ← 記事一覧に戻る
-          </button>
-        </Link>
+    <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto relative">
+      <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
+        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
+          <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
+          <div className="flex gap-4 mt-1">
+            {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
+              <a key={platform} href={getShareUrl(platform, url, title)} target="_blank" rel="noopener noreferrer">
+                <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-7 h-7" />
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
+      <div className="h-14" />
 
       <article>
         <header className="mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
-            {title}
-          </h1>
-
+          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
           {Array.isArray(tags) && tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
               {tags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
-                >
-                  {tag.name}
-                </span>
+                <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">{tag.name}</span>
               ))}
             </div>
           )}
-
-          <p className="text-sm text-gray-500 mt-3">
-            投稿更新日: {new Date(updatedAt).toLocaleString()}
-          </p>
-          {thumbnailUrl && (
-            <img
-              src={thumbnailUrl}
-              alt="サムネイル画像"
-              className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
-            />
-          )}
+          <p className="text-sm text-gray-500 mt-3">投稿更新日: {new Date(updatedAt).toLocaleString()}</p>
+          {thumbnailUrl && <img src={thumbnailUrl} alt="サムネイル画像" className="mx-auto my-6 rounded shadow-md max-w-full h-auto" />}
         </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
@@ -92,50 +102,31 @@ export default function ArticleDetail({ article }: Props) {
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
             components={{
-              img: ({ src, alt }) => (
-                <img
-                  src={src ?? ''}
-                  alt={alt ?? '画像'}
-                  className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in"
-                />
+              img: ({ ...props }) => (
+                <img {...props} className="mx-auto my-6 rounded shadow-md w-auto h-auto max-w-full" alt={props.alt ?? '画像'} />
               ),
-              code({ inline, className, children, ...props }) {
+              code({ inline, className, children, ...props }: { inline?: boolean; className?: string; children: React.ReactNode } & HTMLAttributes<HTMLElement>) {
                 return inline ? (
-                  <code
-                    className="bg-yellow-200 text-black px-1 rounded text-sm"
-                    {...props}
-                  >
-                    {children}
-                  </code>
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
                 ) : (
-                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>
-                    {children}
-                  </code>
+                  <code className={`${className || ''} text-sm font-mono`} {...props}>{children}</code>
                 )
               },
               pre({ children }) {
                 return (
                   <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
-                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">
-                      📋 Copy
-                    </button>
+                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
                     <pre className="p-4 text-sm">{children}</pre>
                   </div>
                 )
               },
               a({ href, children, ...props }) {
-                return (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                    {...props}
-                  >
-                    {children}
-                  </a>
-                )
+                return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>
               },
+              table: ({ children }) => <table className="table-auto border border-gray-300 w-full text-sm">{children}</table>,
+              thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
+              th: ({ children }) => <th className="border px-4 py-2 text-left font-semibold">{children}</th>,
+              td: ({ children }) => <td className="border px-4 py-2">{children}</td>,
             }}
           >
             {content}
@@ -144,10 +135,8 @@ export default function ArticleDetail({ article }: Props) {
       </article>
 
       <div className="text-center mt-10">
-        <Link href="/" className="inline-block">
-          <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
-            ← 記事一覧に戻る
-          </button>
+        <Link href="/">
+          <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">← 記事一覧に戻る</button>
         </Link>
       </div>
 
@@ -155,16 +144,7 @@ export default function ArticleDetail({ article }: Props) {
         <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
         <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
         <div className="flex justify-center mt-4">
-          <a
-            href="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            className="engage-recruit-widget"
-            data-height="300"
-            data-width="500"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src="/images/recruit-banner.png" alt="採用バナー" className="w-full max-w-md" />
-          </a>
+          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
         </div>
       </div>
 
@@ -175,18 +155,18 @@ export default function ArticleDetail({ article }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
 
   if (typeof id !== 'string') {
     return { props: { article: null } }
   }
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
+  const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
+  console.log('📡 Fetching from:', fetchUrl)
+
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
