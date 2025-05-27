@@ -8,183 +8,175 @@
 // SNSシェアボタン表示対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
-import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect, useState } from 'react'
+import mermaid from 'mermaid'
+import { useEffect } from 'react'
+import Link from 'next/link'
 
-interface Tag {
-  id: number
-  name: string
-}
-
-interface Article {
+type Article = {
   id: number
   title: string
   content: string
-  publishedAt: string
   updatedAt: string
-  tags?: Tag[]
-  thumbnailUrl?: string | null
+  tags?: string[]
+  thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
-interface Props {
+type Props = {
   article: Article | null
 }
 
-export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState<string>('https://example.com')
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context: GetServerSidePropsContext
+) => {
+  const { id } = context.query
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUrl(window.location.href)
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail&populate=tags`
+    )
+    const json = await res.json()
+
+    if (!json || !json.data) {
+      return { notFound: true }
     }
+
+    const article: Article = json.data
+    return { props: { article } }
+  } catch (err) {
+    return { props: { article: null } }
+  }
+}
+
+export default function ArticlePage({ article }: Props) {
+  useEffect(() => {
+    mermaid.initialize({ startOnLoad: true })
+    mermaid.init()
   }, [])
 
-  if (!article) return <p>記事が見つかりません</p>
+  if (!article) return <div>記事が見つかりませんでした。</div>
 
-  const { title, content, updatedAt, tags, thumbnailUrl } = article
+  const thumbnailUrl =
+    article.thumbnail?.[0]?.formats?.medium?.url ||
+    article.thumbnail?.[0]?.url ||
+    ''
 
   return (
-    <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      {/* 上部固定タイトル＆SNS */}
-      <div className="sticky top-0 z-20 bg-white py-4 border-b flex justify-between items-center">
-        <Link href="/">
-          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
-            ← 記事一覧に戻る
-          </button>
-        </Link>
-        <h1 className="text-sm font-semibold text-gray-600 truncate max-w-xs sm:max-w-sm md:max-w-md">
-          {title}
-        </h1>
+    <div className="prose prose-slate mx-auto p-4">
+      {/* 固定ヘッダー */}
+      <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 shadow border-b">
+        <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
+          <span>📝</span>
+          <Link href="/">レイズクロス Tech Blog</Link>
+        </div>
+        <div className="flex gap-3 items-center">
+          <a
+            href={`https://twitter.com/share?url=${encodeURIComponent(
+              typeof window !== 'undefined' ? window.location.href : ''
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/sns/x.svg" alt="X" className="w-5 h-5" />
+          </a>
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+              typeof window !== 'undefined' ? window.location.href : ''
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/sns/facebook.svg" alt="Facebook" className="w-5 h-5" />
+          </a>
+          <a
+            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
+              typeof window !== 'undefined' ? window.location.href : ''
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/sns/line.svg" alt="LINE" className="w-5 h-5" />
+          </a>
+          <a href="#disqus_thread">
+            <img src="/sns/disqus.svg" alt="Disqus" className="w-5 h-5" />
+          </a>
+        </div>
+      </header>
+
+      {/* タイトルとメタ情報 */}
+      <h1 className="mt-8">{article.title}</h1>
+      <div className="text-sm text-gray-500 mb-2">
+        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+      </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {article.tags?.map((tag, index) => (
+          <span
+            key={index}
+            className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
 
-      {/* 記事タイトルとタグ */}
-      <header className="mb-8">
-        <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight mt-6">
-          {title}
-        </h1>
-
-        {Array.isArray(tags) && tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
-              >
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <p className="text-sm text-gray-500 mt-3">
-          投稿更新日: {new Date(updatedAt).toLocaleString()}
-        </p>
-
-        {thumbnailUrl && (
+      {/* サムネイル画像 */}
+      {thumbnailUrl && (
+        <div className="flex justify-center mb-4">
           <img
             src={thumbnailUrl}
             alt="サムネイル画像"
-            className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
+            className="max-w-full h-auto"
           />
-        )}
-      </header>
+        </div>
+      )}
 
       {/* Markdown本文 */}
-      <section className="prose prose-neutral prose-lg max-w-none">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
-        >
-          {content}
-        </ReactMarkdown>
-      </section>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        className="prose"
+        components={{
+          img: ({ node, ...props }) => (
+            <div className="flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img {...props} className="max-w-full h-auto" />
+            </div>
+          ),
+        }}
+      >
+        {article.content}
+      </ReactMarkdown>
 
-      {/* 下部戻るボタン */}
-      <div className="text-center mt-10">
-        <Link href="/" className="inline-block">
-          <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
+      {/* 戻るボタン */}
+      <div className="my-6">
+        <Link href="/">
+          <button className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">
             ← 記事一覧に戻る
           </button>
         </Link>
       </div>
 
       {/* 求人バナー */}
-      <div className="mt-16 text-center">
-        <p className="text-gray-700 text-base font-medium">
+      <div className="bg-gray-100 p-4 rounded shadow mb-10">
+        <p className="mb-2">
           合同会社raisexでは一緒に働く仲間を募集中です。
-        </p>
-        <p className="text-gray-600 text-sm mt-1">
+          <br />
           ご興味のある方は以下の採用情報をご確認ください。
         </p>
-        <div className="flex justify-center mt-4">
-          <iframe
-            src="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            width="500"
-            height="300"
-            style={{ border: 'none', overflow: 'hidden' }}
-            scrolling="no"
-            frameBorder="0"
-          ></iframe>
-        </div>
+        <a
+          href="https://en-gage.net/raisex_career/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src="/recruit/recruit_banner.png"
+            alt="採用バナー"
+            className="w-full h-auto"
+          />
+        </a>
       </div>
-
-      {/* フッター */}
-      <footer className="text-center text-gray-400 text-sm mt-12">
-        © 2024 raisex, LLC. All rights reserved.
-      </footer>
-    </main>
+    </div>
   )
-}
-
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context: GetServerSidePropsContext
-) => {
-  const { id } = context.params ?? {}
-
-  if (typeof id !== 'string') {
-    return { props: { article: null } }
-  }
-
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=tags&populate=thumbnail`
-    const res = await fetch(fetchUrl)
-    const json = await res.json()
-
-    if (!json.data || json.data.length === 0) {
-      return { props: { article: null } }
-    }
-
-    const item = json.data[0]
-    const attr = item.attributes || item
-
-    const tagList = Array.isArray(attr.tags)
-      ? attr.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
-      : []
-
-    let thumbnailUrl = null
-    if (Array.isArray(attr.thumbnail) && attr.thumbnail[0]?.formats?.medium?.url) {
-      thumbnailUrl = attr.thumbnail[0].formats.medium.url
-    }
-
-    return {
-      props: {
-        article: {
-          id: item.id,
-          title: attr.title,
-          content: attr.content,
-          publishedAt: attr.publishedAt,
-          updatedAt: attr.updatedAt,
-          tags: tagList,
-          thumbnailUrl,
-        },
-      },
-    }
-  } catch (err) {
-    console.error('記事取得エラー:', err)
-    return { props: { article: null } }
-  }
 }
