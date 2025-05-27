@@ -54,13 +54,15 @@ type Props = {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [modalImage, setModalImage] = useState<string | null>(null)
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState<string>('https://example.com') // 初期仮URL
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setUrl(window.location.href)
+      const href = window.location.href
+      console.log('現在のURL:', href)
+      setUrl(href)
     }
+
     document.querySelectorAll('.copy-button').forEach((btn) => {
       btn.addEventListener('click', () => {
         const code = btn.parentElement?.querySelector('code')?.textContent
@@ -73,6 +75,7 @@ export default function ArticleDetail({ article }: Props) {
         }
       })
     })
+
     const script = document.createElement('script')
     script.id = 'engage-widget-script'
     script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
@@ -86,23 +89,15 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto relative">
-      {modalImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center cursor-zoom-out" onClick={() => setModalImage(null)}>
-          <img src={modalImage} alt="拡大画像" className="max-w-full max-h-full rounded-lg shadow-lg" />
-        </div>
-      )}
-
       <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
-          {url && (
-            <div className="flex gap-4 mt-1">
-              <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
-              <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
-              <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
-              <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
-            </div>
-          )}
+          <div className="flex gap-4 mt-1">
+            <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
+            <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
+            <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
+            <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
+          </div>
         </div>
       </div>
       <div className="h-14" />
@@ -127,7 +122,7 @@ export default function ArticleDetail({ article }: Props) {
             rehypePlugins={[rehypeRaw]}
             components={{
               img: ({ src, alt }) => (
-                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
+                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setUrl(src)} />
               ),
               code: (props: any) => {
                 const { inline, className, children, ...rest } = props
