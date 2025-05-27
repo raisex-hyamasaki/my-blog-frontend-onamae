@@ -131,21 +131,22 @@ export default function ArticlePage({ article }: Props) {
       )}
 
       {/* Markdown本文 */}
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
-        className="prose"
-        components={{
-          img: ({ node, ...props }) => (
-            <div className="flex justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...props} className="max-w-full h-auto" />
-            </div>
-          ),
-        }}
-      >
-        {article.content}
-      </ReactMarkdown>
+      <div className="prose">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
+          components={{
+            img: ({ node, ...props }) => (
+              <div className="flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img {...props} className="max-w-full h-auto" />
+              </div>
+            ),
+          }}
+        >
+          {article.content}
+        </ReactMarkdown>
+      </div>
 
       {/* 戻るボタン */}
       <div className="my-6">
