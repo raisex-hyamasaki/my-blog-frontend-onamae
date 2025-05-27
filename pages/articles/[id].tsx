@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -51,11 +53,11 @@ type Article = {
 
 type Props = {
   article: Article | null
-  now: number // ← 静的最適化を防ぐためのダミー
+  now: number
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState<string>('https://example.com') // 初期値は仮
+  const [url, setUrl] = useState<string>('https://example.com')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -75,10 +77,17 @@ export default function ArticleDetail({ article }: Props) {
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
           <div className="flex gap-4 mt-1">
-            <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
-            <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
-            <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
-            <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
+            {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
+              <div key={platform}>
+                <a
+                  href={getShareUrl(platform, url, title) || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
+                </a>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -106,14 +115,12 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setUrl(src)} />
               ),
-              code: (props: any) => {
-                const { inline, className, children, ...rest } = props
-                return inline ? (
+              code: ({ inline, className, children, ...rest }: any) =>
+                inline ? (
                   <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...rest}>{children}</code>
                 ) : (
                   <code className={`${className ?? ''} text-sm font-mono`} {...rest}>{children}</code>
-                )
-              },
+                ),
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
                   <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
@@ -188,7 +195,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
           tags: tagList,
           thumbnailUrl,
         },
-        now: Date.now(), // SSR静的化を抑制
+        now: Date.now(),
       },
     }
   } catch (err) {
