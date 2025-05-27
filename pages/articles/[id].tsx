@@ -11,9 +11,11 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import mermaid from 'mermaid'
 import { useEffect } from 'react'
 import Link from 'next/link'
+import Mermaid from '@/components/Mermaid'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
 type Article = {
   id: number
@@ -52,8 +54,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
 export default function ArticlePage({ article }: Props) {
   useEffect(() => {
-    mermaid.initialize({ startOnLoad: true })
-    mermaid.init()
+    if (typeof window !== 'undefined') {
+      import('mermaid').then((m) => {
+        m.default.initialize({ startOnLoad: true })
+        m.default.init()
+      })
+    }
   }, [])
 
   if (!article) return <div>記事が見つかりませんでした。</div>
@@ -103,7 +109,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       </header>
 
-      {/* タイトルとメタ情報 */}
+      {/* タイトル・更新日・タグ */}
       <h1 className="mt-8">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -138,10 +144,39 @@ export default function ArticlePage({ article }: Props) {
           components={{
             img: ({ node, ...props }) => (
               <div className="flex justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img {...props} className="max-w-full h-auto" />
               </div>
             ),
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '')
+              if (inline) {
+                return (
+                  <code className="bg-yellow-200 text-black px-1 rounded">
+                    {children}
+                  </code>
+                )
+              }
+              return (
+                <SyntaxHighlighter
+                  style={oneDark}
+                  language={match?.[1]}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              )
+            },
+            div({ node, ...props }) {
+              // Mermaidコンテナ対応
+              if (
+                typeof props?.children === 'string' &&
+                props.children.trimStart().startsWith('graph')
+              ) {
+                return <Mermaid chart={props.children} />
+              }
+              return <div {...props} />
+            },
           }}
         >
           {article.content}
