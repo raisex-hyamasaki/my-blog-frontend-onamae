@@ -14,12 +14,12 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 
-type Tag = {
+interface Tag {
   id: number
   name: string
 }
 
-type Article = {
+interface Article {
   id: number
   title: string
   content: string
@@ -29,7 +29,7 @@ type Article = {
   thumbnailUrl?: string | null
 }
 
-type Props = {
+interface Props {
   article: Article | null
 }
 
@@ -38,8 +38,7 @@ export default function ArticleDetail({ article }: Props) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const href = window.location.href
-      setUrl(href)
+      setUrl(window.location.href)
     }
   }, [])
 
@@ -92,6 +91,52 @@ export default function ArticleDetail({ article }: Props) {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
+            components={{
+              img: ({ src, alt }) => (
+                <img
+                  src={src ?? ''}
+                  alt={alt ?? '画像'}
+                  className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in"
+                />
+              ),
+              code({ inline, className, children, ...props }) {
+                return inline ? (
+                  <code
+                    className="bg-yellow-200 text-black px-1 rounded text-sm"
+                    {...props}
+                  >
+                    {children}
+                  </code>
+                ) : (
+                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>
+                    {children}
+                  </code>
+                )
+              },
+              pre({ children }) {
+                return (
+                  <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
+                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">
+                      📋 Copy
+                    </button>
+                    <pre className="p-4 text-sm">{children}</pre>
+                  </div>
+                )
+              },
+              a({ href, children, ...props }) {
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                    {...props}
+                  >
+                    {children}
+                  </a>
+                )
+              },
+            }}
           >
             {content}
           </ReactMarkdown>
@@ -110,7 +155,16 @@ export default function ArticleDetail({ article }: Props) {
         <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
         <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
         <div className="flex justify-center mt-4">
-          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
+          <a
+            href="https://en-gage.net/raisex_jobs/widget/?banner=1"
+            className="engage-recruit-widget"
+            data-height="300"
+            data-width="500"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src="/images/recruit-banner.png" alt="採用バナー" className="w-full max-w-md" />
+          </a>
         </div>
       </div>
 
@@ -132,7 +186,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=tags&populate=thumbnail`
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
