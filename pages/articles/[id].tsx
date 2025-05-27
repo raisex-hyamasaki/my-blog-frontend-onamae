@@ -55,11 +55,12 @@ type Props = {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState<string>('')
+  const [url, setUrl] = useState<string>('https://example.com')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setUrl(window.location.href)
+      const href = window.location.href
+      setUrl(href)
 
       const script = document.createElement('script')
       script.id = 'engage-widget-script'
@@ -78,20 +79,18 @@ export default function ArticleDetail({ article }: Props) {
       <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
-          {url && (
-            <div className="flex gap-4 mt-1">
-              {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
-                <a
-                  key={platform}
-                  href={getShareUrl(platform, url, title)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
-                </a>
-              ))}
-            </div>
-          )}
+          <div className="flex gap-4 mt-1">
+            {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
+              <a
+                key={platform}
+                href={getShareUrl(platform, url, title)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
       <div className="h-14" />
@@ -176,7 +175,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=*&populate[thumbnail]=*`
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
