@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -51,20 +53,19 @@ type Article = {
 
 type Props = {
   article: Article | null
-  now: number
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState<string>('https://example.com')
+  const [url, setUrl] = useState<string>('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const href = window.location.href
-      console.log('✅ 現在のURL:', href)
-      setUrl(href)
+      setUrl(window.location.href)
 
+      // 👇 widget.jsだけ読み込む（安定してた状態）
       const script = document.createElement('script')
-      script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
+      script.id = 'engage-widget-script'
+      script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
       script.async = true
       document.body.appendChild(script)
     }
@@ -81,15 +82,14 @@ export default function ArticleDetail({ article }: Props) {
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
           <div className="flex gap-4 mt-1">
             {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
-              <div key={platform}>
-                <a
-                  href={getShareUrl(platform, url, title) || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
-                </a>
-              </div>
+              <a
+                key={platform}
+                href={getShareUrl(platform, url, title)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
+              </a>
             ))}
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function ArticleDetail({ article }: Props) {
             rehypePlugins={[rehypeRaw]}
             components={{
               img: ({ src, alt }) => (
-                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setUrl(src)} />
+                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" />
               ),
               code: ({ inline, className, children, ...rest }: any) =>
                 inline ? (
@@ -153,14 +153,13 @@ export default function ArticleDetail({ article }: Props) {
         <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
         <div className="flex justify-center mt-4">
           <a
-            href="https://en-gage.net/raisex_jobs/widget/?banner=1"
+            href=""
             className="engage-recruit-widget"
             data-height="300"
             data-width="500"
+            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
             target="_blank"
-          >
-            採用情報はこちら
-          </a>
+          />
         </div>
       </div>
 
@@ -173,7 +172,7 @@ export default function ArticleDetail({ article }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
-  if (typeof id !== 'string') return { props: { article: null, now: Date.now() } }
+  if (typeof id !== 'string') return { props: { article: null } }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
@@ -181,7 +180,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    if (!json.data?.[0]) return { props: { article: null, now: Date.now() } }
+    if (!json.data?.[0]) return { props: { article: null } }
 
     const item = json.data[0]
     const attr = item.attributes || item
@@ -206,11 +205,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
           tags: tagList,
           thumbnailUrl,
         },
-        now: Date.now(),
       },
     }
   } catch (err) {
     console.error('記事取得エラー:', err)
-    return { props: { article: null, now: Date.now() } }
+    return { props: { article: null } }
   }
 }
