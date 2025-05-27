@@ -13,7 +13,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect } from 'react'
 import Link from 'next/link'
-import Mermaid from '@/components/Mermaid'
+import Mermaid from '../../components/Mermaid'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
