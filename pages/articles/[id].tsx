@@ -53,6 +53,7 @@ type Article = {
 
 type Props = {
   article: Article | null
+  now: number
 }
 
 export default function ArticleDetail({ article }: Props) {
@@ -62,7 +63,6 @@ export default function ArticleDetail({ article }: Props) {
     if (typeof window !== 'undefined') {
       setUrl(window.location.href)
 
-      // 👇 widget.jsだけ読み込む（安定してた状態）
       const script = document.createElement('script')
       script.id = 'engage-widget-script'
       script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
@@ -172,7 +172,7 @@ export default function ArticleDetail({ article }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
-  if (typeof id !== 'string') return { props: { article: null } }
+  if (typeof id !== 'string') return { props: { article: null, now: Date.now() } }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
@@ -180,7 +180,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    if (!json.data?.[0]) return { props: { article: null } }
+    if (!json.data?.[0]) return { props: { article: null, now: Date.now() } }
 
     const item = json.data[0]
     const attr = item.attributes || item
@@ -205,10 +205,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
           tags: tagList,
           thumbnailUrl,
         },
+        now: Date.now(),
       },
     }
   } catch (err) {
     console.error('記事取得エラー:', err)
-    return { props: { article: null } }
+    return { props: { article: null, now: Date.now() } }
   }
 }
