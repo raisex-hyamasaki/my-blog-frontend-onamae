@@ -97,11 +97,12 @@ export default function ArticleDetail({ article }: Props) {
                   alt={props.alt ?? '画像'}
                 />
               ),
-              code({ inline, className, children, ...props }) {
+              code: function CodeBlock(props: any) {
+                const { inline, className, children, ...rest } = props
                 if (inline) {
                   return (
                     <code
-                      {...props}
+                      {...rest}
                       style={{
                         backgroundColor: '#fff8b3',
                         color: '#111',
@@ -116,7 +117,7 @@ export default function ArticleDetail({ article }: Props) {
                   )
                 } else {
                   return (
-                    <code className={`${className || ''} bg-transparent text-sm font-mono`} {...props}>
+                    <code className={`${className || ''} bg-transparent text-sm font-mono`} {...rest}>
                       {children}
                     </code>
                   )
@@ -158,21 +159,6 @@ export default function ArticleDetail({ article }: Props) {
             ← 記事一覧に戻る
           </button>
         </Link>
-      </div>
-
-      <div className="mt-16 text-center">
-        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
-        <div className="flex justify-center mt-4">
-          <a
-            href=""
-            className="engage-recruit-widget"
-            data-height="300"
-            data-width="500"
-            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            target="_blank"
-          />
-        </div>
       </div>
 
       <footer className="text-center text-gray-400 text-sm mt-12">
