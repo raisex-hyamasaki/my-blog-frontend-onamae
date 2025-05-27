@@ -15,7 +15,6 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { HTMLAttributes, DetailedHTMLProps } from 'react'
 
 const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
 
@@ -127,16 +126,11 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code: (props) => {
-                const { inline, className, children, ...rest } = props as {
-                  inline?: boolean;
-                  className?: string;
-                  children?: React.ReactNode;
-                }
+              code({ inline, className, children, ...props }) {
                 return inline ? (
-                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...rest}>{children}</code>
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
                 ) : (
-                  <code className={`${className ?? ''} text-sm font-mono`} {...rest}>{children}</code>
+                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
                 )
               },
               pre: ({ children }) => (
