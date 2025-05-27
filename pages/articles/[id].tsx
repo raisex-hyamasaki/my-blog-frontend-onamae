@@ -12,10 +12,10 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { useEffect, useRef, useState, HTMLAttributes } from 'react'
 
-const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
+const Mermaid = dynamic(() => import('@/components/Mermaid'), { ssr: false })
 
 function getShareUrl(base: string, url: string, title?: string) {
   const encodedUrl = encodeURIComponent(url)
@@ -54,31 +54,26 @@ type Props = {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState('https://example.com')
+  const [url, setUrl] = useState<string>('https://example.com')
   const [modalImage, setModalImage] = useState<string | null>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setUrl(window.location.href)
-      document.querySelectorAll('.copy-button').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const code = btn.parentElement?.querySelector('code')?.textContent
-          if (code) {
-            navigator.clipboard.writeText(code)
-            btn.textContent = '✅ Copied!'
-            setTimeout(() => {
-              btn.textContent = '📋 Copy'
-            }, 1500)
-          }
-        })
-      })
-
-      const script = document.createElement('script')
-      script.id = 'engage-widget-script'
-      script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
-      script.async = true
-      document.body.appendChild(script)
     }
+    const buttons = document.querySelectorAll('.copy-button')
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const code = btn.parentElement?.querySelector('code')?.textContent
+        if (code) {
+          navigator.clipboard.writeText(code)
+          btn.textContent = '✅ Copied!'
+          setTimeout(() => {
+            btn.textContent = '📋 Copy'
+          }, 1500)
+        }
+      })
+    })
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -129,23 +124,19 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code: ({ inline, className, children, ...props }: { inline?: boolean, className?: string, children: any }) =>
-                inline ? (
+              code({ inline, className, children, ...props }: any) {
+                return inline ? (
                   <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
                 ) : (
-                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
-                ),
-              pre: ({ children }) => (
-                <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
-                  <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
-                  <pre className="p-4 text-sm">{children}</pre>
-                </div>
-              ),
+                  <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
+                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
+                    <pre className="p-4 text-sm">
+                      <code className={`${className ?? ''}`} {...props}>{children}</code>
+                    </pre>
+                  </div>
+                )
+              },
               a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>,
-              table: ({ children }) => <table className="table-auto border border-gray-300 w-full text-sm">{children}</table>,
-              thead: ({ children }) => <thead className="bg-gray-100">{children}</thead>,
-              th: ({ children }) => <th className="border px-4 py-2 text-left font-semibold">{children}</th>,
-              td: ({ children }) => <td className="border px-4 py-2">{children}</td>,
             }}
           >
             {content}
@@ -179,7 +170,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
   if (typeof id !== 'string') return { props: { article: null } }
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
     const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
     const res = await fetch(fetchUrl)
     const json = await res.json()
