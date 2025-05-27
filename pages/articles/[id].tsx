@@ -12,12 +12,7 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-
-const Mermaid = dynamic(() => import('@/components/Mermaid'), { ssr: false })
 
 interface Tag {
   id: number
@@ -39,18 +34,19 @@ interface Props {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState('https://example.com')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setUrl(window.location.href)
-    }
+      const href = window.location.href
+      setUrl(href)
 
-    const script = document.createElement('script')
-    script.src = 'https://en-gage.net/raisex_jobs/widget/?banner=1'
-    script.async = true
-    document.body.appendChild(script)
-    return () => document.body.removeChild(script)
+      const script = document.createElement('script')
+      script.src = 'https://en-gage.net/raisex_jobs/widget/?banner=1'
+      script.async = true
+      document.body.appendChild(script)
+      return () => document.body.removeChild(script)
+    }
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -59,9 +55,9 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      <div className="sticky top-0 z-10 bg-white py-2">
-        <Link href="/">
-          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+      <div className="mb-6">
+        <Link href="/" className="inline-block">
+          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
             ← 記事一覧に戻る
           </button>
         </Link>
@@ -97,58 +93,14 @@ export default function ArticleDetail({ article }: Props) {
         </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={{
-              code({ inline, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || '')
-                return inline ? (
-                  <code
-                    className="bg-yellow-200 text-black px-1 rounded text-sm"
-                    {...props}
-                  >
-                    {children}
-                  </code>
-                ) : (
-                  <div className="relative">
-                    <button
-                      className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
-                      onClick={() => {
-                        navigator.clipboard.writeText(String(children))
-                      }}
-                    >
-                      Copy
-                    </button>
-                    <SyntaxHighlighter
-                      language={match?.[1] || ''}
-                      style={oneDark}
-                      PreTag="div"
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  </div>
-                )
-              },
-              div({ node, ...props }) {
-                if (
-                  typeof props?.className === 'string' &&
-                  props.className.includes('mermaid')
-                ) {
-                  return <Mermaid chart={String(props.children)} />
-                }
-                return <div {...props} />
-              },
-            }}
-          >
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
             {content}
           </ReactMarkdown>
         </section>
       </article>
 
       <div className="text-center mt-10">
-        <Link href="/">
+        <Link href="/" className="inline-block">
           <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
             ← 記事一覧に戻る
           </button>
@@ -163,14 +115,12 @@ export default function ArticleDetail({ article }: Props) {
           ご興味のある方は以下の採用情報をご確認ください。
         </p>
         <div className="flex justify-center mt-4">
-          <a
-            href="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            className="engage-recruit-widget"
-            data-height="300"
-            data-width="500"
-            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            target="_blank"
-            rel="noopener noreferrer"
+          <iframe
+            src="https://en-gage.net/raisex_jobs/widget/?banner=1"
+            width="500"
+            height="300"
+            className="border-none"
+            loading="lazy"
           />
         </div>
       </div>
