@@ -34,18 +34,12 @@ interface Props {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState('https://example.com')
+  const [url, setUrl] = useState<string>('https://example.com')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const href = window.location.href
       setUrl(href)
-
-      const script = document.createElement('script')
-      script.src = 'https://en-gage.net/raisex_jobs/widget/?banner=1'
-      script.async = true
-      document.body.appendChild(script)
-      return () => document.body.removeChild(script)
     }
   }, [])
 
@@ -55,7 +49,7 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      <div className="mb-6">
+      <div className="mb-6 sticky top-0 bg-white z-10 py-2">
         <Link href="/" className="inline-block">
           <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
             ← 記事一覧に戻る
@@ -72,7 +66,10 @@ export default function ArticleDetail({ article }: Props) {
           {Array.isArray(tags) && tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
               {tags.map((tag) => (
-                <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                <span
+                  key={tag.id}
+                  className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
+                >
                   {tag.name}
                 </span>
               ))}
@@ -93,7 +90,10 @@ export default function ArticleDetail({ article }: Props) {
         </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+          >
             {content}
           </ReactMarkdown>
         </section>
@@ -119,9 +119,10 @@ export default function ArticleDetail({ article }: Props) {
             src="https://en-gage.net/raisex_jobs/widget/?banner=1"
             width="500"
             height="300"
-            className="border-none"
-            loading="lazy"
-          />
+            style={{ border: 'none', overflow: 'hidden' }}
+            scrolling="no"
+            frameBorder="0"
+          ></iframe>
         </div>
       </div>
 
