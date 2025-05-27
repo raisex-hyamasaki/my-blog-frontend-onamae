@@ -38,8 +38,7 @@ export default function ArticleDetail({ article }: Props) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const href = window.location.href
-      setUrl(href)
+      setUrl(window.location.href)
     }
   }, [])
 
@@ -49,7 +48,8 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      <div className="mb-6 sticky top-0 bg-white z-10 py-2">
+      {/* ✅ 上部固定ボタン */}
+      <div className="sticky top-0 z-10 bg-white py-2 mb-6">
         <Link href="/" className="inline-block">
           <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
             ← 記事一覧に戻る
