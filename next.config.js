@@ -8,9 +8,11 @@ const nextConfig = {
   },
   experimental: {
     instrumentationHook: true,
-    typedRoutes: true
+    typedRoutes: true,
   },
-  output: 'standalone',
+  // ✅ 明示的に削除してビルド時に `export` されないようにする
+  // output: 'standalone', ← 一時的に削除 ※getServerSidePropsがあればSSRに強制される
+
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -20,6 +22,7 @@ const nextConfig = {
     };
     return config;
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
+
