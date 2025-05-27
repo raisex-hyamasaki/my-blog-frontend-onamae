@@ -48,21 +48,18 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      {/* ← 記事一覧に戻る (固定不要) */}
-      <div className="mb-6">
-        <Link href="/" className="inline-block">
-          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
-            ← 記事一覧に戻る
-          </button>
-        </Link>
-      </div>
-
-      {/* ✅ 固定表示エリア */}
-      <div className="sticky top-0 z-30 bg-white pt-4 pb-6 mb-6 border-b border-gray-300 shadow-sm">
-        <h1 className="text-3xl sm:text-4xl font-bold leading-tight tracking-tight">
+      {/* ✅ 上部タイトル行固定（全体に sticky + 背景） */}
+      <div className="sticky top-0 z-30 bg-white pb-3 pt-4 border-b border-gray-200">
+        <div className="flex items-start justify-between">
+          <Link href="/" className="inline-block">
+            <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
+              ← 記事一覧に戻る
+            </button>
+          </Link>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold leading-tight tracking-tight mt-4">
           {title}
         </h1>
-
         {Array.isArray(tags) && tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
             {tags.map((tag) => (
@@ -75,22 +72,20 @@ export default function ArticleDetail({ article }: Props) {
             ))}
           </div>
         )}
-
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-500 mt-1">
           投稿更新日: {new Date(updatedAt).toLocaleString()}
         </p>
+      </div>
 
+      <article>
         {thumbnailUrl && (
           <img
             src={thumbnailUrl}
             alt="サムネイル画像"
-            className="mx-auto mt-4 rounded shadow-md max-w-full h-auto"
+            className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
           />
         )}
-      </div>
 
-      {/* 本文 */}
-      <article>
         <section className="prose prose-neutral prose-lg max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -101,7 +96,6 @@ export default function ArticleDetail({ article }: Props) {
         </section>
       </article>
 
-      {/* 下部戻るボタン */}
       <div className="text-center mt-10">
         <Link href="/" className="inline-block">
           <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
@@ -110,7 +104,6 @@ export default function ArticleDetail({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー */}
       <div className="mt-16 text-center">
         <p className="text-gray-700 text-base font-medium">
           合同会社raisexでは一緒に働く仲間を募集中です。
@@ -130,7 +123,6 @@ export default function ArticleDetail({ article }: Props) {
         </div>
       </div>
 
-      {/* フッター */}
       <footer className="text-center text-gray-400 text-sm mt-12">
         © 2024 raisex, LLC. All rights reserved.
       </footer>
