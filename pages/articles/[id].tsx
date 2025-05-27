@@ -26,6 +26,7 @@ interface Article {
   publishedAt: string
   updatedAt: string
   tags?: Tag[]
+  thumbnailUrl?: string | null
 }
 
 interface Props {
@@ -33,37 +34,12 @@ interface Props {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  useEffect(() => {
-    const buttons = document.querySelectorAll('.copy-button')
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const code = btn.parentElement?.querySelector('code')?.textContent
-        if (code) {
-          navigator.clipboard.writeText(code)
-          btn.textContent = '✅ Copied!'
-          setTimeout(() => {
-            btn.textContent = '📋 Copy'
-          }, 1500)
-        }
-      })
-    })
-  }, [])
-
   if (!article) return <p>記事が見つかりません</p>
 
-  const { title, content, updatedAt, tags } = article
+  const { title, content, updatedAt, tags, thumbnailUrl } = article
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
-          <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">
-            📝 レイズクロス Tech Blog
-          </Link>
-        </div>
-      </div>
-      <div className="h-14" />
-
       <div className="mb-6">
         <Link href="/" className="inline-block">
           <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
@@ -94,6 +70,14 @@ export default function ArticleDetail({ article }: Props) {
           <p className="text-sm text-gray-500 mt-3">
             投稿更新日: {new Date(updatedAt).toLocaleString()}
           </p>
+
+          {thumbnailUrl && (
+            <img
+              src={thumbnailUrl}
+              alt="サムネイル"
+              className="mx-auto my-6 rounded shadow-md w-auto h-auto max-w-full"
+            />
+          )}
         </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
@@ -108,52 +92,19 @@ export default function ArticleDetail({ article }: Props) {
                   alt={props.alt ?? '画像'}
                 />
               ),
-              code: (props: any) => {
-                const { className, children } = props
-                const inline = (props.node?.type === 'inlineCode')
-                if (inline) {
-                  return (
-                    <code
-                      {...props}
-                      style={{
-                        backgroundColor: '#fff8b3',
-                        color: '#111',
-                        padding: '0.2rem 0.4rem',
-                        borderRadius: '0.3rem',
-                        fontFamily: 'monospace',
-                        fontSize: '0.85rem',
-                      }}
-                    >
-                      {children}
-                    </code>
-                  )
-                } else {
-                  return (
-                    <code className={`${className || ''} bg-transparent text-sm font-mono`} {...props}>
-                      {children}
-                    </code>
-                  )
-                }
+              a({ href, children, ...props }) {
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                    {...props}
+                  >
+                    {children}
+                  </a>
+                )
               },
-              pre: ({ children }) => (
-                <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
-                  <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">
-                    📋 Copy
-                  </button>
-                  <pre className="p-4 text-sm">{children}</pre>
-                </div>
-              ),
-              a: ({ href, children, ...props }) => (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                  {...props}
-                >
-                  {children}
-                </a>
-              ),
             }}
           >
             {content}
@@ -201,50 +152,53 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const { id } = context.params ?? {}
 
   if (typeof id !== 'string') {
-    console.log('⚠️ documentIdが不正')
     return { props: { article: null } }
   }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=tags`
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
     console.log('📡 Fetching from:', fetchUrl)
+
     const res = await fetch(fetchUrl)
     const json = await res.json()
     console.log('📥 Strapi JSON:', JSON.stringify(json))
 
     if (!json.data || json.data.length === 0) {
-      console.log('⚠️ 該当記事なし')
       return { props: { article: null } }
     }
 
     const item = json.data[0]
     const attr = item.attributes || item
 
-    const tagList = Array.isArray(attr.tags?.data)
-      ? attr.tags.data.map((tag: any) => ({
+    const tagList = Array.isArray(attr.tags)
+      ? attr.tags.map((tag: any) => ({
           id: tag.id,
-          name: tag.attributes.name,
+          name: tag.name,
         }))
       : []
 
-    const article = {
+    const thumbnailUrl = Array.isArray(attr.thumbnail) && attr.thumbnail[0]?.formats?.medium?.url
+      ? attr.thumbnail[0].formats.medium.url
+      : null
+
+    const article: Article = {
       id: item.id,
       title: attr.title,
       content: attr.content,
       publishedAt: attr.publishedAt,
       updatedAt: attr.updatedAt,
       tags: tagList,
+      thumbnailUrl,
     }
+
     console.log('✅ 正常取得 article:', article)
 
     return {
-      props: {
-        article,
-      },
+      props: { article },
     }
   } catch (err) {
-    console.error('❌ 記事取得エラー:', err)
+    console.error('❌ Fetch失敗:', err)
     return { props: { article: null } }
   }
 }
