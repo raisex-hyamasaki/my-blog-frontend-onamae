@@ -1,4 +1,4 @@
-""// pages/articles/[id].tsx
+// pages/articles/[id].tsx
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（CSSで補強）
@@ -15,7 +15,6 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { HTMLAttributes, DetailedHTMLProps } from 'react'
 
 const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
 
@@ -127,13 +126,13 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code: ({ inline, className, children, ...props }: any) => (
-                inline ? (
+              code({ inline, className, children, ...props }) {
+                return inline ? (
                   <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
                 ) : (
                   <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
                 )
-              ),
+              },
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
                   <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
@@ -179,21 +178,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    console.log('⚡ getServerSideProps 呼び出し')
-    console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
-
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
-    console.log('📡 Fetching from:', fetchUrl)
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags][populate]=*&populate[thumbnail]=true`
 
     const res = await fetch(fetchUrl)
     const json = await res.json()
-    console.log('📦 JSON length:', json?.data?.length)
 
     if (!json.data?.[0]) {
-      console.warn('⚠ json.data[0] is null or undefined!')
       return { props: { article: null } }
-    } else {
-      console.log('🧪 json.data[0]:', JSON.stringify(json.data[0], null, 2))
     }
 
     const item = json.data[0]
