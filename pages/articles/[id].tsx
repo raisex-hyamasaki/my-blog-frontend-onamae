@@ -48,43 +48,51 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      {/* ✅ 上部タイトル行固定（全体に sticky + 背景） */}
-      <div className="sticky top-0 z-30 bg-white pb-3 pt-4 border-b border-gray-200">
-        <div className="flex items-start justify-between">
+      {/* ✅ 上部固定タイトル行 */}
+      <div className="sticky top-0 z-30 bg-white py-3 border-b border-gray-200 mb-6">
+        <div className="flex justify-between items-center">
           <Link href="/" className="inline-block">
             <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
               ← 記事一覧に戻る
             </button>
           </Link>
+          <h1 className="text-lg font-semibold text-gray-800 truncate">
+            {title}
+          </h1>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold leading-tight tracking-tight mt-4">
-          {title}
-        </h1>
-        {Array.isArray(tags) && tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
-              >
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-        <p className="text-sm text-gray-500 mt-1">
-          投稿更新日: {new Date(updatedAt).toLocaleString()}
-        </p>
       </div>
 
       <article>
-        {thumbnailUrl && (
-          <img
-            src={thumbnailUrl}
-            alt="サムネイル画像"
-            className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
-          />
-        )}
+        <header className="mb-8">
+          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+            {title}
+          </h1>
+
+          {Array.isArray(tags) && tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <p className="text-sm text-gray-500 mt-3">
+            投稿更新日: {new Date(updatedAt).toLocaleString()}
+          </p>
+
+          {thumbnailUrl && (
+            <img
+              src={thumbnailUrl}
+              alt="サムネイル画像"
+              className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
+            />
+          )}
+        </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
           <ReactMarkdown
