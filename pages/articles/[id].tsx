@@ -176,7 +176,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags][fields][0]=name&populate[thumbnail]=true`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
