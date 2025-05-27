@@ -7,7 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -143,6 +142,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true`)
     const json = await res.json()
 
+    console.log('✅ Strapi API response:', JSON.stringify(json, null, 2))
+
     if (!json.data || json.data.length === 0) {
       return { props: { article: null } }
     }
@@ -157,16 +158,20 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
         }))
       : []
 
+    const article: Article = {
+      id: item.id,
+      title: attr.title,
+      content: attr.content,
+      publishedAt: attr.publishedAt,
+      updatedAt: attr.updatedAt,
+      tags: tagList,
+    }
+
+    console.log('✅ Processed article:', article)
+
     return {
       props: {
-        article: {
-          id: item.id,
-          title: attr.title,
-          content: attr.content,
-          publishedAt: attr.publishedAt,
-          updatedAt: attr.updatedAt,
-          tags: tagList,
-        },
+        article
       },
     }
   } catch (err) {
