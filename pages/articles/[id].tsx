@@ -59,9 +59,7 @@ export default function ArticlePage({ article }: Props) {
   if (!article) return <div>記事が見つかりませんでした。</div>
 
   const thumbnailUrl =
-    article.thumbnail?.[0]?.formats?.medium?.url ||
-    article.thumbnail?.[0]?.url ||
-    ''
+    article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
     <div className="prose prose-slate mx-auto p-4">
