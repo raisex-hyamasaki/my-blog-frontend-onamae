@@ -14,12 +14,12 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 
-interface Tag {
+type Tag = {
   id: number
   name: string
 }
 
-interface Article {
+type Article = {
   id: number
   title: string
   content: string
@@ -29,11 +29,20 @@ interface Article {
   thumbnailUrl?: string | null
 }
 
-interface Props {
+type Props = {
   article: Article | null
 }
 
 export default function ArticleDetail({ article }: Props) {
+  const [url, setUrl] = useState<string>('https://example.com')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const href = window.location.href
+      setUrl(href)
+    }
+  }, [])
+
   if (!article) return <p>記事が見つかりません</p>
 
   const { title, content, updatedAt, tags, thumbnailUrl } = article
@@ -70,12 +79,11 @@ export default function ArticleDetail({ article }: Props) {
           <p className="text-sm text-gray-500 mt-3">
             投稿更新日: {new Date(updatedAt).toLocaleString()}
           </p>
-
           {thumbnailUrl && (
             <img
               src={thumbnailUrl}
-              alt="サムネイル"
-              className="mx-auto my-6 rounded shadow-md w-auto h-auto max-w-full"
+              alt="サムネイル画像"
+              className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
             />
           )}
         </header>
@@ -84,28 +92,6 @@ export default function ArticleDetail({ article }: Props) {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
-            components={{
-              img: ({ ...props }) => (
-                <img
-                  {...props}
-                  className="mx-auto my-6 rounded shadow-md w-auto h-auto max-w-full"
-                  alt={props.alt ?? '画像'}
-                />
-              ),
-              a({ href, children, ...props }) {
-                return (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                    {...props}
-                  >
-                    {children}
-                  </a>
-                )
-              },
-            }}
           >
             {content}
           </ReactMarkdown>
@@ -121,21 +107,10 @@ export default function ArticleDetail({ article }: Props) {
       </div>
 
       <div className="mt-16 text-center">
-        <p className="text-gray-700 text-base font-medium">
-          合同会社raisexでは一緒に働く仲間を募集中です。
-        </p>
-        <p className="text-gray-600 text-sm mt-1">
-          ご興味のある方は以下の採用情報をご確認ください。
-        </p>
+        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
+        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
         <div className="flex justify-center mt-4">
-          <a
-            href=""
-            className="engage-recruit-widget"
-            data-height="300"
-            data-width="500"
-            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            target="_blank"
-          />
+          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
         </div>
       </div>
 
@@ -157,12 +132,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
-    console.log('📡 Fetching from:', fetchUrl)
-
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=tags&populate=thumbnail`
     const res = await fetch(fetchUrl)
     const json = await res.json()
-    console.log('📥 Strapi JSON:', JSON.stringify(json))
 
     if (!json.data || json.data.length === 0) {
       return { props: { article: null } }
@@ -172,33 +144,29 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     const attr = item.attributes || item
 
     const tagList = Array.isArray(attr.tags)
-      ? attr.tags.map((tag: any) => ({
-          id: tag.id,
-          name: tag.name,
-        }))
+      ? attr.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
       : []
 
-    const thumbnailUrl = Array.isArray(attr.thumbnail) && attr.thumbnail[0]?.formats?.medium?.url
-      ? attr.thumbnail[0].formats.medium.url
-      : null
-
-    const article: Article = {
-      id: item.id,
-      title: attr.title,
-      content: attr.content,
-      publishedAt: attr.publishedAt,
-      updatedAt: attr.updatedAt,
-      tags: tagList,
-      thumbnailUrl,
+    let thumbnailUrl = null
+    if (Array.isArray(attr.thumbnail) && attr.thumbnail[0]?.formats?.medium?.url) {
+      thumbnailUrl = attr.thumbnail[0].formats.medium.url
     }
-
-    console.log('✅ 正常取得 article:', article)
 
     return {
-      props: { article },
+      props: {
+        article: {
+          id: item.id,
+          title: attr.title,
+          content: attr.content,
+          publishedAt: attr.publishedAt,
+          updatedAt: attr.updatedAt,
+          tags: tagList,
+          thumbnailUrl,
+        },
+      },
     }
   } catch (err) {
-    console.error('❌ Fetch失敗:', err)
+    console.error('記事取得エラー:', err)
     return { props: { article: null } }
   }
 }
