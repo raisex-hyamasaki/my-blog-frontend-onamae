@@ -12,8 +12,10 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
 const Mermaid = dynamic(() => import('@/components/Mermaid'), { ssr: false })
 
@@ -37,13 +39,18 @@ interface Props {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState<string>('https://example.com')
-  const [copied, setCopied] = useState(false)
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setUrl(window.location.href)
     }
+
+    const script = document.createElement('script')
+    script.src = 'https://en-gage.net/raisex_jobs/widget/?banner=1'
+    script.async = true
+    document.body.appendChild(script)
+    return () => document.body.removeChild(script)
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -52,101 +59,96 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      <div className="sticky top-0 bg-white z-10 pb-4">
-        <Link href="/" className="inline-block">
-          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
+      <div className="sticky top-0 z-10 bg-white py-2">
+        <Link href="/">
+          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
             ← 記事一覧に戻る
           </button>
         </Link>
-        <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight mt-4">
-          {title}
-        </h1>
-
-        {Array.isArray(tags) && tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
-              >
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <p className="text-sm text-gray-500 mt-3">
-          投稿更新日: {new Date(updatedAt).toLocaleString()}
-        </p>
-
-        {thumbnailUrl && (
-          <img
-            src={thumbnailUrl}
-            alt="サムネイル画像"
-            className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
-          />
-        )}
       </div>
 
-      <article className="prose prose-neutral prose-lg max-w-none">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            code({ inline, className, children, ...props }) {
-              if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>
+      <article>
+        <header className="mb-8">
+          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+            {title}
+          </h1>
+
+          {Array.isArray(tags) && tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {tags.map((tag) => (
+                <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <p className="text-sm text-gray-500 mt-3">
+            投稿更新日: {new Date(updatedAt).toLocaleString()}
+          </p>
+
+          {thumbnailUrl && (
+            <img
+              src={thumbnailUrl}
+              alt="サムネイル画像"
+              className="mx-auto my-6 rounded shadow-md max-w-full h-auto"
+            />
+          )}
+        </header>
+
+        <section className="prose prose-neutral prose-lg max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              code({ inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '')
+                return inline ? (
+                  <code
+                    className="bg-yellow-200 text-black px-1 rounded text-sm"
+                    {...props}
+                  >
                     {children}
                   </code>
+                ) : (
+                  <div className="relative">
+                    <button
+                      className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+                      onClick={() => {
+                        navigator.clipboard.writeText(String(children))
+                      }}
+                    >
+                      Copy
+                    </button>
+                    <SyntaxHighlighter
+                      language={match?.[1] || ''}
+                      style={oneDark}
+                      PreTag="div"
+                      {...props}
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                  </div>
                 )
-              }
-              return (
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(String(children))
-                      setCopied(true)
-                      setTimeout(() => setCopied(false), 1500)
-                    }}
-                    className="absolute top-0 right-0 m-2 px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                  <pre className="overflow-x-auto">
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  </pre>
-                </div>
-              )
-            },
-            div({ node, ...props }) {
-              if (
-                typeof node?.properties?.className === 'string' &&
-                node.properties.className.includes('mermaid')
-              ) {
-                return <Mermaid chart={String(props.children)} />
-              }
-              return <div {...props} />
-            },
-            img({ src, alt }) {
-              return (
-                <img
-                  src={src ?? ''}
-                  alt={alt ?? '画像'}
-                  className="mx-auto my-6 rounded shadow-md max-w-full"
-                />
-              )
-            },
-          }}
-        >
-          {content}
-        </ReactMarkdown>
+              },
+              div({ node, ...props }) {
+                if (
+                  typeof props?.className === 'string' &&
+                  props.className.includes('mermaid')
+                ) {
+                  return <Mermaid chart={String(props.children)} />
+                }
+                return <div {...props} />
+              },
+            }}
+          >
+            {content}
+          </ReactMarkdown>
+        </section>
       </article>
 
       <div className="text-center mt-10">
-        <Link href="/" className="inline-block">
+        <Link href="/">
           <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
             ← 記事一覧に戻る
           </button>
@@ -166,11 +168,10 @@ export default function ArticleDetail({ article }: Props) {
             className="engage-recruit-widget"
             data-height="300"
             data-width="500"
+            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
             target="_blank"
             rel="noopener noreferrer"
-          >
-            採用情報を見る
-          </a>
+          />
         </div>
       </div>
 
@@ -185,7 +186,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
   const { id } = context.params ?? {}
-  if (typeof id !== 'string') return { props: { article: null } }
+
+  if (typeof id !== 'string') {
+    return { props: { article: null } }
+  }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
@@ -193,7 +197,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    if (!json.data || json.data.length === 0) return { props: { article: null } }
+    if (!json.data || json.data.length === 0) {
+      return { props: { article: null } }
+    }
 
     const item = json.data[0]
     const attr = item.attributes || item
