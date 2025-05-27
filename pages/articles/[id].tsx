@@ -14,6 +14,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
+import { HTMLAttributes, ClassAttributes, DetailedHTMLProps } from 'react'
 
 const Mermaid = dynamic(() => import('../../components/Mermaid'), { ssr: false })
 
@@ -54,24 +55,12 @@ type Props = {
 }
 
 export default function ArticleDetail({ article }: Props) {
+  const [url, setUrl] = useState<string>('https://example.com')
   const [modalImage, setModalImage] = useState<string | null>(null)
-  const [url, setUrl] = useState('')
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setUrl(window.location.href)
-      document.querySelectorAll('.copy-button').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const code = btn.parentElement?.querySelector('code')?.textContent
-          if (code) {
-            navigator.clipboard.writeText(code)
-            btn.textContent = '✅ Copied!'
-            setTimeout(() => {
-              btn.textContent = '📋 Copy'
-            }, 1500)
-          }
-        })
-      })
     }
   }, [])
 
@@ -92,7 +81,12 @@ export default function ArticleDetail({ article }: Props) {
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
           <div className="flex gap-4 mt-1">
             {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
-              <a key={platform} href={getShareUrl(platform, url, title)} target="_blank" rel="noopener noreferrer">
+              <a
+                key={platform}
+                href={getShareUrl(platform, url, title) || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
               </a>
             ))}
@@ -123,12 +117,13 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code({ inline, className, children, ...props }: { inline?: boolean; className?: string; children: any }) {
+              code: function CodeBlock(props: { inline?: boolean; className?: string; children: any }) {
+                const { inline, className, children, ...rest } = props;
                 return inline ? (
-                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...rest}>{children}</code>
                 ) : (
-                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
-                )
+                  <code className={`${className ?? ''} text-sm font-mono`} {...rest}>{children}</code>
+                );
               },
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
