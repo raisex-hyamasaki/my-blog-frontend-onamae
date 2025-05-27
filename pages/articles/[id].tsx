@@ -12,7 +12,7 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 interface Tag {
   id: number
@@ -33,11 +33,9 @@ interface Props {
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState('')
-
   useEffect(() => {
-    setUrl(window.location.href)
-    document.querySelectorAll('.copy-button').forEach((btn) => {
+    const buttons = document.querySelectorAll('.copy-button')
+    buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const code = btn.parentElement?.querySelector('code')?.textContent
         if (code) {
@@ -49,12 +47,6 @@ export default function ArticleDetail({ article }: Props) {
         }
       })
     })
-
-    const script = document.createElement('script')
-    script.id = 'engage-widget-script'
-    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
-    script.async = true
-    document.body.appendChild(script)
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -62,25 +54,37 @@ export default function ArticleDetail({ article }: Props) {
   const { title, content, updatedAt, tags } = article
 
   return (
-    <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto relative">
-      <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
-          <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
-        </div>
+    <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
+      <div className="mb-6">
+        <Link href="/" className="inline-block">
+          <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
+            ← 記事一覧に戻る
+          </button>
+        </Link>
       </div>
-      <div className="h-14" />
 
       <article>
         <header className="mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+            {title}
+          </h1>
+
           {Array.isArray(tags) && tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-3">
               {tags.map((tag) => (
-                <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{tag.name}</span>
+                <span
+                  key={tag.id}
+                  className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"
+                >
+                  {tag.name}
+                </span>
               ))}
             </div>
           )}
-          <p className="text-sm text-gray-500 mt-2">投稿更新日: {new Date(updatedAt).toLocaleString()}</p>
+
+          <p className="text-sm text-gray-500 mt-3">
+            投稿更新日: {new Date(updatedAt).toLocaleString()}
+          </p>
         </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
@@ -88,23 +92,61 @@ export default function ArticleDetail({ article }: Props) {
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
             components={{
-              img: ({ src, alt }: { src?: string; alt?: string }) => (
-                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" />
+              img: ({ ...props }) => (
+                <img
+                  {...props}
+                  className="mx-auto my-6 rounded shadow-md w-auto h-auto max-w-full"
+                  alt={props.alt ?? '画像'}
+                />
               ),
-              code: ({ node, inline, className, children, ...props }: any) => {
-                return inline ? (
-                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
-                ) : (
-                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
+              code({ inline, className, children, ...props }) {
+                if (inline) {
+                  return (
+                    <code
+                      {...props}
+                      style={{
+                        backgroundColor: '#fff8b3',
+                        color: '#111',
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '0.3rem',
+                        fontFamily: 'monospace',
+                        fontSize: '0.85rem',
+                      }}
+                    >
+                      {children}
+                    </code>
+                  )
+                } else {
+                  return (
+                    <code className={`${className || ''} bg-transparent text-sm font-mono`} {...props}>
+                      {children}
+                    </code>
+                  )
+                }
+              },
+              pre({ children }) {
+                return (
+                  <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
+                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">
+                      📋 Copy
+                    </button>
+                    <pre className="p-4 text-sm">{children}</pre>
+                  </div>
                 )
               },
-              pre: ({ children }: any) => (
-                <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
-                  <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
-                  <pre className="p-4 text-sm">{children}</pre>
-                </div>
-              ),
-              a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>
+              a({ href, children, ...props }) {
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                    {...props}
+                  >
+                    {children}
+                  </a>
+                )
+              },
             }}
           >
             {content}
@@ -112,17 +154,30 @@ export default function ArticleDetail({ article }: Props) {
         </section>
       </article>
 
-      <div className="mt-12 flex justify-center">
-        <Link href="/">
-          <button className="text-sm px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">← 記事一覧に戻る</button>
+      <div className="text-center mt-10">
+        <Link href="/" className="inline-block">
+          <button className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
+            ← 記事一覧に戻る
+          </button>
         </Link>
       </div>
 
       <div className="mt-16 text-center">
-        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
+        <p className="text-gray-700 text-base font-medium">
+          合同会社raisexでは一緒に働く仲間を募集中です。
+        </p>
+        <p className="text-gray-600 text-sm mt-1">
+          ご興味のある方は以下の採用情報をご確認ください。
+        </p>
         <div className="flex justify-center mt-4">
-          <a href="" className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank" />
+          <a
+            href=""
+            className="engage-recruit-widget"
+            data-height="300"
+            data-width="500"
+            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
+            target="_blank"
+          />
         </div>
       </div>
 
@@ -135,47 +190,52 @@ export default function ArticleDetail({ article }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
-  if (typeof id !== 'string') return { props: { article: null } }
+
+  if (typeof id !== 'string') {
+    console.log('❌ 無効なID:', id)
+    return { props: { article: null } }
+  }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true`)
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
+
+    console.log('📡 Fetching from:', fetchUrl)
+    const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    console.log('✅ Strapi API response:', JSON.stringify(json, null, 2))
+    console.log('📥 Strapi JSON:', JSON.stringify(json))
 
-    if (!json.data || json.data.length === 0) {
+    if (!json.data?.[0]) {
+      console.log('⚠️ 該当記事なし')
       return { props: { article: null } }
     }
 
     const item = json.data[0]
     const attr = item.attributes || item
 
-    const tagList = Array.isArray(attr.tags?.data)
-      ? attr.tags.data.map((tag: any) => ({
-          id: tag.id,
-          name: tag.attributes.name,
-        }))
+    const tagList = Array.isArray(attr.tags)
+      ? attr.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
       : []
 
-    const article: Article = {
+    const article = {
       id: item.id,
-      title: attr.title,
-      content: attr.content,
-      publishedAt: attr.publishedAt,
-      updatedAt: attr.updatedAt,
+      title: attr.title ?? '',
+      content: attr.content ?? '',
+      publishedAt: attr.publishedAt ?? '',
+      updatedAt: attr.updatedAt ?? '',
       tags: tagList,
     }
 
-    console.log('✅ Processed article:', article)
+    console.log('✅ 正常取得 article:', article)
 
     return {
       props: {
-        article
+        article,
       },
     }
   } catch (err) {
-    console.error('記事取得エラー:', err)
+    console.error('❌ 記事取得エラー:', err)
     return { props: { article: null } }
   }
 }
