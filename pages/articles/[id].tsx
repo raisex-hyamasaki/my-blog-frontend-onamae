@@ -58,7 +58,9 @@ export default function ArticleDetail({ article }: Props) {
   const [url, setUrl] = useState('')
 
   useEffect(() => {
-    setUrl(window.location.href)
+    if (typeof window !== 'undefined') {
+      setUrl(window.location.href)
+    }
     document.querySelectorAll('.copy-button').forEach((btn) => {
       btn.addEventListener('click', () => {
         const code = btn.parentElement?.querySelector('code')?.textContent
@@ -93,12 +95,14 @@ export default function ArticleDetail({ article }: Props) {
       <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
-          <div className="flex gap-4 mt-1">
-            <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
-            <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
-            <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
-            <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
-          </div>
+          {url && (
+            <div className="flex gap-4 mt-1">
+              <a href={getShareUrl('twitter', url, title)} target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="X" className="w-8 h-8" /></a>
+              <a href={getShareUrl('facebook', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Facebook" className="w-8 h-8" /></a>
+              <a href={getShareUrl('line', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="LINE" className="w-8 h-8" /></a>
+              <a href={getShareUrl('hatena', url)} target="_blank" rel="noopener noreferrer"><img src="/icons/hatena.svg" alt="はてな" className="w-8 h-8" /></a>
+            </div>
+          )}
         </div>
       </div>
       <div className="h-14" />
@@ -126,12 +130,12 @@ export default function ArticleDetail({ article }: Props) {
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
               code: (props: any) => {
-                const { inline, className, children, ...rest } = props;
+                const { inline, className, children, ...rest } = props
                 return inline ? (
                   <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...rest}>{children}</code>
                 ) : (
                   <code className={`${className ?? ''} text-sm font-mono`} {...rest}>{children}</code>
-                );
+                )
               },
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
