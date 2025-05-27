@@ -77,7 +77,7 @@ export default function ArticlePage({ article }: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src="/sns/x.svg" alt="X" className="w-5 h-5" />
+            <img src="/icons/x.svg" alt="X" className="w-5 h-5" />
           </a>
           <a
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -86,7 +86,7 @@ export default function ArticlePage({ article }: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src="/sns/facebook.svg" alt="Facebook" className="w-5 h-5" />
+            <img src="/icons/facebook.svg" alt="Facebook" className="w-5 h-5" />
           </a>
           <a
             href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
@@ -95,10 +95,10 @@ export default function ArticlePage({ article }: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src="/sns/line.svg" alt="LINE" className="w-5 h-5" />
+            <img src="/icons/line.svg" alt="LINE" className="w-5 h-5" />
           </a>
           <a href="#disqus_thread">
-            <img src="/sns/disqus.svg" alt="Disqus" className="w-5 h-5" />
+            <img src="/icons/disqus.svg" alt="Disqus" className="w-5 h-5" />
           </a>
         </div>
       </header>
@@ -170,7 +170,7 @@ export default function ArticlePage({ article }: Props) {
           rel="noopener noreferrer"
         >
           <img
-            src="/recruit/recruit_banner.png"
+            src="/recruit-banner.jpg"
             alt="採用バナー"
             className="w-full h-auto"
           />
