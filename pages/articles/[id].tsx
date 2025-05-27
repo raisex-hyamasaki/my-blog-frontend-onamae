@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -80,18 +78,20 @@ export default function ArticleDetail({ article }: Props) {
       <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">📝 レイズクロス Tech Blog</Link>
-          <div className="flex gap-4 mt-1">
-            {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
-              <a
-                key={platform}
-                href={getShareUrl(platform, url, title)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
-              </a>
-            ))}
-          </div>
+          {url && (
+            <div className="flex gap-4 mt-1">
+              {['twitter', 'facebook', 'line', 'hatena'].map((platform) => (
+                <a
+                  key={platform}
+                  href={getShareUrl(platform, url, title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={`/icons/${platform === 'twitter' ? 'x' : platform}.svg`} alt={platform} className="w-8 h-8" />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <div className="h-14" />
@@ -176,7 +176,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags][fields][0]=name&populate[thumbnail]=true`
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=*&populate[thumbnail]=*`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
