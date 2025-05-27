@@ -51,36 +51,18 @@ type Article = {
 
 type Props = {
   article: Article | null
+  now: number // ← 静的最適化を防ぐためのダミー
 }
 
 export default function ArticleDetail({ article }: Props) {
-  const [url, setUrl] = useState<string>('https://example.com') // 初期仮URL
+  const [url, setUrl] = useState<string>('https://example.com') // 初期値は仮
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const href = window.location.href
-      console.log('現在のURL:', href)
+      console.log('✅ 現在のURL:', href)
       setUrl(href)
     }
-
-    document.querySelectorAll('.copy-button').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const code = btn.parentElement?.querySelector('code')?.textContent
-        if (code) {
-          navigator.clipboard.writeText(code)
-          btn.textContent = '✅ Copied!'
-          setTimeout(() => {
-            btn.textContent = '📋 Copy'
-          }, 1500)
-        }
-      })
-    })
-
-    const script = document.createElement('script')
-    script.id = 'engage-widget-script'
-    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
-    script.async = true
-    document.body.appendChild(script)
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -173,7 +155,7 @@ export default function ArticleDetail({ article }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
-  if (typeof id !== 'string') return { props: { article: null } }
+  if (typeof id !== 'string') return { props: { article: null, now: Date.now() } }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
@@ -181,7 +163,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    if (!json.data?.[0]) return { props: { article: null } }
+    if (!json.data?.[0]) return { props: { article: null, now: Date.now() } }
 
     const item = json.data[0]
     const attr = item.attributes || item
@@ -206,10 +188,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
           tags: tagList,
           thumbnailUrl,
         },
+        now: Date.now(), // SSR静的化を抑制
       },
     }
   } catch (err) {
     console.error('記事取得エラー:', err)
-    return { props: { article: null } }
+    return { props: { article: null, now: Date.now() } }
   }
 }
