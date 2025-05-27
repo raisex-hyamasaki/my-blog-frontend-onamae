@@ -7,11 +7,12 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-
+// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 
 interface Tag {
@@ -25,7 +26,7 @@ interface Article {
   content: string
   publishedAt: string
   updatedAt: string
-  tags: Tag[]
+  tags?: Tag[]
 }
 
 interface Props {
@@ -36,10 +37,7 @@ export default function ArticleDetail({ article }: Props) {
   const [url, setUrl] = useState('')
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setUrl(window.location.href)
-    }
-
+    setUrl(window.location.href)
     document.querySelectorAll('.copy-button').forEach((btn) => {
       btn.addEventListener('click', () => {
         const code = btn.parentElement?.querySelector('code')?.textContent
@@ -77,53 +75,37 @@ export default function ArticleDetail({ article }: Props) {
         <header className="mb-8">
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{title}</h1>
           {Array.isArray(tags) && tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
+            <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((tag) => (
-                <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                  {tag.name}
-                </span>
+                <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{tag.name}</span>
               ))}
             </div>
           )}
-          <p className="text-sm text-gray-500 mt-3">投稿更新日: {new Date(updatedAt).toLocaleString()}</p>
+          <p className="text-sm text-gray-500 mt-2">投稿更新日: {new Date(updatedAt).toLocaleString()}</p>
         </header>
 
         <section className="prose prose-neutral prose-lg max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
             components={{
-              img: ({ ...props }) => (
-                <img {...props} className="mx-auto my-6 rounded shadow-md w-auto h-auto max-w-full" alt={props.alt ?? '画像'} />
+              img: ({ src, alt }: { src?: string; alt?: string }) => (
+                <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" />
               ),
-              code({ inline, className, children, ...props }) {
-                if (inline) {
-                  return (
-                    <code {...props} style={{
-                      backgroundColor: '#fff8b3',
-                      color: '#111',
-                      padding: '0.2rem 0.4rem',
-                      borderRadius: '0.3rem',
-                      fontFamily: 'monospace',
-                      fontSize: '0.85rem'
-                    }}>{children}</code>
-                  )
-                } else {
-                  return (
-                    <code className={`${className || ''} bg-transparent text-sm font-mono`} {...props}>{children}</code>
-                  )
-                }
-              },
-              pre({ children }) {
-                return (
-                  <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
-                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
-                    <pre className="p-4 text-sm">{children}</pre>
-                  </div>
+              code: ({ node, inline, className, children, ...props }: any) => {
+                return inline ? (
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
+                ) : (
+                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
                 )
               },
-              a({ href, children, ...props }) {
-                return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>
-              },
+              pre: ({ children }: any) => (
+                <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
+                  <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">📋 Copy</button>
+                  <pre className="p-4 text-sm">{children}</pre>
+                </div>
+              ),
+              a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline" {...props}>{children}</a>
             }}
           >
             {content}
@@ -154,10 +136,7 @@ export default function ArticleDetail({ article }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.params ?? {}
-
-  if (typeof id !== 'string') {
-    return { props: { article: null } }
-  }
+  if (typeof id !== 'string') return { props: { article: null } }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
@@ -172,7 +151,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const attr = item.attributes || item
 
     const tagList = Array.isArray(attr.tags?.data)
-      ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes.name }))
+      ? attr.tags.data.map((tag: any) => ({
+          id: tag.id,
+          name: tag.attributes.name,
+        }))
       : []
 
     return {
