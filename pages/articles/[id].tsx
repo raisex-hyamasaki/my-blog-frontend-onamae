@@ -12,7 +12,7 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface Tag {
   id: number
@@ -55,6 +55,15 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
+      <div className="fixed top-0 left-0 w-full bg-white border-b z-40 shadow-sm">
+        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
+          <Link href="/" className="text-blue-600 hover:text-gray-700 text-lg font-semibold">
+            📝 レイズクロス Tech Blog
+          </Link>
+        </div>
+      </div>
+      <div className="h-14" />
+
       <div className="mb-6">
         <Link href="/" className="inline-block">
           <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
@@ -99,7 +108,9 @@ export default function ArticleDetail({ article }: Props) {
                   alt={props.alt ?? '画像'}
                 />
               ),
-              code({ inline, className, children, ...props }) {
+              code: (props: any) => {
+                const { className, children } = props
+                const inline = (props.node?.type === 'inlineCode')
                 if (inline) {
                   return (
                     <code
@@ -124,29 +135,25 @@ export default function ArticleDetail({ article }: Props) {
                   )
                 }
               },
-              pre({ children }) {
-                return (
-                  <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
-                    <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">
-                      📋 Copy
-                    </button>
-                    <pre className="p-4 text-sm">{children}</pre>
-                  </div>
-                )
-              },
-              a({ href, children, ...props }) {
-                return (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                    {...props}
-                  >
-                    {children}
-                  </a>
-                )
-              },
+              pre: ({ children }) => (
+                <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
+                  <button className="copy-button absolute top-2 right-2 px-2 py-1 text-xs bg-gray-700 rounded hover:bg-gray-600">
+                    📋 Copy
+                  </button>
+                  <pre className="p-4 text-sm">{children}</pre>
+                </div>
+              ),
+              a: ({ href, children, ...props }) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                  {...props}
+                >
+                  {children}
+                </a>
+              ),
             }}
           >
             {content}
@@ -188,25 +195,25 @@ export default function ArticleDetail({ article }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context: GetServerSidePropsContext
+) => {
   const { id } = context.params ?? {}
 
   if (typeof id !== 'string') {
-    console.log('❌ 無効なID:', id)
+    console.log('⚠️ documentIdが不正')
     return { props: { article: null } }
   }
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
-
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate=tags`
     console.log('📡 Fetching from:', fetchUrl)
     const res = await fetch(fetchUrl)
     const json = await res.json()
-
     console.log('📥 Strapi JSON:', JSON.stringify(json))
 
-    if (!json.data?.[0]) {
+    if (!json.data || json.data.length === 0) {
       console.log('⚠️ 該当記事なし')
       return { props: { article: null } }
     }
@@ -214,19 +221,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
     const item = json.data[0]
     const attr = item.attributes || item
 
-    const tagList = Array.isArray(attr.tags)
-      ? attr.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
+    const tagList = Array.isArray(attr.tags?.data)
+      ? attr.tags.data.map((tag: any) => ({
+          id: tag.id,
+          name: tag.attributes.name,
+        }))
       : []
 
     const article = {
       id: item.id,
-      title: attr.title ?? '',
-      content: attr.content ?? '',
-      publishedAt: attr.publishedAt ?? '',
-      updatedAt: attr.updatedAt ?? '',
+      title: attr.title,
+      content: attr.content,
+      publishedAt: attr.publishedAt,
+      updatedAt: attr.updatedAt,
       tags: tagList,
     }
-
     console.log('✅ 正常取得 article:', article)
 
     return {
