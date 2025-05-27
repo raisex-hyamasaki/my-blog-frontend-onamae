@@ -46,6 +46,12 @@ export default function ArticleDetail({ article }: Props) {
         }
       })
     })
+
+    const script = document.createElement('script')
+    script.id = 'engage-widget-script'
+    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js?v=vercel'
+    script.async = true
+    document.body.appendChild(script)
   }, [])
 
   if (!article) return <p>記事が見つかりません</p>
@@ -159,6 +165,21 @@ export default function ArticleDetail({ article }: Props) {
             ← 記事一覧に戻る
           </button>
         </Link>
+      </div>
+
+      <div className="mt-16 text-center">
+        <p className="text-gray-700 text-base font-medium">合同会社raisexでは一緒に働く仲間を募集中です。</p>
+        <p className="text-gray-600 text-sm mt-1">ご興味のある方は以下の採用情報をご確認ください。</p>
+        <div className="flex justify-center mt-4">
+          <a
+            href=""
+            className="engage-recruit-widget"
+            data-height="300"
+            data-width="500"
+            data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
+            target="_blank"
+          />
+        </div>
       </div>
 
       <footer className="text-center text-gray-400 text-sm mt-12">
