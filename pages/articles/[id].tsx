@@ -48,8 +48,8 @@ export default function ArticleDetail({ article }: Props) {
 
   return (
     <main className="px-6 sm:px-8 lg:px-12 py-10 max-w-3xl mx-auto">
-      {/* ✅ 上部固定ボタン */}
-      <div className="sticky top-0 z-10 bg-white py-2 mb-6">
+      {/* ✅ 上部固定戻るボタン */}
+      <div className="sticky top-0 z-30 bg-white py-2 mb-6 border-b border-gray-200">
         <Link href="/" className="inline-block">
           <button className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
             ← 記事一覧に戻る
@@ -107,6 +107,7 @@ export default function ArticleDetail({ article }: Props) {
         </Link>
       </div>
 
+      {/* ✅ 求人バナー表示 */}
       <div className="mt-16 text-center">
         <p className="text-gray-700 text-base font-medium">
           合同会社raisexでは一緒に働く仲間を募集中です。
