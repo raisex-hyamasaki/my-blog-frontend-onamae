@@ -6,7 +6,6 @@
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
-// SSR 詳細ページ (Strapi v5 構造完全対応)
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -126,12 +125,13 @@ export default function ArticleDetail({ article }: Props) {
               img: ({ src, alt }) => (
                 <img src={src ?? ''} alt={alt ?? '画像'} className="mx-auto my-6 rounded shadow-md max-w-full cursor-zoom-in" onClick={() => src && setModalImage(src)} />
               ),
-              code({ inline, className, children, ...props }) {
+              code: (props: any) => {
+                const { inline, className, children, ...rest } = props;
                 return inline ? (
-                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...props}>{children}</code>
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm" {...rest}>{children}</code>
                 ) : (
-                  <code className={`${className ?? ''} text-sm font-mono`} {...props}>{children}</code>
-                )
+                  <code className={`${className ?? ''} text-sm font-mono`} {...rest}>{children}</code>
+                );
               },
               pre: ({ children }) => (
                 <div className="relative my-6 bg-gray-900 text-white rounded-lg overflow-auto">
@@ -178,19 +178,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context: Get
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags][populate]=*&populate[thumbnail]=true`
-
+    const fetchUrl = `${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    if (!json.data?.[0]) {
-      return { props: { article: null } }
-    }
+    if (!json.data?.[0]) return { props: { article: null } }
 
     const item = json.data[0]
     const attr = item.attributes || item
-    const tagList = Array.isArray(attr.tags?.data)
-      ? attr.tags.data.map((tag: any) => ({ id: tag.id, name: tag.attributes?.name || '' }))
+
+    const tagList = Array.isArray(attr.tags)
+      ? attr.tags.map((tag: any) => ({ id: tag.id, name: tag.name }))
       : []
 
     let thumbnailUrl = null
