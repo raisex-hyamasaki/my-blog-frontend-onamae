@@ -7,16 +7,28 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+// ✅ Markdown中央寄せ＋原寸制限
+// ✅ タグ表示（Strapi v5 対応）
+// ✅ サムネイル画像対応（Strapi配列形式対応）
+// ✅ インラインコード黄色背景
+// ✅ コードブロックCopy対応
+// ✅ Mermaid ER図対応（<Mermaid />）
+// ✅ 求人バナー表示
+// ✅ SNSシェアボタン表示
+// ✅ 上部タイトル行固定
+// ✅ Vercelでも動作確認済ビルド構成（型エラー回避済）
+// ✅ 適正なレスポンシブ幅に設定済
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect } from 'react'
+import { useEffect, ReactNode } from 'react'
 import Link from 'next/link'
-import Mermaid from '../../components/Mermaid'
+import Mermaid from '@/components/Mermaid'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import type { Components } from 'react-markdown'
 
 type Article = {
   id: number
@@ -65,49 +77,10 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
-  const thumbnailUrl =
-    article.thumbnail?.[0]?.formats?.medium?.url || ''
-
-  const markdownComponents: Components = {
-    img: ({ node, ...props }) => (
-      <div className="flex justify-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img {...props} className="max-w-full h-auto" />
-      </div>
-    ),
-    code({ node, inline, className, children, ...props }) {
-      const match = /language-(\w+)/.exec(className || '')
-      if (inline) {
-        return (
-          <code className="bg-yellow-200 text-black px-1 rounded">
-            {children}
-          </code>
-        )
-      }
-      return (
-        <SyntaxHighlighter
-          style={oneDark}
-          language={match?.[1]}
-          PreTag="div"
-          {...props}
-        >
-          {String(children).replace(/\n$/, '')}
-        </SyntaxHighlighter>
-      )
-    },
-    div({ node, ...props }) {
-      if (
-        typeof props?.children === 'string' &&
-        props.children.trimStart().startsWith('graph')
-      ) {
-        return <Mermaid chart={props.children} />
-      }
-      return <div {...props} />
-    },
-  }
+  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-md mx-auto px-4 py-6">
+    <div className="prose prose-slate max-w-screen-md mx-auto p-4">
       {/* 固定ヘッダー */}
       <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 shadow border-b">
         <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
@@ -180,7 +153,61 @@ export default function ArticlePage({ article }: Props) {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
-          components={markdownComponents}
+          components={{
+            img: ({ node, ...props }) => (
+              <div className="flex justify-center">
+                <img {...props} className="max-w-full h-auto" />
+              </div>
+            ),
+            code({
+              inline,
+              className,
+              children,
+              ...props
+            }: {
+              inline?: boolean
+              className?: string
+              children: ReactNode
+            }) {
+              const match = /language-(\w+)/.exec(className || '')
+              if (inline) {
+                return (
+                  <code className="bg-yellow-200 text-black px-1 rounded">
+                    {children}
+                  </code>
+                )
+              }
+              return (
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(String(children))
+                    }}
+                    className="absolute top-1 right-1 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                  >
+                    Copy
+                  </button>
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={match?.[1]}
+                    PreTag="div"
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                </div>
+              )
+            },
+            div({ node, ...props }) {
+              if (
+                typeof props?.children === 'string' &&
+                props.children.trimStart().startsWith('graph')
+              ) {
+                return <Mermaid chart={props.children} />
+              }
+              return <div {...props} />
+            },
+          }}
         >
           {article.content}
         </ReactMarkdown>
