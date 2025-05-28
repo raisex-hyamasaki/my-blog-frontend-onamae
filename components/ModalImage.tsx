@@ -1,13 +1,12 @@
 // components/ModalImage.tsx
 import { useState } from 'react'
 
-type ModalImageProps = {
+type Props = {
   src: string
   alt?: string
-  originalSize?: boolean // ✅ これを追加
 }
 
-export default function ModalImage({ src, alt = '', originalSize = false }: ModalImageProps) {
+export default function ModalImage({ src, alt = '' }: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -15,18 +14,19 @@ export default function ModalImage({ src, alt = '', originalSize = false }: Moda
       <img
         src={src}
         alt={alt}
-        className="cursor-zoom-in max-w-full h-auto"
+        className="cursor-zoom-in max-w-full h-auto mx-auto rounded shadow"
         onClick={() => setIsOpen(true)}
       />
+
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         >
           <img
             src={src}
             alt={alt}
-            className={originalSize ? 'max-w-none h-auto' : 'max-w-full h-auto'}
+            className="max-w-full max-h-full object-contain cursor-zoom-out"
           />
         </div>
       )}

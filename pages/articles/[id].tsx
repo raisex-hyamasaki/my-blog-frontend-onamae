@@ -117,7 +117,7 @@ export default function ArticlePage({ article }: Props) {
       {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
-          <ModalImage src={thumbnailUrl} alt="サムネイル画像" originalSize />
+          <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
         </div>
       )}
 
@@ -128,7 +128,7 @@ export default function ArticlePage({ article }: Props) {
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage src={src} alt={alt} originalSize />
+              <ModalImage src={src} alt={alt} />
             </div>
           ),
           code(props) {
@@ -197,7 +197,11 @@ export default function ArticlePage({ article }: Props) {
         rel="noopener noreferrer"
         className="block mb-10"
       >
-        <img src="/recruit-banner.jpg" alt="採用バナー" className="w-full h-auto rounded shadow" />
+        <img
+          src="/recruit-banner.jpg"
+          alt="採用バナー"
+          className="w-full h-auto rounded shadow"
+        />
       </a>
     </div>
   )

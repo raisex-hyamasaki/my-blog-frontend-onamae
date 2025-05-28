@@ -79,3 +79,9 @@ button.copy-button {
   background-color: #e0f2fe; /* 水色 */
   font-weight: bold;
 }
+
+/* ✅ すべての画像にレスポンシブ＆原寸大優先を適用 */
+img {
+  max-width: 100%;
+  height: auto;
+}
