@@ -135,7 +135,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル画像 */}
+      {/* サムネイル */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
