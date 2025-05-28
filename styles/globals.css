@@ -5,8 +5,8 @@
 
 /* ✅ Markdown 内のインラインコード */
 .prose code:not(pre code) {
-  background-color: #e0f2fe !important;
-  color: #dc2626 !important;
+  background-color: #fef08a !important; /* bg-yellow-200 */
+  color: #1f2937 !important;           /* text-gray-800 */
   font-weight: bold;
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
@@ -22,8 +22,8 @@
 .prose h5 code,
 .prose h6 code {
   font-size: inherit !important;
-  background-color: #e0f2fe !important;
-  color: #dc2626 !important;
+  background-color: #fef08a !important;
+  color: #1f2937 !important;
   font-weight: bold;
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
@@ -39,7 +39,6 @@
   position: relative;
   padding: 1rem;
 }
-
 .prose pre code {
   background: none !important;
   color: inherit !important;
@@ -80,45 +79,40 @@ button.copy-button {
 }
 
 /* ✅ 通常画像：レスポンシブ + ピンボケ防止 */
-img,
-.image-wrapper img,
-.image-wrapper picture,
-.image-wrapper picture img {
+img {
   max-width: 100%;
   height: auto;
   image-rendering: auto;
   object-fit: contain;
+  aspect-ratio: auto;
 }
 
-/* ✅ Next.js <Image /> ラッパー対応（画像ブレ防止） */
-.image-wrapper {
-  display: block;
-  position: relative;
-  width: 100%;
-}
-
-/* ✅ モーダル用オーバーレイ */
+/* ✅ モーダルオーバーレイ */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* ✅ モーダル画像本体 */
 .modal-img {
-  max-width: 100%;
-  max-height: 90vh;
-  height: auto;
-  image-rendering: auto;
-  object-fit: contain;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  max-width: 100% !important;
+  max-height: 90vh !important;
+  height: auto !important;
+  width: auto !important;
+  object-fit: contain !important;
+  image-rendering: auto !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+  display: block !important;
+  z-index: 10000 !important;
 }
-

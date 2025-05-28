@@ -1,6 +1,6 @@
 // components/ModalImage.tsx
+
 import { useState } from 'react'
-import Image from 'next/image'
 
 type ModalImageProps = {
   src: string
@@ -19,32 +19,34 @@ export default function ModalImage({
 
   return (
     <>
-      {/* 通常表示（幅100%・高さ自動、原寸サイズ指定） */}
-      <div className="cursor-zoom-in w-full h-auto" onClick={() => setIsOpen(true)}>
-        <Image
+      {/* 表示エリアでアスペクト比を維持 */}
+      <div
+        className="cursor-zoom-in w-full"
+        style={{ aspectRatio: `${width} / ${height}` }}
+        onClick={() => setIsOpen(true)}
+      >
+        <img
           src={src}
           alt={alt}
           width={width}
           height={height}
-          loading="lazy"
           decoding="async"
-          unoptimized
-          className="w-full h-auto object-contain"
+          loading="lazy"
+          style={{ objectFit: 'contain', width: '100%', height: '100%' }}
         />
       </div>
 
-      {/* モーダル表示（原寸大に近い） */}
+      {/* モーダル画像（クリックで閉じる） */}
       {isOpen && (
         <div className="modal-overlay" onClick={() => setIsOpen(false)}>
-          <Image
+          <img
             src={src}
             alt={alt}
+            className="modal-img cursor-zoom-out"
             width={width}
             height={height}
-            loading="eager"
             decoding="sync"
-            unoptimized
-            className="modal-img cursor-zoom-out"
+            loading="eager"
           />
         </div>
       )}
