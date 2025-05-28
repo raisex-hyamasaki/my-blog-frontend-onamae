@@ -1,9 +1,9 @@
-/* my-blog-frontend\styles\globals.css */
+/* styles\globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown 内のインラインコード（バッククォート） */
+/* ✅ Markdown 内のインラインコード */
 .prose code:not(pre code) {
   background-color: #e0f2fe !important;
   color: #dc2626 !important;
@@ -14,7 +14,7 @@
   font-family: monospace;
 }
 
-/* ✅ Markdown の見出し内 code を本文と同じサイズに */
+/* ✅ Markdown の見出し内 code */
 .prose h1 code,
 .prose h2 code,
 .prose h3 code,
@@ -30,7 +30,7 @@
   font-family: monospace;
 }
 
-/* ✅ コードブロック（pre）全体 */
+/* ✅ コードブロック */
 .prose pre {
   background-color: #1e293b !important;
   color: #f8fafc;
@@ -40,7 +40,6 @@
   padding: 1rem;
 }
 
-/* ✅ コードブロック内の code */
 .prose pre code {
   background: none !important;
   color: inherit !important;
@@ -48,7 +47,7 @@
   font-size: 0.9rem;
 }
 
-/* ✅ Copyボタン */
+/* ✅ コピーボタン */
 button.copy-button {
   position: absolute;
   top: 0.5rem;
@@ -62,7 +61,7 @@ button.copy-button {
   opacity: 1;
 }
 
-/* ✅ Markdown テーブルスタイル */
+/* ✅ テーブル */
 .prose table {
   width: 100%;
   border-collapse: collapse;
@@ -80,17 +79,15 @@ button.copy-button {
   font-weight: bold;
 }
 
-/* ✅ Markdown 画像（中央寄せ＋最大サイズで原寸優先） */
-.prose img {
-  display: block;
-  margin: 1.5rem auto;
+/* ✅ 通常画像：レスポンシブ + ピンボケ防止 */
+img {
   max-width: 100%;
   height: auto;
-  object-fit: contain;
   image-rendering: auto;
+  object-fit: contain;
 }
 
-/* ✅ クリック画像用モーダル表示スタイル */
+/* ✅ モーダル用オーバーレイ */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -103,15 +100,14 @@ button.copy-button {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  overflow: auto;
 }
 
+/* ✅ モーダル画像本体 */
 .modal-img {
-  width: auto;
-  height: auto;
-  max-width: none; /* ← これで縮小制限を解除 */
+  max-width: 100%;
   max-height: 90vh;
-  object-fit: contain;
+  height: auto;
   image-rendering: auto;
+  object-fit: contain;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }

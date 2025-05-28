@@ -11,7 +11,7 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
 
   return (
     <>
-      {/* 通常表示（レスポンシブで最大幅） */}
+      {/* 通常表示（幅100%・高さ自動） */}
       <img
         src={src}
         alt={alt}
@@ -19,7 +19,7 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
         onClick={() => setIsOpen(true)}
       />
 
-      {/* モーダル表示（原寸＋レスポンシブ＋中央寄せ） */}
+      {/* モーダル表示（原寸大に近い） */}
       {isOpen && (
         <div className="modal-overlay" onClick={() => setIsOpen(false)}>
           <img
