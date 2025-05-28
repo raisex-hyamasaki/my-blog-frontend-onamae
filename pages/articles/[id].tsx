@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -20,7 +18,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
-type Article = {
+interface Article {
   id: number
   title: string
   content: string
@@ -29,7 +27,7 @@ type Article = {
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
-type Props = {
+interface Props {
   article: Article | null
 }
 
@@ -65,28 +63,12 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
-      {/* 固定ヘッダー全体（枠なし） */}
-      <div className="sticky top-0 z-50 bg-white shadow-sm">
+      {/* 固定ヘッダー全体 */}
+      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-blue-600 hover:text-gray-600"
-          >
-            📝 レイズクロス Tech Blog
+          <Link href="/" className="text-2xl text-blue-600 hover:text-gray-500 font-bold">
+            レイズクロス Tech Blog
           </Link>
-          <div className="flex gap-3 items-center">
-            <a
-              href="https://b.hatena.ne.jp/entry/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src="/icons/hatena.svg"
-                alt="はてなブックマーク"
-                className="w-5 h-5"
-              />
-            </a>
-          </div>
         </header>
       </div>
 
@@ -142,9 +124,7 @@ export default function ArticlePage({ article }: Props) {
                 <div className="relative">
                   <button
                     className="absolute top-2 right-2 bg-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-400"
-                    onClick={() =>
-                      navigator.clipboard.writeText(String(children))
-                    }
+                    onClick={() => navigator.clipboard.writeText(String(children))}
                   >
                     Copy
                   </button>
@@ -161,10 +141,7 @@ export default function ArticlePage({ article }: Props) {
             },
             div(props) {
               const content = props.children
-              if (
-                typeof content === 'string' &&
-                content.trimStart().startsWith('graph')
-              ) {
+              if (typeof content === 'string' && content.trimStart().startsWith('graph')) {
                 return <Mermaid chart={content} />
               }
               return <div {...props} />
@@ -184,11 +161,12 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー（完全再現） */}
-      <div className="text-center text-sm mb-4">
-        <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
-        <br />
-        ご興味のある方は以下の採用情報をご確認ください。
+      {/* 求人バナー 完全再現版 */}
+      <div className="text-center text-sm mb-2">
+        <p>
+          <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。<br />
+          ご興味のある方は以下の採用情報をご確認ください。
+        </p>
       </div>
       <a
         href="https://en-gage.net/raisex_career/"
@@ -197,7 +175,7 @@ export default function ArticlePage({ article }: Props) {
         className="block mb-10"
       >
         <img
-          src="/recruit-banner.jpg"
+          src="/recruit-banner-rich.jpg"
           alt="採用バナー"
           className="w-full h-auto rounded shadow"
         />
