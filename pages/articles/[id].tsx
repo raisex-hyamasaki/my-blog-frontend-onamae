@@ -11,14 +11,14 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
-interface Article {
+type Article = {
   id: number
   title: string
   content: string
@@ -27,7 +27,7 @@ interface Article {
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
-interface Props {
+type Props = {
   article: Article | null
 }
 
@@ -48,8 +48,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 }
 
 export default function ArticlePage({ article }: Props) {
+  const [shareUrl, setShareUrl] = useState('')
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href)
       import('mermaid').then((m) => {
         m.default.initialize({ startOnLoad: true })
         m.default.init()
@@ -59,7 +62,6 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
@@ -71,33 +73,17 @@ export default function ArticlePage({ article }: Props) {
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a
-              href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/icons/x.svg" alt="X" className="w-6 h-6" />
+            <a href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+              <img src="/icons/x.svg" alt="X" className="w-6 h-6 inline" />
             </a>
-            <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+              <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6 inline" />
             </a>
-            <a
-              href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/icons/line.svg" alt="LINE" className="w-6 h-6" />
+            <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+              <img src="/icons/line.svg" alt="LINE" className="w-6 h-6 inline" />
             </a>
-            <a
-              href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6" />
+            <a href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+              <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6 inline" />
             </a>
           </div>
         </header>
@@ -110,7 +96,7 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {Array.isArray(article.tags) && article.tags.length > 0 && (
+      {article.tags && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag, index) => (
             <span
@@ -175,10 +161,7 @@ export default function ArticlePage({ article }: Props) {
           },
           div(props) {
             const content = props.children
-            if (
-              typeof content === 'string' &&
-              content.trimStart().startsWith('graph')
-            ) {
+            if (typeof content === 'string' && content.trimStart().startsWith('graph')) {
               return <Mermaid chart={content} />
             }
             return <div {...props} />
