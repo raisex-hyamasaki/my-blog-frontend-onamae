@@ -63,30 +63,36 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
-      {/* ヘッダー */}
+      {/* コンパクト固定ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
-        <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
-          >
+        <header className="max-w-screen-lg mx-auto px-4 py-2 flex items-center justify-between">
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
             📝 レイズクロス Tech Blog
           </Link>
-          <a href="#disqus_thread">
-            <img src="/icons/hatena.svg" alt="Disqus" className="w-5 h-5" />
-          </a>
+          <div className="flex gap-3 items-center">
+            <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/x.svg" alt="X" className="w-6 h-6" />
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
+            </a>
+            <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/line.svg" alt="LINE" className="w-6 h-6" />
+            </a>
+            <a href="#disqus_thread">
+              <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6" />
+            </a>
+          </div>
         </header>
       </div>
 
-      {/* タイトル・更新日 */}
-      <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
-      <div className="text-sm text-gray-500 mb-4">
+      {/* タイトル・更新日・タグ */}
+      <h1 className="mt-8 text-3xl font-bold text-blue-700 text-center">{article.title}</h1>
+      <div className="text-sm text-gray-500 mb-2 text-center">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
-
-      {/* タグ */}
-      {article.tags && article.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
+      {Array.isArray(article.tags) && article.tags.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
           {article.tags.map((tag, index) => (
             <span
               key={index}
@@ -98,7 +104,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル */}
+      {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
