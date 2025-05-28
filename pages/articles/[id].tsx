@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -65,27 +63,15 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
-      {/* 固定ヘッダー（画像②準拠） */}
+      {/* 固定ヘッダー全体 */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl text-blue-600 hover:text-gray-500 font-bold"
-          >
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/x.svg" alt="X" className="w-6 h-6" />
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
-            </a>
-            <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/line.svg" alt="LINE" className="w-6 h-6" />
-            </a>
-            <a href="#disqus_thread">
-              <img src="/icons/hatena.svg" alt="Disqus" className="w-6 h-6" />
+            <a href="https://b.hatena.ne.jp/entry/" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/hatena.svg" alt="はてな" className="w-5 h-5" />
             </a>
           </div>
         </header>
@@ -172,7 +158,7 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* 戻るボタン */}
-      <div className="my-6">
+      <div className="my-6 text-center">
         <Link href="/">
           <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">
             ← 記事一覧に戻る
@@ -180,7 +166,7 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー */}
+      {/* 求人バナー完全再現 */}
       <div className="text-center text-sm mb-4">
         <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
         <br />
