@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -20,15 +18,26 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
-type Tag = { id: number; name: string }
+type Tag = {
+  id: number
+  attributes: {
+    name: string
+  }
+}
 
 type Article = {
   id: number
   title: string
   content: string
   updatedAt: string
-  tags?: Tag[]
-  thumbnail?: { formats?: { medium?: { url?: string } } }[]
+  tags?: {
+    data: Tag[]
+  }
+  thumbnail?: {
+    formats?: {
+      medium?: { url?: string }
+    }
+  }[]
 }
 
 type Props = {
@@ -119,20 +128,20 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {article.tags && article.tags.length > 0 && (
+      {article.tags?.data?.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.map((tag) => (
+          {article.tags.data.map((tag) => (
             <span
               key={tag.id}
               className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
             >
-              #{tag.name}
+              #{tag.attributes.name}
             </span>
           ))}
         </div>
       )}
 
-      {/* サムネイル画像 */}
+      {/* サムネイル */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
