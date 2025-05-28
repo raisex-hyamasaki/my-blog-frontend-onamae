@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -63,15 +65,26 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
-      {/* 固定ヘッダー全体 */}
-      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
+      {/* 固定ヘッダー全体（枠なし） */}
+      <div className="sticky top-0 z-50 bg-white shadow-sm">
         <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-blue-700 hover:text-gray-500">
-            レイズクロス Tech Blog
+          <Link
+            href="/"
+            className="text-2xl font-bold text-blue-600 hover:text-gray-600"
+          >
+            📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a href="#disqus_thread">
-              <img src="/icons/hatena.svg" alt="Hatena" className="w-4 h-4" />
+            <a
+              href="https://b.hatena.ne.jp/entry/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="/icons/hatena.svg"
+                alt="はてなブックマーク"
+                className="w-5 h-5"
+              />
             </a>
           </div>
         </header>
@@ -129,7 +142,9 @@ export default function ArticlePage({ article }: Props) {
                 <div className="relative">
                   <button
                     className="absolute top-2 right-2 bg-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-400"
-                    onClick={() => navigator.clipboard.writeText(String(children))}
+                    onClick={() =>
+                      navigator.clipboard.writeText(String(children))
+                    }
                   >
                     Copy
                   </button>
@@ -146,7 +161,10 @@ export default function ArticlePage({ article }: Props) {
             },
             div(props) {
               const content = props.children
-              if (typeof content === 'string' && content.trimStart().startsWith('graph')) {
+              if (
+                typeof content === 'string' &&
+                content.trimStart().startsWith('graph')
+              ) {
                 return <Mermaid chart={content} />
               }
               return <div {...props} />
@@ -166,7 +184,7 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー（完全再現スタイル） */}
+      {/* 求人バナー（完全再現） */}
       <div className="text-center text-sm mb-4">
         <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
         <br />
