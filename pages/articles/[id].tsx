@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -68,21 +66,12 @@ export default function ArticlePage({ article }: Props) {
       {/* 固定ヘッダー全体 */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold">
+          <Link href="/" className="text-2xl font-bold text-blue-700 hover:text-gray-500">
             レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/x.svg" alt="X" className="w-5 h-5" />
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/facebook.svg" alt="Facebook" className="w-5 h-5" />
-            </a>
-            <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/line.svg" alt="LINE" className="w-5 h-5" />
-            </a>
             <a href="#disqus_thread">
-              <img src="/icons/hatena.svg" alt="Disqus" className="w-5 h-5" />
+              <img src="/icons/hatena.svg" alt="Hatena" className="w-4 h-4" />
             </a>
           </div>
         </header>
