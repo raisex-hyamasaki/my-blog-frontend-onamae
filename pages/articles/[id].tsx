@@ -32,7 +32,7 @@ type Article = {
       }
     }[]
   }
-  thumbnail?: { formats?: { medium?: { url?: string } } }[]
+  thumbnail?: { url?: string; formats?: any }[]
 }
 
 type Props = {
@@ -70,10 +70,11 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
-  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
+  // ✅ 原寸大URLを使用するよう修正（formats.medium → url）
+  const thumbnailUrl = article.thumbnail?.[0]?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify">
+    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
@@ -120,7 +121,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル画像 */}
+      {/* サムネイル画像（モーダル付き） */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
