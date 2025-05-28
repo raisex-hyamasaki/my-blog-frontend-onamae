@@ -85,7 +85,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       </header>
 
-      {/* タイトル・日付・タグ */}
+      {/* タイトル・更新日・タグ */}
       <h1 className="mt-8">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -176,7 +176,7 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー（改善スタイル） */}
+      {/* 求人バナー */}
       <div className="bg-white border border-gray-300 p-4 rounded-md shadow-md mb-10">
         <p className="text-center text-sm mb-2">
           <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
@@ -198,3 +198,4 @@ export default function ArticlePage({ article }: Props) {
       </div>
     </div>
   )
+}
