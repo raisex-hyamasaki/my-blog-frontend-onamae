@@ -18,26 +18,20 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
-type Tag = {
-  id: number
-  attributes: {
-    name: string
-  }
-}
-
 type Article = {
   id: number
   title: string
   content: string
   updatedAt: string
   tags?: {
-    data: Tag[]
+    data: {
+      id: number
+      attributes: {
+        name: string
+      }
+    }[]
   }
-  thumbnail?: {
-    formats?: {
-      medium?: { url?: string }
-    }
-  }[]
+  thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
 type Props = {
@@ -50,7 +44,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const { id } = context.query
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail&populate=tags`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[thumbnail]=true&populate[tags]=true`
     )
     const json = await res.json()
     if (!json?.data) return { notFound: true }
@@ -128,7 +122,7 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {article.tags?.data?.length > 0 && (
+      {Array.isArray(article.tags?.data) && article.tags.data.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.data.map((tag) => (
             <span
