@@ -11,14 +11,14 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
-type Article = {
+interface Article {
   id: number
   title: string
   content: string
@@ -27,7 +27,7 @@ type Article = {
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
-type Props = {
+interface Props {
   article: Article | null
 }
 
@@ -48,8 +48,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 }
 
 export default function ArticlePage({ article }: Props) {
+  const [currentUrl, setCurrentUrl] = useState('')
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href)
       import('mermaid').then((m) => {
         m.default.initialize({ startOnLoad: true })
         m.default.init()
@@ -62,16 +65,19 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
+    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12">
       {/* 固定ヘッダー全体 */}
-      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
-        <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
+      <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
+        <header className="flex justify-between items-center px-4 py-3">
+          <Link
+            href="/"
+            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
+          >
             📝 レイズクロス Tech Blog
           </Link>
-          <div className="flex gap-3 items-center">
-            <a href="https://b.hatena.ne.jp/entry/" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/hatena.svg" alt="はてな" className="w-5 h-5" />
+          <div className="flex items-center">
+            <a href={currentUrl ? `https://b.hatena.ne.jp/entry/${currentUrl}` : '#'} target="_blank" rel="noopener noreferrer">
+              <img src="/icons/hatena.svg" alt="Hatena" className="w-5 h-5" />
             </a>
           </div>
         </header>
@@ -101,7 +107,7 @@ export default function ArticlePage({ article }: Props) {
       )}
 
       {/* Markdown本文 */}
-      <div className="prose">
+      <div className="prose w-full">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
@@ -146,7 +152,10 @@ export default function ArticlePage({ article }: Props) {
             },
             div(props) {
               const content = props.children
-              if (typeof content === 'string' && content.trimStart().startsWith('graph')) {
+              if (
+                typeof content === 'string' &&
+                content.trimStart().startsWith('graph')
+              ) {
                 return <Mermaid chart={content} />
               }
               return <div {...props} />
@@ -166,10 +175,9 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー完全再現 */}
-      <div className="text-center text-sm mb-4">
-        <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
-        <br />
+      {/* 求人バナー 完全再現 */}
+      <div className="text-center text-sm mb-2">
+        <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。<br />
         ご興味のある方は以下の採用情報をご確認ください。
       </div>
       <a
