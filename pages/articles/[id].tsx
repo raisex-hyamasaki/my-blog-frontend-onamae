@@ -25,14 +25,12 @@ type Article = {
   content: string
   updatedAt: string
   tags?: {
-    data: {
-      id: number
-      attributes: {
-        name: string
-      }
-    }[]
-  }
-  thumbnail?: { url?: string }[]
+    id: number
+    name: string
+  }[]
+  thumbnail?: {
+    url?: string
+  }[]
 }
 
 type Props = {
@@ -43,14 +41,29 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
   const { id } = context.query
+
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail,tags`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate=thumbnail,tags`
     )
     const json = await res.json()
-    if (!json?.data) return { notFound: true }
-    return { props: { article: json.data } }
-  } catch {
+
+    if (!json?.data || json.data.length === 0) return { notFound: true }
+
+    const raw = json.data[0]
+
+    const article: Article = {
+      id: raw.id,
+      title: raw.title,
+      content: raw.content,
+      updatedAt: raw.updatedAt,
+      tags: raw.tags ?? [],
+      thumbnail: raw.thumbnail ?? []
+    }
+
+    return { props: { article } }
+  } catch (e) {
+    console.error('Error fetching article:', e)
     return { props: { article: null } }
   }
 }
@@ -70,13 +83,10 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
-  const thumbnailUrl = article.thumbnail?.[0]?.url
-    ? `${baseUrl}${article.thumbnail[0].url}`
-    : ''
+  const thumbnailUrl = article.thumbnail?.[0]?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
+    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify">
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
@@ -106,24 +116,24 @@ export default function ArticlePage({ article }: Props) {
       {/* タイトル・更新日 */}
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-4">
-        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+        更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
 
       {/* タグ */}
-      {Array.isArray(article.tags?.data) && article.tags.data.length > 0 && (
+      {Array.isArray(article.tags) && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.data.map((tag) => (
+          {article.tags.map((tag) => (
             <span
               key={tag.id}
               className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
             >
-              #{tag.attributes.name}
+              #{tag.name}
             </span>
           ))}
         </div>
       )}
 
-      {/* サムネイル画像 */}
+      {/* サムネイル */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
@@ -137,7 +147,7 @@ export default function ArticlePage({ article }: Props) {
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage src={`${baseUrl}${src}`} alt={alt} />
+              <ModalImage src={src} alt={alt} />
             </div>
           ),
           code(props) {
