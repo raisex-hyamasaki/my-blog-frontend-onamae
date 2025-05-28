@@ -72,7 +72,7 @@ export default function ArticlePage({ article }: Props) {
             href="/"
             className="text-xl text-blue-600 hover:text-gray-500 font-bold"
           >
-            レイズクロス Tech Blog
+            📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
             <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
