@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -41,13 +43,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
   const { id } = context.query
-
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate=thumbnail,tags`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate[thumbnail]=true&populate[tags]=true`
     )
     const json = await res.json()
-
     if (!json?.data || json.data.length === 0) return { notFound: true }
 
     const raw = json.data[0]
@@ -57,13 +57,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       title: raw.title,
       content: raw.content,
       updatedAt: raw.updatedAt,
-      tags: raw.tags ?? [],
-      thumbnail: raw.thumbnail ?? []
+      tags: raw.tags || [],
+      thumbnail: raw.thumbnail || [],
     }
 
     return { props: { article } }
-  } catch (e) {
-    console.error('Error fetching article:', e)
+  } catch {
     return { props: { article: null } }
   }
 }
@@ -86,14 +85,11 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify">
+    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
-          >
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
@@ -116,17 +112,14 @@ export default function ArticlePage({ article }: Props) {
       {/* タイトル・更新日 */}
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-4">
-        更新日: {new Date(article.updatedAt).toLocaleString()}
+        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
 
       {/* タグ */}
       {Array.isArray(article.tags) && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
+            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
               #{tag.name}
             </span>
           ))}
@@ -166,18 +159,10 @@ export default function ArticlePage({ article }: Props) {
             }
             return (
               <div className="relative">
-                <button
-                  className="absolute top-2 right-2 copy-button"
-                  onClick={() => navigator.clipboard.writeText(String(children))}
-                >
+                <button className="absolute top-2 right-2 copy-button" onClick={() => navigator.clipboard.writeText(String(children))}>
                   Copy
                 </button>
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match?.[1]}
-                  PreTag="div"
-                  {...rest}
-                >
+                <SyntaxHighlighter style={oneDark} language={match?.[1]} PreTag="div" {...rest}>
                   {String(children).replace(/\n$/, '')}
                 </SyntaxHighlighter>
               </div>
@@ -210,17 +195,8 @@ export default function ArticlePage({ article }: Props) {
         <br />
         ご興味のある方は以下の採用情報をご確認ください。
       </div>
-      <a
-        href="https://en-gage.net/raisex_career/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block mb-10"
-      >
-        <img
-          src="/recruit-banner.jpg"
-          alt="採用バナー"
-          className="w-full h-auto rounded shadow"
-        />
+      <a href="https://en-gage.net/raisex_career/" target="_blank" rel="noopener noreferrer" className="block mb-10">
+        <img src="/recruit-banner.jpg" alt="採用バナー" className="w-full h-auto rounded shadow" />
       </a>
     </div>
   )
