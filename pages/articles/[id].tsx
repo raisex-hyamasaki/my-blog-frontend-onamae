@@ -18,6 +18,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
+// 型定義
 interface Article {
   id: number
   title: string
@@ -31,6 +32,7 @@ interface Props {
   article: Article | null
 }
 
+// SSR
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
@@ -63,16 +65,19 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
-      {/* 固定ヘッダー全体 */}
+      {/* タイトル行全体固定 */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-2xl text-blue-600 hover:text-gray-500 font-bold">
+          <Link href="/" className="text-2xl font-bold text-blue-600 hover:text-gray-500">
             レイズクロス Tech Blog
           </Link>
+          <a href="#disqus_thread">
+            <img src="/icons/hatena.svg" alt="はてな" className="w-5 h-5" />
+          </a>
         </header>
       </div>
 
-      {/* タイトル・更新日・タグ */}
+      {/* 記事タイトル・更新日・タグ */}
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -161,25 +166,42 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー 完全再現版 */}
-      <div className="text-center text-sm mb-2">
-        <p>
-          <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。<br />
+      {/* 求人バナー（完全反映） */}
+      <div className="bg-white text-sm text-center mb-10">
+        <p className="mb-2">
+          <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
+          <br />
           ご興味のある方は以下の採用情報をご確認ください。
         </p>
+        <a
+          href="https://en-gage.net/raisex_career/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          <img
+            src="/recruit-banner.jpg"
+            alt="採用バナー"
+            className="w-full h-auto rounded shadow"
+          />
+        </a>
+        <div className="text-left text-xs mt-2">
+          <span className="font-bold text-gray-500">現在4職種募集中：</span>
+          <span className="text-gray-600 ml-1">
+            [開発支援経験者の募集]｜WEB・オープン系開発エンジニア 他
+          </span>
+        </div>
+        <div className="flex justify-end mt-2">
+          <a
+            href="https://en-gage.net/raisex_career/"
+            className="text-xs text-white bg-blue-600 px-3 py-1 rounded hover:bg-blue-700"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            今すぐチェック！
+          </a>
+        </div>
       </div>
-      <a
-        href="https://en-gage.net/raisex_career/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block mb-10"
-      >
-        <img
-          src="/recruit-banner-rich.jpg"
-          alt="採用バナー"
-          className="w-full h-auto rounded shadow"
-        />
-      </a>
     </div>
   )
 }
