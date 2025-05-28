@@ -14,10 +14,10 @@ import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
-import ModalImage from '@/components/ModalImage'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 
 type Article = {
   id: number
@@ -84,7 +84,6 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
-      {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
@@ -107,13 +106,11 @@ export default function ArticlePage({ article }: Props) {
         </header>
       </div>
 
-      {/* タイトル・更新日 */}
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-4">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
 
-      {/* タグ */}
       {Array.isArray(article.tags) && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag) => (
@@ -124,21 +121,33 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
-          <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
+          <Image
+            src={thumbnailUrl}
+            alt="サムネイル画像"
+            width={1280}
+            height={720}
+            unoptimized
+            className="w-full h-auto cursor-zoom-in"
+          />
         </div>
       )}
 
-      {/* Markdown本文 */}
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage src={src} alt={alt} />
+              <Image
+                src={src}
+                alt={alt}
+                width={1280}
+                height={720}
+                unoptimized
+                className="w-full h-auto cursor-zoom-in"
+              />
             </div>
           ),
           code(props) {
@@ -178,7 +187,6 @@ export default function ArticlePage({ article }: Props) {
         {article.content}
       </ReactMarkdown>
 
-      {/* 戻るボタン */}
       <div className="my-8 text-center">
         <Link href="/">
           <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">
@@ -187,7 +195,6 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー */}
       <div className="text-center text-sm mb-4">
         <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
         <br />

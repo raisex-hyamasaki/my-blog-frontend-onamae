@@ -80,11 +80,21 @@ button.copy-button {
 }
 
 /* ✅ 通常画像：レスポンシブ + ピンボケ防止 */
-img {
+img,
+.image-wrapper img,
+.image-wrapper picture,
+.image-wrapper picture img {
   max-width: 100%;
   height: auto;
   image-rendering: auto;
   object-fit: contain;
+}
+
+/* ✅ Next.js <Image /> ラッパー対応（画像ブレ防止） */
+.image-wrapper {
+  display: block;
+  position: relative;
+  width: 100%;
 }
 
 /* ✅ モーダル用オーバーレイ */
@@ -107,8 +117,8 @@ img {
   max-width: 100%;
   max-height: 90vh;
   height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
   image-rendering: auto;
+  object-fit: contain;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
+
