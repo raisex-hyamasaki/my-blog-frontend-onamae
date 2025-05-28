@@ -11,27 +11,22 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
 
   return (
     <>
-      {/* 通常表示（レスポンシブ幅） */}
+      {/* 通常表示（レスポンシブで最大幅） */}
       <img
         src={src}
         alt={alt}
-        className="cursor-zoom-in w-full max-w-full h-auto object-contain"
+        className="cursor-zoom-in w-full h-auto"
         onClick={() => setIsOpen(true)}
       />
 
-      {/* モーダル表示（原寸 or 最大90vhまで） */}
+      {/* モーダル表示（原寸＋レスポンシブ＋中央寄せ） */}
       {isOpen && (
         <div className="modal-overlay" onClick={() => setIsOpen(false)}>
-          <div className="modal-content">
-            <img
-              src={src}
-              alt={alt}
-              className="cursor-zoom-out"
-              style={{
-                imageRendering: 'auto',
-              }}
-            />
-          </div>
+          <img
+            src={src}
+            alt={alt}
+            className="modal-img cursor-zoom-out"
+          />
         </div>
       )}
     </>
