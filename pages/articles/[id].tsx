@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -63,30 +65,31 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
-      {/* 固定ヘッダー */}
-      <header className="sticky top-0 z-50 bg-white px-4 py-2 border-b shadow-sm flex items-center justify-between">
-        <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
-          <span>📝</span>
-          <Link href="/">レイズクロス Tech Blog</Link>
-        </div>
-        <div className="flex gap-3 items-center">
-          <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/x.svg" alt="X" className="w-5 h-5" />
-          </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/facebook.svg" alt="Facebook" className="w-5 h-5" />
-          </a>
-          <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/line.svg" alt="LINE" className="w-5 h-5" />
-          </a>
-          <a href="#disqus_thread">
-            <img src="/icons/hatena.svg" alt="Disqus" className="w-5 h-5" />
-          </a>
-        </div>
-      </header>
+      {/* 固定ヘッダー全体 */}
+      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
+        <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold">
+            レイズクロス Tech Blog
+          </Link>
+          <div className="flex gap-3 items-center">
+            <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/x.svg" alt="X" className="w-5 h-5" />
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/facebook.svg" alt="Facebook" className="w-5 h-5" />
+            </a>
+            <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/line.svg" alt="LINE" className="w-5 h-5" />
+            </a>
+            <a href="#disqus_thread">
+              <img src="/icons/hatena.svg" alt="Disqus" className="w-5 h-5" />
+            </a>
+          </div>
+        </header>
+      </div>
 
       {/* タイトル・更新日・タグ */}
-      <h1 className="mt-8">{article.title}</h1>
+      <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
@@ -137,9 +140,7 @@ export default function ArticlePage({ article }: Props) {
                 <div className="relative">
                   <button
                     className="absolute top-2 right-2 bg-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-400"
-                    onClick={() =>
-                      navigator.clipboard.writeText(String(children))
-                    }
+                    onClick={() => navigator.clipboard.writeText(String(children))}
                   >
                     Copy
                   </button>
@@ -170,32 +171,30 @@ export default function ArticlePage({ article }: Props) {
       {/* 戻るボタン */}
       <div className="my-6">
         <Link href="/">
-          <button className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">
+          <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">
             ← 記事一覧に戻る
           </button>
         </Link>
       </div>
 
-      {/* 求人バナー */}
-      <div className="bg-white border border-gray-300 p-4 rounded-md shadow-md mb-10">
-        <p className="text-center text-sm mb-2">
-          <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
-          <br />
-          ご興味のある方は以下の採用情報をご確認ください。
-        </p>
-        <a
-          href="https://en-gage.net/raisex_career/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          <img
-            src="/recruit-banner.jpg"
-            alt="採用バナー"
-            className="w-full h-auto rounded"
-          />
-        </a>
+      {/* 求人バナー（完全再現スタイル） */}
+      <div className="text-center text-sm mb-4">
+        <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
+        <br />
+        ご興味のある方は以下の採用情報をご確認ください。
       </div>
+      <a
+        href="https://en-gage.net/raisex_career/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mb-10"
+      >
+        <img
+          src="/recruit-banner.jpg"
+          alt="採用バナー"
+          className="w-full h-auto rounded shadow"
+        />
+      </a>
     </div>
   )
 }
