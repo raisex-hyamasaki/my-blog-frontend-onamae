@@ -21,15 +21,23 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
 
       {/* モーダル表示（中央原寸） */}
       {isOpen && (
-        <div className="modal-overlay" onClick={() => setIsOpen(false)}>
-          <div className="modal-content">
-            <img
-              src={src}
-              alt={alt}
-              className="cursor-zoom-out"
-              style={{ imageRendering: 'auto' }}
-            />
-          </div>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center"
+          onClick={() => setIsOpen(false)}
+        >
+          <img
+            src={src}
+            alt={alt}
+            className="cursor-zoom-out"
+            style={{
+              maxWidth: '100%',
+              maxHeight: '90vh',
+              width: 'auto',
+              height: 'auto',
+              objectFit: 'contain',
+              imageRendering: 'auto',
+            }}
+          />
         </div>
       )}
     </>
