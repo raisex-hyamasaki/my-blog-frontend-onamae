@@ -104,7 +104,7 @@ img {
 
 /* ✅ モーダル画像本体 */
 .modal-img {
-  max-width: 100%;
+  max-width: none; /* ← 原寸大表示を妨げる上限幅制限を解除 */
   max-height: 90vh;
   height: auto;
   image-rendering: auto;
