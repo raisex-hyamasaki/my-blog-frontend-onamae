@@ -77,10 +77,7 @@ export default function ArticlePage({ article }: Props) {
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
-          >
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
@@ -110,10 +107,7 @@ export default function ArticlePage({ article }: Props) {
       {Array.isArray(article.tags?.data) && article.tags.data.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.data.map((tag) => (
-            <span
-              key={tag.id}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
+            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
               #{tag.attributes.name}
             </span>
           ))}
@@ -123,7 +117,7 @@ export default function ArticlePage({ article }: Props) {
       {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
-          <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
+          <ModalImage src={thumbnailUrl} alt="サムネイル画像" originalSize />
         </div>
       )}
 
@@ -134,7 +128,7 @@ export default function ArticlePage({ article }: Props) {
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage src={src} alt={alt} />
+              <ModalImage src={src} alt={alt} originalSize />
             </div>
           ),
           code(props) {
@@ -203,11 +197,7 @@ export default function ArticlePage({ article }: Props) {
         rel="noopener noreferrer"
         className="block mb-10"
       >
-        <img
-          src="/recruit-banner.jpg"
-          alt="採用バナー"
-          className="w-full h-auto rounded shadow"
-        />
+        <img src="/recruit-banner.jpg" alt="採用バナー" className="w-full h-auto rounded shadow" />
       </a>
     </div>
   )
