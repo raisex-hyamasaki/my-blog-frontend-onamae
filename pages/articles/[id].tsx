@@ -7,6 +7,15 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+// Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
+// 投稿更新日とタグ表示に対応（Strapi v5構造対応）
+// インラインコードに黄色背景＋黒文字対応済み（CSSで補強）
+// モーダルウィンドウ・原寸大対応
+// ER図表示対応（Mermaid導入）
+// 求人バナー表示対応
+// SNSシェアボタン表示対応
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -135,7 +144,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル */}
+      {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
@@ -160,7 +169,7 @@ export default function ArticlePage({ article }: Props) {
             }
             const match = /language-(\w+)/.exec(className || '')
 
-            if (inline) {
+            if (inline || !className) {
               return (
                 <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">
                   {children}
