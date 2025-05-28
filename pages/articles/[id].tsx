@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -18,8 +20,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
-// 型定義
-interface Article {
+type Article = {
   id: number
   title: string
   content: string
@@ -28,11 +29,10 @@ interface Article {
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
-interface Props {
+type Props = {
   article: Article | null
 }
 
-// SSR
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
@@ -65,19 +65,33 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
-      {/* タイトル行全体固定 */}
+      {/* 固定ヘッダー（画像②準拠） */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <header className="max-w-screen-md mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-blue-600 hover:text-gray-500">
+          <Link
+            href="/"
+            className="text-xl text-blue-600 hover:text-gray-500 font-bold"
+          >
             レイズクロス Tech Blog
           </Link>
-          <a href="#disqus_thread">
-            <img src="/icons/hatena.svg" alt="はてな" className="w-5 h-5" />
-          </a>
+          <div className="flex gap-3 items-center">
+            <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/x.svg" alt="X" className="w-6 h-6" />
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
+            </a>
+            <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
+              <img src="/icons/line.svg" alt="LINE" className="w-6 h-6" />
+            </a>
+            <a href="#disqus_thread">
+              <img src="/icons/hatena.svg" alt="Disqus" className="w-6 h-6" />
+            </a>
+          </div>
         </header>
       </div>
 
-      {/* 記事タイトル・更新日・タグ */}
+      {/* タイトル・更新日・タグ */}
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -166,42 +180,24 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー（完全反映） */}
-      <div className="bg-white text-sm text-center mb-10">
-        <p className="mb-2">
-          <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
-          <br />
-          ご興味のある方は以下の採用情報をご確認ください。
-        </p>
-        <a
-          href="https://en-gage.net/raisex_career/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          <img
-            src="/recruit-banner.jpg"
-            alt="採用バナー"
-            className="w-full h-auto rounded shadow"
-          />
-        </a>
-        <div className="text-left text-xs mt-2">
-          <span className="font-bold text-gray-500">現在4職種募集中：</span>
-          <span className="text-gray-600 ml-1">
-            [開発支援経験者の募集]｜WEB・オープン系開発エンジニア 他
-          </span>
-        </div>
-        <div className="flex justify-end mt-2">
-          <a
-            href="https://en-gage.net/raisex_career/"
-            className="text-xs text-white bg-blue-600 px-3 py-1 rounded hover:bg-blue-700"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            今すぐチェック！
-          </a>
-        </div>
+      {/* 求人バナー */}
+      <div className="text-center text-sm mb-4">
+        <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
+        <br />
+        ご興味のある方は以下の採用情報をご確認ください。
       </div>
+      <a
+        href="https://en-gage.net/raisex_career/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mb-10"
+      >
+        <img
+          src="/recruit-banner.jpg"
+          alt="採用バナー"
+          className="w-full h-auto rounded shadow"
+        />
+      </a>
     </div>
   )
 }
