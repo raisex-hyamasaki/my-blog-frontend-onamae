@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -18,12 +20,14 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
 
+type Tag = { id: number; name: string }
+
 type Article = {
   id: number
   title: string
   content: string
   updatedAt: string
-  tags?: string[]
+  tags?: Tag[]
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
@@ -69,20 +73,39 @@ export default function ArticlePage({ article }: Props) {
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
+          <Link
+            href="/"
+            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
+          >
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/x.svg" alt="X" className="w-6 h-6 inline" />
             </a>
-            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6 inline" />
             </a>
-            <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/line.svg" alt="LINE" className="w-6 h-6 inline" />
             </a>
-            <a href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6 inline" />
             </a>
           </div>
@@ -98,18 +121,18 @@ export default function ArticlePage({ article }: Props) {
       {/* タグ */}
       {article.tags && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.map((tag, index) => (
+          {article.tags.map((tag) => (
             <span
-              key={index}
+              key={tag.id}
               className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
             >
-              #{tag}
+              #{tag.name}
             </span>
           ))}
         </div>
       )}
 
-      {/* サムネイル */}
+      {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
