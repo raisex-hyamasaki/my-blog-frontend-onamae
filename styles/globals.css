@@ -5,8 +5,8 @@
 
 /* ✅ Markdown 内のインラインコード（バッククォート） */
 .prose code:not(pre code) {
-  background-color: #e0f2fe !important; /* 水色 */
-  color: #dc2626 !important;           /* 赤文字 */
+  background-color: #e0f2fe !important;
+  color: #dc2626 !important;
   font-weight: bold;
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
@@ -32,8 +32,8 @@
 
 /* ✅ コードブロック（pre）全体 */
 .prose pre {
-  background-color: #1e293b !important; /* 黒地（slate-800） */
-  color: #f8fafc;                        /* text-slate-50 */
+  background-color: #1e293b !important;
+  color: #f8fafc;
   border-radius: 0.5rem;
   overflow-x: auto;
   position: relative;
@@ -53,8 +53,8 @@ button.copy-button {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background-color: #e5e7eb !important; /* bg-gray-200 */
-  color: #111827 !important;            /* text-gray-900 */
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -76,12 +76,14 @@ button.copy-button {
   text-align: left;
 }
 .prose thead {
-  background-color: #e0f2fe; /* 水色 */
+  background-color: #e0f2fe;
   font-weight: bold;
 }
 
-/* ✅ すべての画像にレスポンシブ＆原寸大優先を適用 */
-img {
+/* ✅ Markdown 画像（中央寄せ＋最大サイズで原寸優先） */
+.prose img {
+  display: block;
+  margin: 1.5rem auto;
   max-width: 100%;
   height: auto;
   object-fit: contain;
@@ -101,12 +103,14 @@ img {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  overflow: auto;
 }
 
 .modal-img {
-  max-width: 100%;
-  max-height: 90vh;
+  width: auto;
   height: auto;
+  max-width: none; /* ← これで縮小制限を解除 */
+  max-height: 90vh;
   object-fit: contain;
   image-rendering: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);

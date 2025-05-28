@@ -73,7 +73,7 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
+    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify">
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
