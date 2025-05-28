@@ -16,6 +16,7 @@ import Link from 'next/link'
 import Mermaid from '../../components/Mermaid'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import type { Components } from 'react-markdown'
 
 type Article = {
   id: number
@@ -67,8 +68,46 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl =
     article.thumbnail?.[0]?.formats?.medium?.url || ''
 
+  const markdownComponents: Components = {
+    img: ({ node, ...props }) => (
+      <div className="flex justify-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img {...props} className="max-w-full h-auto" />
+      </div>
+    ),
+    code({ node, inline, className, children, ...props }) {
+      const match = /language-(\w+)/.exec(className || '')
+      if (inline) {
+        return (
+          <code className="bg-yellow-200 text-black px-1 rounded">
+            {children}
+          </code>
+        )
+      }
+      return (
+        <SyntaxHighlighter
+          style={oneDark}
+          language={match?.[1]}
+          PreTag="div"
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      )
+    },
+    div({ node, ...props }) {
+      if (
+        typeof props?.children === 'string' &&
+        props.children.trimStart().startsWith('graph')
+      ) {
+        return <Mermaid chart={props.children} />
+      }
+      return <div {...props} />
+    },
+  }
+
   return (
-    <div className="prose prose-slate mx-auto p-4">
+    <div className="prose prose-slate max-w-screen-md mx-auto px-4 py-6">
       {/* 固定ヘッダー */}
       <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 shadow border-b">
         <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
@@ -141,43 +180,7 @@ export default function ArticlePage({ article }: Props) {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
-          components={{
-            img: ({ node, ...props }) => (
-              <div className="flex justify-center">
-                <img {...props} className="max-w-full h-auto" />
-              </div>
-            ),
-            code({ node, inline, className, children, ...props }) {
-              const match = /language-(\w+)/.exec(className || '')
-              if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 rounded">
-                    {children}
-                  </code>
-                )
-              }
-              return (
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match?.[1]}
-                  PreTag="div"
-                  {...props}
-                >
-                  {String(children).replace(/\n$/, '')}
-                </SyntaxHighlighter>
-              )
-            },
-            div({ node, ...props }) {
-              // Mermaidコンテナ対応
-              if (
-                typeof props?.children === 'string' &&
-                props.children.trimStart().startsWith('graph')
-              ) {
-                return <Mermaid chart={props.children} />
-              }
-              return <div {...props} />
-            },
-          }}
+          components={markdownComponents}
         >
           {article.content}
         </ReactMarkdown>
