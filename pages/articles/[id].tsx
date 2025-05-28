@@ -24,13 +24,9 @@ type Article = {
   content: string
   updatedAt: string
   tags?: {
-    data: {
-      id: number
-      attributes: {
-        name: string
-      }
-    }[]
-  }
+    id: number
+    name: string
+  }[]
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
@@ -44,7 +40,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const { id } = context.query
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[thumbnail]=true&populate[tags]=true`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail&populate=tags`
     )
     const json = await res.json()
     if (!json?.data) return { notFound: true }
@@ -59,17 +55,12 @@ export default function ArticlePage({ article }: Props) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      console.log('🧾 article from Strapi:', article)
       setShareUrl(window.location.href)
       import('mermaid').then((m) => {
         m.default.initialize({ startOnLoad: true })
         m.default.init()
       })
-    }
-  }, [])
-
-  useEffect(() => {
-    if (article) {
-      console.log('🧾 article from Strapi:', article)
     }
   }, [article])
 
@@ -109,11 +100,14 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {Array.isArray(article.tags?.data) && article.tags.data.length > 0 && (
+      {Array.isArray(article.tags) && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.data.map((tag) => (
-            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-              #{tag.attributes.name}
+          {article.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
+            >
+              #{tag.name}
             </span>
           ))}
         </div>
@@ -158,7 +152,12 @@ export default function ArticlePage({ article }: Props) {
                 >
                   Copy
                 </button>
-                <SyntaxHighlighter style={oneDark} language={match?.[1]} PreTag="div" {...rest}>
+                <SyntaxHighlighter
+                  style={oneDark}
+                  language={match?.[1]}
+                  PreTag="div"
+                  {...rest}
+                >
                   {String(children).replace(/\n$/, '')}
                 </SyntaxHighlighter>
               </div>
