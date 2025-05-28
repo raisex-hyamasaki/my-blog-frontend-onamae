@@ -32,7 +32,7 @@ type Article = {
       }
     }[]
   }
-  thumbnail?: { url?: string; formats?: any }[]
+  thumbnail?: { url?: string }[]
 }
 
 type Props = {
@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const { id } = context.query
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[thumbnail]=true&populate[tags]=true`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail,tags`
     )
     const json = await res.json()
     if (!json?.data) return { notFound: true }
@@ -70,8 +70,10 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
-  // ✅ 原寸大URLを使用するよう修正（formats.medium → url）
-  const thumbnailUrl = article.thumbnail?.[0]?.url || ''
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
+  const thumbnailUrl = article.thumbnail?.[0]?.url
+    ? `${baseUrl}${article.thumbnail[0].url}`
+    : ''
 
   return (
     <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
@@ -121,7 +123,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル画像（モーダル付き） */}
+      {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
@@ -135,7 +137,7 @@ export default function ArticlePage({ article }: Props) {
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage src={src} alt={alt} />
+              <ModalImage src={`${baseUrl}${src}`} alt={alt} />
             </div>
           ),
           code(props) {
