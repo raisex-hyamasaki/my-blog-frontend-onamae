@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'

@@ -15,6 +15,10 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
       <img
         src={src}
         alt={alt}
+        width={1920}
+        height={1080}
+        decoding="async"
+        loading="lazy"
         className="cursor-zoom-in w-full h-auto"
         onClick={() => setIsOpen(true)}
       />
@@ -25,6 +29,10 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
           <img
             src={src}
             alt={alt}
+            width={1920}
+            height={1080}
+            decoding="async"
+            loading="lazy"
             className="modal-img cursor-zoom-out"
           />
         </div>

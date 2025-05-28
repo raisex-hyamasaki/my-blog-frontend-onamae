@@ -104,10 +104,11 @@ img {
 
 /* ✅ モーダル画像本体 */
 .modal-img {
-  max-width: none; /* ← 原寸大表示を妨げる上限幅制限を解除 */
+  max-width: 100%;
   max-height: 90vh;
   height: auto;
   image-rendering: auto;
   object-fit: contain;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  aspect-ratio: 16 / 9; /* 例: 一般的な横長 */
 }
