@@ -28,15 +28,39 @@
   font-family: monospace;
 }
 
-/* ✅ Markdown 表の枠線と背景色（青基調） */
+/* ✅ Markdown テーブルに枠線とヘッダー背景色を付与 */
 .prose table {
-  @apply w-full table-auto border border-sky-300;
-}
-.prose thead {
-  @apply bg-sky-100;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
 }
 .prose th,
 .prose td {
-  @apply border border-sky-300 px-4 py-2 text-sm;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
+}
+.prose thead {
+  background-color: #e0f2fe; /* bg-sky-100 */
+  font-weight: bold;
+}
+
+/* ✅ コードブロックの Copy ボタンを視認性高く調整 */
+button.copy-button {
+  background-color: #e5e7eb !important; /* bg-gray-200 */
+  color: #111827 !important;           /* text-gray-900 */
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* ✅ バッククォート囲い（インラインコード）を水色赤文字に変更（任意） */
+.prose p > code:not(pre code) {
+  background-color: #e0f2fe !important; /* bg-sky-100 */
+  color: #dc2626 !important;           /* text-red-600 */
+  font-weight: bold;
+  border-radius: 0.25rem;
+  padding: 0.15rem 0.4rem;
 }
 
