@@ -60,7 +60,6 @@ export default function ArticlePage({ article }: Props) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setShareUrl(window.location.href)
-      console.log('🧾 article from Strapi:', article)
       import('mermaid').then((m) => {
         m.default.initialize({ startOnLoad: true })
         m.default.init()
@@ -77,20 +76,39 @@ export default function ArticlePage({ article }: Props) {
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
+          <Link
+            href="/"
+            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
+          >
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/x.svg" alt="X" className="w-6 h-6 inline" />
             </a>
-            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6 inline" />
             </a>
-            <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/line.svg" alt="LINE" className="w-6 h-6 inline" />
             </a>
-            <a href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6 inline" />
             </a>
           </div>
@@ -107,14 +125,17 @@ export default function ArticlePage({ article }: Props) {
       {Array.isArray(article.tags?.data) && article.tags.data.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.data.map((tag) => (
-            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+            <span
+              key={tag.id}
+              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
+            >
               #{tag.attributes.name}
             </span>
           ))}
         </div>
       )}
 
-      {/* サムネイル */}
+      {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
@@ -141,13 +162,16 @@ export default function ArticlePage({ article }: Props) {
 
             if (inline) {
               return (
-                <code className="prose-code">{children}</code>
+                <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">
+                  {children}
+                </code>
               )
             }
+
             return (
               <div className="relative">
                 <button
-                  className="copy-button absolute top-2 right-2"
+                  className="absolute top-2 right-2 copy-button"
                   onClick={() => navigator.clipboard.writeText(String(children))}
                 >
                   Copy
