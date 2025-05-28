@@ -40,7 +40,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail&populate=tags`
     )
     const json = await res.json()
-    if (!json || !json.data) return { notFound: true }
+    if (!json?.data) return { notFound: true }
     return { props: { article: json.data } }
   } catch {
     return { props: { article: null } }
@@ -64,43 +64,28 @@ export default function ArticlePage({ article }: Props) {
   return (
     <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 border-b shadow-sm">
+      <header className="sticky top-0 z-50 bg-white px-4 py-2 border-b shadow-sm flex items-center justify-between">
         <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
           <span>📝</span>
           <Link href="/">レイズクロス Tech Blog</Link>
         </div>
         <div className="flex gap-3 items-center">
-          <a
-            href={`https://twitter.com/share?url=${encodeURIComponent(
-              typeof window !== 'undefined' ? window.location.href : ''
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
             <img src="/icons/x.svg" alt="X" className="w-5 h-5" />
           </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-              typeof window !== 'undefined' ? window.location.href : ''
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
             <img src="/icons/facebook.svg" alt="Facebook" className="w-5 h-5" />
           </a>
-          <a
-            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
-              typeof window !== 'undefined' ? window.location.href : ''
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
             <img src="/icons/line.svg" alt="LINE" className="w-5 h-5" />
+          </a>
+          <a href="#disqus_thread">
+            <img src="/icons/hatena.svg" alt="Disqus" className="w-5 h-5" />
           </a>
         </div>
       </header>
 
-      {/* タイトル・更新日・タグ */}
+      {/* タイトル・日付・タグ */}
       <h1 className="mt-8">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -171,10 +156,7 @@ export default function ArticlePage({ article }: Props) {
             },
             div(props) {
               const content = props.children
-              if (
-                typeof content === 'string' &&
-                content.trimStart().startsWith('graph')
-              ) {
+              if (typeof content === 'string' && content.trimStart().startsWith('graph')) {
                 return <Mermaid chart={content} />
               }
               return <div {...props} />
@@ -194,11 +176,10 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー（スタイル修正版） */}
-      <div className="bg-gray-100 p-4 rounded shadow mb-10">
-        <p className="text-sm mb-2">
-          合同会社<mark className="bg-transparent font-semibold">raisex</mark>
-          では一緒に働く仲間を募集中です。
+      {/* 求人バナー（改善スタイル） */}
+      <div className="bg-white border border-gray-300 p-4 rounded-md shadow-md mb-10">
+        <p className="text-center text-sm mb-2">
+          <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
           <br />
           ご興味のある方は以下の採用情報をご確認ください。
         </p>
@@ -206,6 +187,7 @@ export default function ArticlePage({ article }: Props) {
           href="https://en-gage.net/raisex_career/"
           target="_blank"
           rel="noopener noreferrer"
+          className="block"
         >
           <img
             src="/recruit-banner.jpg"
@@ -216,4 +198,3 @@ export default function ArticlePage({ article }: Props) {
       </div>
     </div>
   )
-}
