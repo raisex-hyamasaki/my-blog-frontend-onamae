@@ -82,7 +82,7 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {article.tags?.length && (
+      {article.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag, index) => (
             <span
@@ -169,7 +169,7 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー */}
+      {/* 求人バナー（復元版） */}
       <div className="text-center text-sm mb-4">
         <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
         <br />
