@@ -59,40 +59,57 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
     <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
-      {/* コンパクト固定ヘッダー */}
+      {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
-            <a href="https://twitter.com/share?url=" target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/x.svg" alt="X" className="w-6 h-6" />
             </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6" />
             </a>
-            <a href="https://social-plugins.line.me/lineit/share?url=" target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/line.svg" alt="LINE" className="w-6 h-6" />
             </a>
-            <a href="#disqus_thread">
+            <a
+              href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6" />
             </a>
           </div>
         </header>
       </div>
 
-      {/* タイトル・更新日・タグ */}
-      <h1 className="mt-8 text-3xl font-bold text-blue-700 text-center">{article.title}</h1>
-      <div className="text-sm text-gray-500 mb-2 text-center">
+      <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
+      <div className="text-sm text-gray-500 mb-4">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
+
       {Array.isArray(article.tags) && article.tags.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag, index) => (
             <span
               key={index}
@@ -104,14 +121,12 @@ export default function ArticlePage({ article }: Props) {
         </div>
       )}
 
-      {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
           <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
         </div>
       )}
 
-      {/* Markdown本文 */}
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
@@ -169,7 +184,6 @@ export default function ArticlePage({ article }: Props) {
         {article.content}
       </ReactMarkdown>
 
-      {/* 戻るボタン */}
       <div className="my-8 text-center">
         <Link href="/">
           <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">
@@ -178,7 +192,6 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー */}
       <div className="text-center text-sm mb-4">
         <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
         <br />
