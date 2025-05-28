@@ -1,7 +1,12 @@
 // components/ModalImage.tsx
 import { useState } from 'react'
 
-export default function ModalImage({ src, alt }: { src: string; alt?: string }) {
+type ModalImageProps = {
+  src: string
+  alt?: string
+}
+
+export default function ModalImage({ src, alt = '' }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -9,17 +14,23 @@ export default function ModalImage({ src, alt }: { src: string; alt?: string }) 
       <img
         src={src}
         alt={alt}
-        className="cursor-pointer max-w-full h-auto mx-auto"
+        className="cursor-pointer max-w-full h-auto"
         onClick={() => setIsOpen(true)}
       />
+
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
           onClick={() => setIsOpen(false)}
         >
-          <img src={src} alt={alt} className="max-w-full max-h-full" />
+          <img
+            src={src}
+            alt={alt}
+            className="max-w-full max-h-full object-contain"
+          />
         </div>
       )}
     </>
   )
 }
+
