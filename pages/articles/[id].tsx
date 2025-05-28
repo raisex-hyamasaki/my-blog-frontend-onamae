@@ -77,10 +77,7 @@ export default function ArticlePage({ article }: Props) {
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
-          >
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
             📝 レイズクロス Tech Blog
           </Link>
           <div className="flex gap-3 items-center">
