@@ -11,7 +11,7 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
 
   return (
     <>
-      {/* 通常表示 */}
+      {/* 通常表示（レスポンシブ） */}
       <img
         src={src}
         alt={alt}
@@ -19,20 +19,17 @@ export default function ModalImage({ src, alt = '' }: ModalImageProps) {
         onClick={() => setIsOpen(true)}
       />
 
-      {/* モーダルウィンドウ */}
+      {/* モーダル表示（中央原寸） */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center"
-          onClick={() => setIsOpen(false)}
-        >
-          <img
-            src={src}
-            alt={alt}
-            className="cursor-zoom-out max-h-[90vh] w-auto h-auto"
-            style={{
-              imageRendering: 'auto', // ピンボケ防止（ブラウザ依存）
-            }}
-          />
+        <div className="modal-overlay" onClick={() => setIsOpen(false)}>
+          <div className="modal-content">
+            <img
+              src={src}
+              alt={alt}
+              className="cursor-zoom-out"
+              style={{ imageRendering: 'auto' }}
+            />
+          </div>
         </div>
       )}
     </>

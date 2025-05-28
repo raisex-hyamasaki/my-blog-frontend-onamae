@@ -85,3 +85,26 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* ✅ クリック画像用モーダル表示スタイル */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
