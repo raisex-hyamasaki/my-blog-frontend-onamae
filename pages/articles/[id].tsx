@@ -35,19 +35,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
   const { id } = context.query
-
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail&populate=tags`
     )
     const json = await res.json()
-
-    if (!json || !json.data) {
-      return { notFound: true }
-    }
-
-    const article: Article = json.data
-    return { props: { article } }
+    if (!json || !json.data) return { notFound: true }
+    return { props: { article: json.data } }
   } catch {
     return { props: { article: null } }
   }
@@ -68,9 +62,9 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
-    <div className="prose prose-slate mx-auto p-4 max-w-screen-md">
+    <div className="prose prose-slate max-w-screen-md mx-auto px-4 pb-12">
       {/* 固定ヘッダー */}
-      <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 shadow border-b">
+      <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 border-b shadow-sm">
         <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
           <span>📝</span>
           <Link href="/">レイズクロス Tech Blog</Link>
@@ -115,9 +109,9 @@ export default function ArticlePage({ article }: Props) {
         {article.tags?.map((tag, index) => (
           <span
             key={index}
-            className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
+            className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
           >
-            {tag}
+            #{tag}
           </span>
         ))}
       </div>
@@ -125,11 +119,7 @@ export default function ArticlePage({ article }: Props) {
       {/* サムネイル画像 */}
       {thumbnailUrl && (
         <div className="flex justify-center mb-4">
-          <img
-            src={thumbnailUrl}
-            alt="サムネイル画像"
-            className="max-w-full h-auto"
-          />
+          <img src={thumbnailUrl} alt="サムネイル画像" className="max-w-full h-auto" />
         </div>
       )}
 
@@ -150,7 +140,6 @@ export default function ArticlePage({ article }: Props) {
                 className?: string
                 children: ReactNode
               }
-
               const match = /language-(\w+)/.exec(className || '')
               if (inline) {
                 return (
@@ -159,7 +148,6 @@ export default function ArticlePage({ article }: Props) {
                   </code>
                 )
               }
-
               return (
                 <div className="relative">
                   <button
@@ -206,10 +194,11 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー */}
+      {/* 求人バナー（スタイル修正版） */}
       <div className="bg-gray-100 p-4 rounded shadow mb-10">
-        <p className="mb-2">
-          合同会社raisexでは一緒に働く仲間を募集中です。
+        <p className="text-sm mb-2">
+          合同会社<mark className="bg-transparent font-semibold">raisex</mark>
+          では一緒に働く仲間を募集中です。
           <br />
           ご興味のある方は以下の採用情報をご確認ください。
         </p>
@@ -221,7 +210,7 @@ export default function ArticlePage({ article }: Props) {
           <img
             src="/recruit-banner.jpg"
             alt="採用バナー"
-            className="w-full h-auto"
+            className="w-full h-auto rounded"
           />
         </a>
       </div>
