@@ -3,10 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown 内のインラインコードのみスタイル適用 */
+/* ✅ Markdown 内のインラインコード（バッククォート） */
 .prose code:not(pre code) {
-  background-color: #fef08a !important; /* bg-yellow-200 */
-  color: #1f2937 !important;            /* text-gray-800 */
+  background-color: #e0f2fe !important; /* 水色 */
+  color: #dc2626 !important;           /* 赤文字 */
+  font-weight: bold;
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-size: 0.85rem;
@@ -21,14 +22,47 @@
 .prose h5 code,
 .prose h6 code {
   font-size: inherit !important;
+  background-color: #e0f2fe !important;
+  color: #dc2626 !important;
+  font-weight: bold;
   padding: 0.2rem 0.4rem;
-  background-color: #fef08a;
-  color: #1f2937;
   border-radius: 0.25rem;
   font-family: monospace;
 }
 
-/* ✅ Markdown テーブルに枠線とヘッダー背景色を付与 */
+/* ✅ コードブロック（pre）全体 */
+.prose pre {
+  background-color: #1e293b !important; /* 黒地（slate-800） */
+  color: #f8fafc;                        /* text-slate-50 */
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  position: relative;
+  padding: 1rem;
+}
+
+/* ✅ コードブロック内の code */
+.prose pre code {
+  background: none !important;
+  color: inherit !important;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+/* ✅ Copyボタン */
+button.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #e5e7eb !important; /* bg-gray-200 */
+  color: #111827 !important;            /* text-gray-900 */
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  z-index: 10;
+  opacity: 1;
+}
+
+/* ✅ Markdown テーブルスタイル */
 .prose table {
   width: 100%;
   border-collapse: collapse;
@@ -42,25 +76,8 @@
   text-align: left;
 }
 .prose thead {
-  background-color: #e0f2fe; /* bg-sky-100 */
+  background-color: #e0f2fe; /* 水色 */
   font-weight: bold;
 }
 
-/* ✅ コードブロックの Copy ボタンを視認性高く調整 */
-button.copy-button {
-  background-color: #e5e7eb !important; /* bg-gray-200 */
-  color: #111827 !important;           /* text-gray-900 */
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-}
-
-/* ✅ バッククォート囲い（インラインコード）を水色赤文字に変更（任意） */
-.prose p > code:not(pre code) {
-  background-color: #e0f2fe !important; /* bg-sky-100 */
-  color: #dc2626 !important;           /* text-red-600 */
-  font-weight: bold;
-  border-radius: 0.25rem;
-  padding: 0.15rem 0.4rem;
-}
 

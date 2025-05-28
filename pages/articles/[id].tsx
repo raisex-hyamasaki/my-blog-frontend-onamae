@@ -24,9 +24,13 @@ type Article = {
   content: string
   updatedAt: string
   tags?: {
-    id: number
-    name: string
-  }[]
+    data: {
+      id: number
+      attributes: {
+        name: string
+      }
+    }[]
+  }
   thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
@@ -40,7 +44,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const { id } = context.query
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate=thumbnail&populate=tags`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[thumbnail]=true&populate[tags]=true`
     )
     const json = await res.json()
     if (!json?.data) return { notFound: true }
@@ -55,14 +59,14 @@ export default function ArticlePage({ article }: Props) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('🧾 article from Strapi:', article)
       setShareUrl(window.location.href)
+      console.log('🧾 article from Strapi:', article)
       import('mermaid').then((m) => {
         m.default.initialize({ startOnLoad: true })
         m.default.init()
       })
     }
-  }, [article])
+  }, [])
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
@@ -100,14 +104,11 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {Array.isArray(article.tags) && article.tags.length > 0 && (
+      {Array.isArray(article.tags?.data) && article.tags.data.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
-              #{tag.name}
+          {article.tags.data.map((tag) => (
+            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+              #{tag.attributes.name}
             </span>
           ))}
         </div>
@@ -137,17 +138,16 @@ export default function ArticlePage({ article }: Props) {
               children: ReactNode
             }
             const match = /language-(\w+)/.exec(className || '')
+
             if (inline) {
               return (
-                <code className="bg-yellow-200 text-black px-1 rounded">
-                  {children}
-                </code>
+                <code className="prose-code">{children}</code>
               )
             }
             return (
               <div className="relative">
                 <button
-                  className="absolute top-2 right-2 bg-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-400"
+                  className="copy-button absolute top-2 right-2"
                   onClick={() => navigator.clipboard.writeText(String(children))}
                 >
                   Copy
