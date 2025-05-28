@@ -66,7 +66,10 @@ export default function ArticlePage({ article }: Props) {
       {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
+          <Link
+            href="/"
+            className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline"
+          >
             📝 レイズクロス Tech Blog
           </Link>
           <a href="#disqus_thread">
@@ -82,7 +85,7 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       {/* タグ */}
-      {article.tags?.length > 0 && (
+      {article.tags && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag, index) => (
             <span
@@ -169,7 +172,7 @@ export default function ArticlePage({ article }: Props) {
         </Link>
       </div>
 
-      {/* 求人バナー（復元版） */}
+      {/* 求人バナー */}
       <div className="text-center text-sm mb-4">
         <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
         <br />
