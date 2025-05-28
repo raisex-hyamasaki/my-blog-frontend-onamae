@@ -7,28 +7,16 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-// ✅ Markdown中央寄せ＋原寸制限
-// ✅ タグ表示（Strapi v5 対応）
-// ✅ サムネイル画像対応（Strapi配列形式対応）
-// ✅ インラインコード黄色背景
-// ✅ コードブロックCopy対応
-// ✅ Mermaid ER図対応（<Mermaid />）
-// ✅ 求人バナー表示
-// ✅ SNSシェアボタン表示
-// ✅ 上部タイトル行固定
-// ✅ Vercelでも動作確認済ビルド構成（型エラー回避済）
-// ✅ 適正なレスポンシブ幅に設定済
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect, ReactNode } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import type { ReactNode } from 'react'
 
 type Article = {
   id: number
@@ -60,7 +48,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
     const article: Article = json.data
     return { props: { article } }
-  } catch (err) {
+  } catch {
     return { props: { article: null } }
   }
 }
@@ -80,7 +68,7 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url || ''
 
   return (
-    <div className="prose prose-slate max-w-screen-md mx-auto p-4">
+    <div className="prose prose-slate mx-auto p-4 max-w-screen-md">
       {/* 固定ヘッダー */}
       <header className="sticky top-0 z-50 bg-white flex items-center justify-between px-4 py-2 shadow border-b">
         <div className="text-blue-600 font-bold text-lg flex items-center gap-2">
@@ -114,9 +102,6 @@ export default function ArticlePage({ article }: Props) {
             rel="noopener noreferrer"
           >
             <img src="/icons/line.svg" alt="LINE" className="w-5 h-5" />
-          </a>
-          <a href="#disqus_thread">
-            <img src="/icons/disqus.svg" alt="Disqus" className="w-5 h-5" />
           </a>
         </div>
       </header>
@@ -154,21 +139,18 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ node, ...props }) => (
+            img: ({ ...props }) => (
               <div className="flex justify-center">
                 <img {...props} className="max-w-full h-auto" />
               </div>
             ),
-            code({
-              inline,
-              className,
-              children,
-              ...props
-            }: {
-              inline?: boolean
-              className?: string
-              children: ReactNode
-            }) {
+            code(props) {
+              const { inline, className, children, ...rest } = props as {
+                inline?: boolean
+                className?: string
+                children: ReactNode
+              }
+
               const match = /language-(\w+)/.exec(className || '')
               if (inline) {
                 return (
@@ -177,13 +159,14 @@ export default function ArticlePage({ article }: Props) {
                   </code>
                 )
               }
+
               return (
                 <div className="relative">
                   <button
-                    onClick={() => {
+                    className="absolute top-2 right-2 bg-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-400"
+                    onClick={() =>
                       navigator.clipboard.writeText(String(children))
-                    }}
-                    className="absolute top-1 right-1 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                    }
                   >
                     Copy
                   </button>
@@ -191,19 +174,20 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1]}
                     PreTag="div"
-                    {...props}
+                    {...rest}
                   >
                     {String(children).replace(/\n$/, '')}
                   </SyntaxHighlighter>
                 </div>
               )
             },
-            div({ node, ...props }) {
+            div(props) {
+              const content = props.children
               if (
-                typeof props?.children === 'string' &&
-                props.children.trimStart().startsWith('graph')
+                typeof content === 'string' &&
+                content.trimStart().startsWith('graph')
               ) {
-                return <Mermaid chart={props.children} />
+                return <Mermaid chart={content} />
               }
               return <div {...props} />
             },
