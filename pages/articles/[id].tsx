@@ -7,6 +7,7 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
