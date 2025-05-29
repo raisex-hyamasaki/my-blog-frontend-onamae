@@ -47,7 +47,6 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
-      {/* ヘッダー */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link
           href="/"
@@ -133,7 +132,9 @@ export default function ArticlePage({ article }: Props) {
 
               if (inline) {
                 return (
-                  <code className="bg-yellow-200 text-black px-1 rounded border-none">{children}</code>
+                  <code className="bg-yellow-200 text-black px-1 rounded border-none">
+                    {children}
+                  </code>
                 )
               }
 
@@ -166,28 +167,35 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
+        {/* ← 記事一覧に戻る ボタン */}
         <div className="text-center mt-8">
           <Link
             href="/"
-            className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+            className="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
           >
             ← 記事一覧に戻る
           </Link>
         </div>
 
-        {/* 求人バナー */}
-        <div className="my-12 border rounded-lg p-6 bg-yellow-50">
-          <p className="font-bold mb-2">レイズクロスではエンジニアを募集中です！</p>
-          <p className="text-sm text-gray-600">
-            最新技術に携わりたい方、ぜひご応募ください。
+        {/* 求人バナー（サンプルに合わせて変更） */}
+        <div className="my-12 text-center">
+          <p className="font-bold text-gray-800">
+            合同会社raisexでは一緒に働く仲間を募集中です。
           </p>
-          <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600 mb-4">
+            ご興味のある方は以下の採用情報をご確認ください。
+          </p>
+          <a
+            href="https://en-gage.net/raisex_jobs/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <img
               src="/banner/job-banner.png"
               alt="採用バナー"
-              className="w-full max-w-xl h-auto mx-auto"
+              className="w-full max-w-2xl h-auto mx-auto shadow-md rounded"
             />
-          </div>
+          </a>
         </div>
       </article>
     </div>

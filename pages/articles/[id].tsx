@@ -167,11 +167,11 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
-        {/* ← 記事一覧に戻る ボタン */}
+        {/* ← 記事一覧に戻る ボタン（アンダーライン削除） */}
         <div className="text-center mt-8">
           <Link
             href="/"
-            className="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
+            className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700"
           >
             ← 記事一覧に戻る
           </Link>
