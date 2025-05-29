@@ -47,7 +47,6 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | 📋 レイズクロス Tech Blog</title>
       </Head>
 
-      {/* 固定ヘッダー */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link href="/" className="text-blue-600 hover:underline text-lg font-bold">
           📋 レイズクロス Tech Blog
@@ -128,17 +127,21 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコード：枠なし＋Copyなし
+              // ✅ インラインコード：枠なし・Copyなし（黄色背景だけ）
               if (inline) {
-                return <code className="bg-yellow-200 text-black px-1">{children}</code>
+                return (
+                  <span className="bg-yellow-200 text-black px-1">
+                    {children}
+                  </span>
+                )
               }
 
-              // ✅ Mermaid 対応
+              // ✅ Mermaid
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
-              // ✅ コードブロック：背景透明・Copyボタン付き
+              // ✅ 通常コードブロック：背景黒・Copyあり
               return (
                 <div className="relative bg-[#1e1e2f] rounded-md">
                   <button
@@ -164,7 +167,6 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
-        {/* 戻るボタン */}
         <div className="text-center mt-8">
           <Link
             href="/"
@@ -174,9 +176,8 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
-        {/* 求人バナー */}
         <div className="my-12 border rounded-lg p-6 bg-yellow-50">
-          <p className="font-bold mb-2">レイズクロスではエンジニアを募集中です！</p>
+          <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
           <p className="text-sm text-gray-600">
             最新技術に携わりたい方、ぜひご応募ください。
           </p>

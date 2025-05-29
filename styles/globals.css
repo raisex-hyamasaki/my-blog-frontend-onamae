@@ -7,8 +7,8 @@
 .prose code {
   background-color: #fef08a !important; /* bg-yellow-200 */
   color: #1f2937 !important; /* text-gray-800 */
-  padding: 0.2em 0.4em;
-  border-radius: 0.25rem;
+  padding: 0 !important;
+  border: none !important;
 }
 
 /* Markdown 内の画像中央寄せ＋原寸大 */
