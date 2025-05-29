@@ -1,7 +1,5 @@
 // components/ModalImage.tsx
 
-'use client'
-
 import { useState } from 'react'
 import Image from 'next/image'
 
@@ -12,17 +10,11 @@ type ModalImageProps = {
   height?: number
 }
 
-export default function ModalImage({
-  src,
-  alt = '',
-  width = 1280,
-  height = 720,
-}: ModalImageProps) {
+export default function ModalImage({ src, alt = '', width = 1280, height = 720 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      {/* 通常表示（幅100%・ピンボケ防止） */}
       <Image
         src={src}
         alt={alt}
@@ -35,19 +27,19 @@ export default function ModalImage({
         onClick={() => setIsOpen(true)}
       />
 
-      {/* モーダルオーバーレイ */}
       {isOpen && (
         <div className="modal-overlay" onClick={() => setIsOpen(false)}>
-          <Image
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            loading="eager"
-            decoding="sync"
-            unoptimized
-            className="modal-img cursor-zoom-out"
-          />
+          <div className="relative" style={{ maxWidth: '90vw', maxHeight: '90vh' }}>
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              unoptimized
+              sizes="(max-width: 90vw) 90vw, 1280px"
+              className="modal-img cursor-zoom-out object-contain"
+              onClick={(e) => e.stopPropagation()} // モーダル内クリックで閉じないように
+            />
+          </div>
         </div>
       )}
     </>
