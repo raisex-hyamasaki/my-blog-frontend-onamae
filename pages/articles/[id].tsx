@@ -8,7 +8,6 @@
 // SNSシェアボタン表示対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
-import Head from 'next/head'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -18,7 +17,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
-import CopyButton from '@/components/CopyButton'
+import Head from 'next/head'
 import type { HTMLAttributes, ReactNode } from 'react'
 
 interface Article {
@@ -27,13 +26,6 @@ interface Article {
   content: string
   updatedAt: string
   tags?: { id: number; name: string }[]
-  thumbnail?: {
-    formats?: {
-      medium?: {
-        url?: string
-      }
-    }
-  }[]
 }
 
 type Props = {
@@ -44,118 +36,98 @@ export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
   useEffect(() => setIsClient(true), [])
 
-  if (!article) return <div>記事が見つかりませんでした。</div>
-
-  const thumbnailUrl =
-    article.thumbnail?.[0]?.formats?.medium?.url ?? null
+  if (!article) {
+    return <div>記事が見つかりませんでした。</div>
+  }
 
   return (
-    <>
+    <div className="prose prose-slate mx-auto px-4">
       <Head>
         <title>{article.title} | RaiseX Blog</title>
       </Head>
 
-      <div className="sticky top-0 z-50 bg-white py-4 border-b shadow-sm">
-        <div className="max-w-3xl mx-auto px-4">
-          <h1 className="text-2xl font-bold">{article.title}</h1>
-        </div>
+      <h1>{article.title}</h1>
+
+      <div className="text-sm text-gray-500 mb-4">
+        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
 
-      <div className="prose prose-slate max-w-3xl mx-auto px-4 mt-6">
-        {thumbnailUrl && (
-          <img
-            src={thumbnailUrl}
-            alt="記事サムネイル"
-            className="w-full h-auto mx-auto mb-4 rounded"
-          />
-        )}
-
-        <div className="text-sm text-gray-500 mb-2">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+      {article.tags?.length ? (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {article.tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
+            >
+              #{tag.name}
+            </span>
+          ))}
         </div>
+      ) : null}
 
-        {article.tags?.length ? (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {article.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-              >
-                #{tag.name}
-              </span>
-            ))}
-          </div>
-        ) : null}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          img: ({ ...props }) =>
+            typeof props.src === 'string' ? (
+              <ModalImage {...(props as { src: string; alt?: string })} />
+            ) : null,
+          code: function CodeBlock({
+            inline,
+            className,
+            children,
+            ...props
+          }: {
+            inline?: boolean
+            className?: string
+            children?: ReactNode
+          } & HTMLAttributes<HTMLElement>) {
+            const match = /language-(\w+)/.exec(className || '')
+            const codeString = String(children).replace(/\n$/, '')
 
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
-          components={{
-            img: ({ ...props }) =>
-              typeof props.src === 'string' ? (
-                <ModalImage {...(props as { src: string; alt?: string })} />
-              ) : null,
-            code: function CodeBlock({
-              inline,
-              className,
-              children,
-              ...props
-            }: {
-              inline?: boolean
-              className?: string
-              children?: ReactNode
-            } & HTMLAttributes<HTMLElement>) {
-              const match = /language-(\w+)/.exec(className || '')
-              const codeString = String(children).replace(/\n$/, '')
-
-              if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 py-0.5 rounded">
-                    {children}
-                  </code>
-                )
-              }
-
-              if (match?.[1] === 'mermaid' && isClient) {
-                return <Mermaid chart={codeString} />
-              }
-
+            if (inline) {
               return (
-                <div className="relative">
-                  <CopyButton text={codeString} />
-                  <SyntaxHighlighter
-                    style={oneDark}
-                    language={match?.[1] || 'text'}
-                    PreTag="div"
-                    {...props}
-                  >
-                    {codeString}
-                  </SyntaxHighlighter>
-                </div>
+                <code className="bg-yellow-200 text-black px-1 py-0.5 rounded">
+                  {children}
+                </code>
               )
-            },
-          }}
+            }
+
+            if (match?.[1] === 'mermaid' && isClient) {
+              return <Mermaid chart={codeString} />
+            }
+
+            return (
+              <SyntaxHighlighter
+                style={oneDark}
+                language={match?.[1] || 'text'}
+                PreTag="div"
+                {...props}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            )
+          },
+        }}
+      >
+        {article.content}
+      </ReactMarkdown>
+
+      <div className="text-center mt-8">
+        <Link
+          href="/"
+          className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
         >
-          {article.content}
-        </ReactMarkdown>
-
-        <div className="text-center mt-8">
-          <Link
-            href="/"
-            className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
-          >
-            ← 記事一覧に戻る
-          </Link>
-        </div>
-
-        <div className="my-12 border rounded-lg p-6 bg-yellow-50">
-          <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
-          <p className="text-sm text-gray-600">
-            最新技術に携わりたい方、ぜひご応募ください。
-          </p>
-        </div>
+          ← 記事一覧に戻る
+        </Link>
       </div>
-    </>
+
+      <div className="my-12 border rounded-lg p-6 bg-yellow-50">
+        <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
+        <p className="text-sm text-gray-600">最新技術に携わりたい方、ぜひご応募ください。</p>
+      </div>
+    </div>
   )
 }
 
@@ -164,7 +136,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 ) => {
   const { id } = context.query
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true`
   )
 
   if (!res.ok) {
