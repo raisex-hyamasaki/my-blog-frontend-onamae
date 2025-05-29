@@ -47,7 +47,6 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
-      {/* ヘッダー */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link
           href="/"
@@ -118,16 +117,7 @@ export default function ArticlePage({ article }: Props) {
             td: ({ children }) => (
               <td className="border border-gray-300 px-2 py-1">{children}</td>
             ),
-            code: function CodeBlock({
-              inline,
-              className,
-              children,
-              ...props
-            }: {
-              inline?: boolean
-              className?: string
-              children?: ReactNode
-            } & HTMLAttributes<HTMLElement>) {
+            code: function CodeBlock({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: ReactNode } & HTMLAttributes<HTMLElement>) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
@@ -173,37 +163,25 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
-        {/* 求人バナー */}
-        <div className="my-12 border rounded-lg p-6 bg-yellow-50">
-          <p className="font-bold mb-2">レイズクロスではエンジニアを募集中です！</p>
-          <p className="text-sm text-gray-600">
-            最新技術に携わりたい方、ぜひご応募ください。
+        {/* 求人バナー（サンプルに合わせて変更） */}
+        <div className="my-12 text-center">
+          <p className="font-bold text-gray-800">
+            合同会社raisexでは一緒に働く仲間を募集中です。
           </p>
-          <div className="mt-4 text-center">
-            <a
-              href=""
-              className="engage-recruit-widget"
-              data-height="300"
-              data-width="500"
-              data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-              target="_blank"
-            ></a>
-          </div>
-
-          {isClient && (
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  (function() {
-                    const script = document.createElement('script');
-                    script.src = "https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7";
-                    script.async = true;
-                    document.body.appendChild(script);
-                  })();
-                `,
-              }}
+          <p className="text-sm text-gray-600 mb-4">
+            ご興味のある方は以下の採用情報をご確認ください。
+          </p>
+          <a
+            href="https://en-gage.net/raisex_jobs/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/banner/job-banner.png"
+              alt="採用バナー"
+              className="w-full max-w-2xl h-auto mx-auto shadow-md rounded"
             />
-          )}
+          </a>
         </div>
       </article>
     </div>
