@@ -7,7 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -166,6 +165,13 @@ export default function ArticlePage({ article }: Props) {
           <p className="text-sm text-gray-600">
             最新技術に携わりたい方、ぜひご応募ください。
           </p>
+          <div className="mt-4 text-center">
+            <img
+              src="/banner/job-banner.png"
+              alt="採用バナー"
+              className="w-full max-w-xl h-auto mx-auto"
+            />
+          </div>
         </div>
       </article>
     </div>
