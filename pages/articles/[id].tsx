@@ -41,8 +41,7 @@ export default function ArticlePage({ article }: Props) {
     return <div>記事が見つかりませんでした。</div>
   }
 
-  const thumbnailUrl =
-    article.thumbnail?.[0]?.formats?.medium?.url ?? null
+  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   return (
     <div className="prose prose-slate mx-auto px-4">
@@ -50,9 +49,22 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | 📝 レイズクロス Tech Blog</title>
       </Head>
 
-      <h1 className="text-3xl font-bold mb-2 sticky top-0 bg-white z-10 pt-4">
-        {article.title}
-      </h1>
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-200 py-4 px-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold">📝 レイズクロス Tech Blog</h1>
+        <div className="flex gap-3">
+          <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/x.svg" alt="Share on X" className="h-6 w-6" />
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-6 w-6" />
+          </a>
+          <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/line.svg" alt="Share on LINE" className="h-6 w-6" />
+          </a>
+        </div>
+      </header>
+
+      <h1 className="text-3xl font-bold mb-2 pt-6">{article.title}</h1>
 
       <div className="text-sm text-gray-500 mb-4">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
