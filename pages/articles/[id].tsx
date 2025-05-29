@@ -47,6 +47,7 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
+      {/* ヘッダー */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link
           href="/"
@@ -167,7 +168,7 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
-        {/* ← 記事一覧に戻る ボタン（アンダーライン削除） */}
+        {/* ← 記事一覧に戻る */}
         <div className="text-center mt-8">
           <Link
             href="/"
@@ -177,7 +178,7 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
-        {/* 求人バナー（サンプルに合わせて変更） */}
+        {/* 求人バナー（画像・テキストサンプル通り） */}
         <div className="my-12 text-center">
           <p className="font-bold text-gray-800">
             合同会社raisexでは一緒に働く仲間を募集中です。
@@ -191,7 +192,7 @@ export default function ArticlePage({ article }: Props) {
             rel="noopener noreferrer"
           >
             <img
-              src="/banner/job-banner.png"
+              src="/public/recruit-banner.jpg"
               alt="採用バナー"
               className="w-full max-w-2xl h-auto mx-auto shadow-md rounded"
             />
