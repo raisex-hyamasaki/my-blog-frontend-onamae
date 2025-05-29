@@ -7,6 +7,7 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -37,134 +38,136 @@ export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
   useEffect(() => setIsClient(true), [])
 
-  if (!article) {
-    return <div>記事が見つかりませんでした。</div>
-  }
+  if (!article) return <div>記事が見つかりませんでした。</div>
 
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   return (
-    <div className="prose prose-slate mx-auto px-4">
+    <div className="max-w-screen-lg mx-auto px-4">
       <Head>
         <title>{article.title} | 📝 レイズクロス Tech Blog</title>
       </Head>
 
-      <header className="sticky top-0 z-20 bg-white border-b border-gray-200 py-4 px-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">📝 レイズクロス Tech Blog</h1>
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
+        <Link href="/" className="text-blue-600 hover:underline text-sm font-bold">
+          📝 レイズクロス Tech Blog
+        </Link>
         <div className="flex gap-3">
           <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/x.svg" alt="Share on X" className="h-6 w-6" />
+            <img src="/icons/x.svg" alt="Share on X" className="h-5 w-5" />
           </a>
           <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-6 w-6" />
+            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-5 w-5" />
           </a>
           <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/line.svg" alt="Share on LINE" className="h-6 w-6" />
+            <img src="/icons/line.svg" alt="Share on LINE" className="h-5 w-5" />
           </a>
         </div>
       </header>
 
-      <h1 className="text-3xl font-bold mb-2 pt-6">{article.title}</h1>
+      <article className="prose prose-slate max-w-none pt-6">
+        <h1 className="text-3xl font-bold">{article.title}</h1>
 
-      <div className="text-sm text-gray-500 mb-4">
-        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-      </div>
-
-      {article.tags?.length ? (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {article.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-            >
-              #{tag.name}
-            </span>
-          ))}
+        <div className="text-sm text-gray-500 mb-4">
+          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
         </div>
-      ) : null}
 
-      {thumbnailUrl && (
-        <div className="w-full flex justify-center mb-6">
-          <img
-            src={thumbnailUrl}
-            alt="サムネイル"
-            className="w-full max-w-2xl h-auto rounded"
-          />
-        </div>
-      )}
+        {article.tags?.length ? (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {article.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
-        components={{
-          img: ({ ...props }) =>
-            typeof props.src === 'string' ? (
-              <ModalImage {...(props as { src: string; alt?: string })} />
-            ) : null,
-          code: function CodeBlock({
-            inline,
-            className,
-            children,
-            ...props
-          }: {
-            inline?: boolean
-            className?: string
-            children?: ReactNode
-          } & HTMLAttributes<HTMLElement>) {
-            const match = /language-(\w+)/.exec(className || '')
-            const codeString = String(children).replace(/\n$/, '')
+        {thumbnailUrl && (
+          <div className="w-full flex justify-center mb-6">
+            <img
+              src={thumbnailUrl}
+              alt="サムネイル"
+              className="w-full max-w-2xl h-auto rounded"
+            />
+          </div>
+        )}
 
-            if (inline) {
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
+          components={{
+            img: ({ ...props }) =>
+              typeof props.src === 'string' ? (
+                <ModalImage {...(props as { src: string; alt?: string })} />
+              ) : null,
+            code: function CodeBlock({
+              inline,
+              className,
+              children,
+              ...props
+            }: {
+              inline?: boolean
+              className?: string
+              children?: ReactNode
+            } & HTMLAttributes<HTMLElement>) {
+              const match = /language-(\w+)/.exec(className || '')
+              const codeString = String(children).replace(/\n$/, '')
+
+              if (inline) {
+                return (
+                  <code className="bg-yellow-200 text-black px-1 py-0.5 rounded">
+                    {children}
+                  </code>
+                )
+              }
+
+              if (match?.[1] === 'mermaid' && isClient) {
+                return <Mermaid chart={codeString} />
+              }
+
               return (
-                <code className="bg-yellow-200 text-black px-1 py-0.5 rounded">
-                  {children}
-                </code>
+                <div className="relative">
+                  <button
+                    className="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                    onClick={() => navigator.clipboard.writeText(codeString)}
+                  >
+                    Copy
+                  </button>
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={match?.[1] || 'text'}
+                    PreTag="div"
+                    {...props}
+                  >
+                    {codeString}
+                  </SyntaxHighlighter>
+                </div>
               )
-            }
-
-            if (match?.[1] === 'mermaid' && isClient) {
-              return <Mermaid chart={codeString} />
-            }
-
-            return (
-              <div className="relative">
-                <button
-                  className="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
-                  onClick={() => navigator.clipboard.writeText(codeString)}
-                >
-                  Copy
-                </button>
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match?.[1] || 'text'}
-                  PreTag="div"
-                  {...props}
-                >
-                  {codeString}
-                </SyntaxHighlighter>
-              </div>
-            )
-          },
-        }}
-      >
-        {article.content}
-      </ReactMarkdown>
-
-      <div className="text-center mt-8">
-        <Link
-          href="/"
-          className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+            },
+          }}
         >
-          ← 記事一覧に戻る
-        </Link>
-      </div>
+          {article.content}
+        </ReactMarkdown>
 
-      <div className="my-12 border rounded-lg p-6 bg-yellow-50">
-        <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
-        <p className="text-sm text-gray-600">
-          最新技術に携わりたい方、ぜひご応募ください。
-        </p>
-      </div>
+        <div className="text-center mt-8">
+          <Link
+            href="/"
+            className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+          >
+            ← 記事一覧に戻る
+          </Link>
+        </div>
+
+        <div className="my-12 border rounded-lg p-6 bg-yellow-50">
+          <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
+          <p className="text-sm text-gray-600">
+            最新技術に携わりたい方、ぜひご応募ください。
+          </p>
+        </div>
+      </article>
     </div>
   )
 }
