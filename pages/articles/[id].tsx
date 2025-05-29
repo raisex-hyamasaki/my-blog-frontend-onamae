@@ -47,6 +47,7 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | 📋 レイズクロス Tech Blog</title>
       </Head>
 
+      {/* ヘッダー */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link href="/" className="text-blue-600 hover:underline text-lg font-bold">
           📋 レイズクロス Tech Blog
@@ -64,6 +65,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       </header>
 
+      {/* 記事内容 */}
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold">{article.title}</h1>
 
@@ -127,21 +129,18 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコード：枠なし・Copyなし（黄色背景だけ）
               if (inline) {
                 return (
-                  <span className="bg-yellow-200 text-black px-1">
+                  <code className="bg-red-100 text-red-600 font-mono text-xs px-1 rounded-none border-none">
                     {children}
-                  </span>
+                  </code>
                 )
               }
 
-              // ✅ Mermaid
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
-              // ✅ 通常コードブロック：背景黒・Copyあり
               return (
                 <div className="relative bg-[#1e1e2f] rounded-md">
                   <button
@@ -177,7 +176,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
 
         <div className="my-12 border rounded-lg p-6 bg-yellow-50">
-          <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
+          <p className="font-bold mb-2">レイズクロスではエンジニアを募集中です！</p>
           <p className="text-sm text-gray-600">
             最新技術に携わりたい方、ぜひご応募ください。
           </p>
