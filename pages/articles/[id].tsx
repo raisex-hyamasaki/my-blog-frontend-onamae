@@ -180,11 +180,8 @@ export default function ArticlePage({ article }: Props) {
             最新技術に携わりたい方、ぜひご応募ください。
           </p>
           <div className="mt-4 text-center">
-            <img
-              src="/banner/job-banner.png"
-              alt="採用バナー"
-              className="w-full max-w-xl h-auto mx-auto"
-            />
+            <a href="" class="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank"></a>
+            <script src="https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7"></script>
           </div>
         </div>
       </article>
