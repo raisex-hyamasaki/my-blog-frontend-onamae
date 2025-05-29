@@ -7,101 +7,73 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-import { GetServerSideProps } from 'next'
+import { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import type { ReactNode } from 'react'
 import ModalImage from '@/components/ModalImage'
+import { useRouter } from 'next/router'
 
-type Article = {
+interface Article {
   id: number
+  documentId: string
   title: string
   content: string
   updatedAt: string
   tags?: { id: number; name: string }[]
-  thumbnail?: { url?: string }[]
 }
 
-type Props = { article: Article | null }
-
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.query
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate[thumbnail]=true&populate[tags]=true`)
-    const json = await res.json()
-    if (!json?.data || json.data.length === 0) return { notFound: true }
-    const raw = json.data[0]
-    const article: Article = {
-      id: raw.id,
-      title: raw.title,
-      content: raw.content,
-      updatedAt: raw.updatedAt,
-      tags: raw.tags || [],
-      thumbnail: raw.thumbnail || [],
-    }
-    return { props: { article } }
-  } catch {
-    return { props: { article: null } }
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true`, {
+    headers: { Accept: 'application/json' },
+  })
+  const json = await res.json()
+
+  if (!json || !json.data) {
+    return { notFound: true }
   }
+
+  const article: Article = json.data
+  return { props: { article } }
 }
 
-export default function ArticlePage({ article }: Props) {
-  const [shareUrl, setShareUrl] = useState('')
+export default function ArticlePage({ article }: { article: Article }) {
+  const router = useRouter()
+  const [copied, setCopied] = useState(false)
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setShareUrl(window.location.href)
-      import('mermaid').then((m) => {
-        m.default.initialize({ startOnLoad: true })
-        m.default.init()
+    const copyButtons = document.querySelectorAll('.copy-button')
+    copyButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const code = button.previousElementSibling?.textContent
+        if (code) {
+          navigator.clipboard.writeText(code)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1000)
+        }
       })
-    }
+    })
   }, [])
 
-  if (!article) return <div>記事が見つかりませんでした。</div>
-  const thumbnailUrl = article.thumbnail?.[0]?.url || ''
-
   return (
-    <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
-      <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
-        <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">📝 レイズクロス Tech Blog</Link>
-          <div className="flex gap-3 items-center">
-            <a href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/x.svg" alt="X" className="w-6 h-6 inline" />
-            </a>
-            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/facebook.svg" alt="Facebook" className="w-6 h-6 inline" />
-            </a>
-            <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/line.svg" alt="LINE" className="w-6 h-6 inline" />
-            </a>
-            <a href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
-              <img src="/icons/hatena.svg" alt="Hatena" className="w-6 h-6 inline" />
-            </a>
-          </div>
-        </header>
+    <div className="prose prose-img:mx-auto max-w-3xl px-4 py-8 mx-auto">
+      <h1 className="text-2xl font-bold mb-4">{article.title}</h1>
+      <div className="text-sm text-gray-500 mb-4">
+        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
 
-      <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
-      <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
-
-      {article.tags?.length > 0 && (
+      {Array.isArray(article.tags) && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag) => (
-            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#{tag.name}</span>
+            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+              #{tag.name}
+            </span>
           ))}
-        </div>
-      )}
-
-      {thumbnailUrl && (
-        <div className="flex justify-center mb-6">
-          <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
         </div>
       )}
 
@@ -109,51 +81,67 @@ export default function ArticlePage({ article }: Props) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          img: ({ src = '', alt = '' }) => (
-            <div className="flex justify-center my-4">
-              <ModalImage src={src} alt={alt} />
-            </div>
-          ),
-          code({ inline, className, children, ...rest }: any) {
+          img: ({ node, ...props }) => <ModalImage {...props} />,
+          code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '')
-            if (inline) {
-              return <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">{children}</code>
+            const codeString = String(children).replace(/\n$/, '')
+            if (match && match[1] === 'mermaid') {
+              return <Mermaid chart={codeString} />
             }
-            return (
+            return !inline ? (
               <div className="relative">
-                <button className="absolute top-2 right-2 copy-button" onClick={() => navigator.clipboard.writeText(String(children))}>Copy</button>
-                <SyntaxHighlighter style={oneDark} language={match?.[1]} PreTag="div" {...rest}>
-                  {String(children).replace(/\n$/, '')}
-                </SyntaxHighlighter>
+                <button className="copy-button absolute top-1 right-1 text-xs bg-gray-200 px-2 py-1 rounded">
+                  Copy
+                </button>
+                <pre>
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                </pre>
               </div>
+            ) : (
+              <code className="bg-yellow-200 text-black px-1 py-0.5 rounded" {...props}>
+                {children}
+              </code>
             )
-          },
-          div(props) {
-            const content = props.children
-            if (typeof content === 'string' && content.trimStart().startsWith('graph')) {
-              return <Mermaid chart={content} />
-            }
-            return <div {...props} />
           },
         }}
       >
         {article.content}
       </ReactMarkdown>
 
-      <div className="my-8 text-center">
-        <Link href="/">
-          <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">← 記事一覧に戻る</button>
+      <div className="my-8">
+        <img src="/recruit/recruit_banner_600_120.png" alt="求人バナー" className="mx-auto w-full max-w-md h-auto" />
+      </div>
+
+      <div className="flex gap-4 mb-8 justify-center">
+        <Link
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            article.title + ' - ' + process.env.NEXT_PUBLIC_SITE_URL + router.asPath
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-blue-500 hover:underline"
+        >
+          Twitterでシェア
+        </Link>
+        <Link
+          href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
+            process.env.NEXT_PUBLIC_SITE_URL + router.asPath
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-green-500 hover:underline"
+        >
+          LINEでシェア
         </Link>
       </div>
 
-      <div className="text-center text-sm mb-4">
-        <strong>合同会社raisex</strong>では一緒に働く仲間を募集中です。
-        <br />
-        ご興味のある方は以下の採用情報をご確認ください。
+      <div className="text-center mt-12">
+        <Link href="/" className="text-blue-600 hover:underline">
+          ← 記事一覧に戻る
+        </Link>
       </div>
-      <a href="https://en-gage.net/raisex_career/" target="_blank" rel="noopener noreferrer" className="block mb-10">
-        <img src="/recruit-banner.jpg" alt="採用バナー" className="w-full h-auto rounded shadow" />
-      </a>
     </div>
   )
 }
