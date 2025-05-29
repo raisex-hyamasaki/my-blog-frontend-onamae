@@ -14,11 +14,10 @@ import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
-import ModalImage from '@/components/ModalImage'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import type { ReactNode } from 'react'
-import Image from 'next/image'
+import ModalImage from '@/components/ModalImage'
 
 type Article = {
   id: number
@@ -124,7 +123,12 @@ export default function ArticlePage({ article }: Props) {
 
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
-          <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
+          <ModalImage
+            src={thumbnailUrl}
+            alt="サムネイル画像"
+            width={1280}
+            height={720}
+          />
         </div>
       )}
 
@@ -134,7 +138,12 @@ export default function ArticlePage({ article }: Props) {
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage src={src} alt={alt} />
+              <ModalImage
+                src={src}
+                alt={alt}
+                width={1280}
+                height={720}
+              />
             </div>
           ),
           code(props) {
@@ -153,10 +162,18 @@ export default function ArticlePage({ article }: Props) {
             }
             return (
               <div className="relative">
-                <button className="absolute top-2 right-2 copy-button" onClick={() => navigator.clipboard.writeText(String(children))}>
+                <button
+                  className="absolute top-2 right-2 copy-button"
+                  onClick={() => navigator.clipboard.writeText(String(children))}
+                >
                   Copy
                 </button>
-                <SyntaxHighlighter style={oneDark} language={match?.[1]} PreTag="div" {...rest}>
+                <SyntaxHighlighter
+                  style={oneDark}
+                  language={match?.[1]}
+                  PreTag="div"
+                  {...rest}
+                >
                   {String(children).replace(/\n$/, '')}
                 </SyntaxHighlighter>
               </div>
