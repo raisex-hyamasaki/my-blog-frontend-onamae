@@ -42,13 +42,13 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   return (
-    <div className="max-w-screen-lg mx-auto px-4">
+    <div className="max-w-[1024px] mx-auto px-4">
       <Head>
         <title>{article.title} | 📝 レイズクロス Tech Blog</title>
       </Head>
 
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
-        <Link href="/" className="text-blue-600 hover:underline text-sm font-bold">
+        <Link href="/" className="text-blue-600 hover:underline text-base font-bold">
           📝 レイズクロス Tech Blog
         </Link>
         <div className="flex gap-3">
@@ -89,7 +89,7 @@ export default function ArticlePage({ article }: Props) {
             <img
               src={thumbnailUrl}
               alt="サムネイル"
-              className="w-full max-w-2xl h-auto rounded"
+              className="w-full max-w-[800px] h-auto rounded"
             />
           </div>
         )}
