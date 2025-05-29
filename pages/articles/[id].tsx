@@ -7,64 +7,51 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
-import Head from 'next/head'
+import { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import SyntaxHighlighter from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { useEffect, useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
-import Link from 'next/link'
-
-interface Tag {
-  id: number
-  name: string
-}
+import Head from 'next/head'
 
 interface Article {
   id: number
   title: string
   content: string
   updatedAt: string
-  tags?: Tag[]
+  tags?: { id: number; name: string }[]
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.params!
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}`)
-  const json = await res.json()
-
-  if (!json.data) {
-    return { notFound: true }
-  }
-
-  return {
-    props: {
-      article: json.data,
-    },
-  }
+type Props = {
+  article: Article | null
 }
 
-export default function ArticlePage({ article }: { article: Article }) {
-  const router = useRouter()
+export default function ArticlePage({ article }: Props) {
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => setIsClient(true), [])
+
+  if (!article) {
+    return <div>記事が見つかりませんでした。</div>
+  }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="prose prose-slate mx-auto px-4">
       <Head>
         <title>{article.title} | RaiseX Blog</title>
-        <meta name="description" content={article.title} />
       </Head>
 
-      <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+      <h1>{article.title}</h1>
 
       <div className="text-sm text-gray-500 mb-4">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
       </div>
 
-      {article.tags && article.tags.length > 0 && (
+      {article.tags?.length ? (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag) => (
             <span
@@ -75,103 +62,77 @@ export default function ArticlePage({ article }: { article: Article }) {
             </span>
           ))}
         </div>
-      )}
+      ) : null}
 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
           img: ({ node, ...props }) =>
-            typeof props.src === 'string' ? <ModalImage {...props} /> : null,
+            typeof props.src === 'string' ? (
+              <ModalImage {...(props as { src: string; alt?: string })} />
+            ) : null,
           code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '')
             const codeString = String(children).replace(/\n$/, '')
-            if (!inline && match) {
+
+            if (inline) {
               return (
-                <SyntaxHighlighter
-                  style={vscDarkPlus}
-                  language={match[1]}
-                  PreTag="div"
-                  children={codeString}
-                  {...props}
-                />
+                <code className="bg-yellow-200 text-black px-1 py-0.5 rounded">
+                  {children}
+                </code>
               )
             }
+
+            if (match?.[1] === 'mermaid' && isClient) {
+              return <Mermaid chart={codeString} />
+            }
+
             return (
-              <code
-                className="bg-yellow-200 text-black px-1 py-0.5 rounded"
+              <SyntaxHighlighter
+                style={oneDark}
+                language={match?.[1] || 'text'}
+                PreTag="div"
                 {...props}
               >
-                {children}
-              </code>
+                {codeString}
+              </SyntaxHighlighter>
             )
           },
-          pre({ node, children, ...props }) {
-            const codeNode = node.children[0]
-            const isMermaid =
-              codeNode?.properties?.className?.[0] === 'language-mermaid'
-            if (isMermaid && 'children' in codeNode) {
-              const code = codeNode.children[0]?.value
-              return code ? <Mermaid chart={code} /> : <pre {...props}>{children}</pre>
-            }
-            return <pre {...props}>{children}</pre>
-          },
         }}
-        className="prose prose-neutral max-w-none"
       >
         {article.content}
       </ReactMarkdown>
 
-      <div className="mt-8">
+      <div className="text-center mt-8">
         <Link
           href="/"
-          className="text-sm text-blue-500 hover:underline block text-center"
+          className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
         >
           ← 記事一覧に戻る
         </Link>
       </div>
 
-      <div className="mt-12 border-t pt-6 flex flex-col items-center">
-        <div className="text-sm text-gray-600 mb-2">この記事をシェアする</div>
-        <div className="flex gap-4">
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(
-              `https://my-blog-two-smoky.vercel.app/articles/${article.id}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            Twitter
-          </a>
-          <a
-            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
-              `https://my-blog-two-smoky.vercel.app/articles/${article.id}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-green-500 hover:underline"
-          >
-            LINE
-          </a>
-        </div>
-      </div>
-
-      <div className="mt-12 p-6 border rounded-lg bg-yellow-50 shadow-md">
-        <p className="text-lg font-semibold mb-2">RaiseXでは一緒に働く仲間を募集しています！</p>
-        <p className="text-sm text-gray-700">
-          現在、エンジニア・デザイナー・マーケターなど様々な職種を募集しています。詳細は
-          <a
-            href="https://raisex.jp/recruit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline ml-1"
-          >
-            採用ページ
-          </a>
-          をご覧ください。
-        </p>
+      <div className="my-12 border rounded-lg p-6 bg-yellow-50">
+        <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
+        <p className="text-sm text-gray-600">最新技術に携わりたい方、ぜひご応募ください。</p>
       </div>
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context: GetServerSidePropsContext
+) => {
+  const { id } = context.query
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true`
+  )
+
+  if (!res.ok) {
+    return { props: { article: null } }
+  }
+
+  const json = await res.json()
+  return { props: { article: json.data } }
 }
