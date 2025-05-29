@@ -47,7 +47,6 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
-      {/* 固定ヘッダー */}
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link href="/" className="text-blue-600 hover:underline text-lg font-bold">
           📋 レイズクロス Tech Blog
@@ -129,7 +128,7 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return <code className="bg-yellow-200 text-black px-1 rounded">{children}</code>
+                return <code className="bg-yellow-200 text-black px-1 rounded border-none inline">{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -170,7 +169,6 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
-        {/* 求人バナー */}
         <div className="my-12 border rounded-lg p-6 bg-yellow-50">
           <p className="font-bold mb-2">レイズクロスではエンジニアを募集中です！</p>
           <p className="text-sm text-gray-600">
