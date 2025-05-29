@@ -14,28 +14,30 @@ import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Mermaid from '@/components/Mermaid'
+import ModalImage from '@/components/ModalImage'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 
-const ModalImage = dynamic(() => import('@/components/ModalImage'), { ssr: false })
-
-// Article 型定義
 type Article = {
   id: number
   title: string
   content: string
   updatedAt: string
-  tags?: { id: number; name: string }[]
-  thumbnail?: { url?: string }[]
+  tags?: {
+    id: number
+    name: string
+  }[]
+  thumbnail?: {
+    url?: string
+  }[]
 }
 
 type Props = {
   article: Article | null
 }
 
-// SSRでデータ取得
 export const getServerSideProps: GetServerSideProps<Props> = async (
   context: GetServerSidePropsContext
 ) => {
@@ -48,6 +50,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     if (!json?.data || json.data.length === 0) return { notFound: true }
 
     const raw = json.data[0]
+
     const article: Article = {
       id: raw.id,
       title: raw.title,
@@ -63,7 +66,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   }
 }
 
-// メインコンポーネント
 export default function ArticlePage({ article }: Props) {
   const [shareUrl, setShareUrl] = useState('')
 
@@ -106,7 +108,9 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
-      <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
+      <div className="text-sm text-gray-500 mb-4">
+        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+      </div>
 
       {Array.isArray(article.tags) && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
@@ -141,14 +145,15 @@ export default function ArticlePage({ article }: Props) {
             }
             const match = /language-(\w+)/.exec(className || '')
             if (inline) {
-              return <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">{children}</code>
+              return (
+                <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">
+                  {children}
+                </code>
+              )
             }
             return (
               <div className="relative">
-                <button
-                  className="absolute top-2 right-2 copy-button"
-                  onClick={() => navigator.clipboard.writeText(String(children))}
-                >
+                <button className="absolute top-2 right-2 copy-button" onClick={() => navigator.clipboard.writeText(String(children))}>
                   Copy
                 </button>
                 <SyntaxHighlighter style={oneDark} language={match?.[1]} PreTag="div" {...rest}>
@@ -171,7 +176,9 @@ export default function ArticlePage({ article }: Props) {
 
       <div className="my-8 text-center">
         <Link href="/">
-          <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">← 記事一覧に戻る</button>
+          <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">
+            ← 記事一覧に戻る
+          </button>
         </Link>
       </div>
 
