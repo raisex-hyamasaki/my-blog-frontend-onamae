@@ -44,12 +44,12 @@ export default function ArticlePage({ article }: Props) {
   return (
     <div className="max-w-[1024px] mx-auto px-4">
       <Head>
-        <title>{article.title} | 📝 レイズクロス Tech Blog</title>
+        <title>{article.title} | 📋 レイズクロス Tech Blog</title>
       </Head>
 
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
         <Link href="/" className="text-blue-600 hover:underline text-base font-bold">
-          📝 レイズクロス Tech Blog
+          📋 レイズクロス Tech Blog
         </Link>
         <div className="flex gap-3">
           <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
@@ -103,24 +103,16 @@ export default function ArticlePage({ article }: Props) {
                 <ModalImage {...(props as { src: string; alt?: string })} />
               ) : null,
             table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm">
-                {children}
-              </table>
+              <table className="border border-gray-400 w-full text-sm">{children}</table>
             ),
             thead: ({ children }) => (
-              <thead className="bg-cyan-100 text-black">
-                {children}
-              </thead>
+              <thead className="bg-cyan-100 text-black">{children}</thead>
             ),
             th: ({ children }) => (
-              <th className="border border-gray-400 px-2 py-1 text-left">
-                {children}
-              </th>
+              <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>
             ),
             td: ({ children }) => (
-              <td className="border border-gray-300 px-2 py-1">
-                {children}
-              </td>
+              <td className="border border-gray-300 px-2 py-1">{children}</td>
             ),
             code: function CodeBlock({
               inline,
@@ -136,11 +128,7 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 py-0.5 rounded">
-                    {children}
-                  </code>
-                )
+                return <code className="bg-yellow-200 text-black px-1 rounded">{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -148,7 +136,7 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <div className="relative">
+                <div className="relative bg-[#1e1e2f] rounded-md">
                   <button
                     className="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
                     onClick={() => navigator.clipboard.writeText(codeString)}
@@ -159,6 +147,7 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
+                    customStyle={{ background: 'transparent' }}
                     {...props}
                   >
                     {codeString}
