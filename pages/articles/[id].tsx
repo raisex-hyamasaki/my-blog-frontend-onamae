@@ -129,6 +129,7 @@ export default function ArticlePage({ article }: Props) {
             width={1280}
             height={720}
             unoptimized
+            priority
             className="w-full h-auto cursor-zoom-in"
           />
         </div>

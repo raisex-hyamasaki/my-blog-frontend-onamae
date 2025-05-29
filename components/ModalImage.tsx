@@ -1,6 +1,6 @@
 // components/ModalImage.tsx
-
 import { useState } from 'react'
+import Image from 'next/image'
 
 type ModalImageProps = {
   src: string
@@ -9,34 +9,21 @@ type ModalImageProps = {
   height?: number
 }
 
-export default function ModalImage({
-  src,
-  alt = '',
-  width = 1280,
-  height = 720,
-}: ModalImageProps) {
+export default function ModalImage({ src, alt = '', width = 1280, height = 720 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      {/* 表示エリアでアスペクト比を維持 */}
-      <div
-        className="cursor-zoom-in w-full"
-        style={{ aspectRatio: `${width} / ${height}` }}
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        loading="lazy"
+        decoding="async"
+        className="cursor-zoom-in w-full h-auto"
         onClick={() => setIsOpen(true)}
-      >
-        <img
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          decoding="async"
-          loading="lazy"
-          style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-        />
-      </div>
-
-      {/* モーダル画像（クリックで閉じる） */}
+      />
       {isOpen && (
         <div className="modal-overlay" onClick={() => setIsOpen(false)}>
           <img
@@ -45,8 +32,8 @@ export default function ModalImage({
             className="modal-img cursor-zoom-out"
             width={width}
             height={height}
-            decoding="sync"
             loading="eager"
+            decoding="sync"
           />
         </div>
       )}

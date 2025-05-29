@@ -106,13 +106,13 @@ img {
 
 /* ✅ モーダル画像本体 */
 .modal-img {
-  max-width: 100% !important;
-  max-height: 90vh !important;
-  height: auto !important;
   width: auto !important;
-  object-fit: contain !important;
-  image-rendering: auto !important;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
-  display: block !important;
-  z-index: 10000 !important;
+  height: auto !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  display: block;
+  margin: auto;
+  object-fit: contain;
+  image-rendering: auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
