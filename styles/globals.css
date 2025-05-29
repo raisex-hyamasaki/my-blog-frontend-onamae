@@ -116,3 +116,9 @@ img {
   image-rendering: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
+
+/* ✅ モーダル画像のピンボケ防止をより強調 */
+.modal-img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
