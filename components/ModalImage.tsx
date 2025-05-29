@@ -20,8 +20,6 @@ export default function ModalImage({ src, alt = '', width = 1280, height = 720 }
         alt={alt}
         width={width}
         height={height}
-        loading="lazy"
-        decoding="async"
         unoptimized
         className="cursor-zoom-in w-full h-auto"
         onClick={() => setIsOpen(true)}
@@ -29,15 +27,14 @@ export default function ModalImage({ src, alt = '', width = 1280, height = 720 }
 
       {isOpen && (
         <div className="modal-overlay" onClick={() => setIsOpen(false)}>
-          <div className="relative" style={{ maxWidth: '90vw', maxHeight: '90vh' }}>
+          <div className="relative w-[90vw] h-[90vh] max-w-[1280px] max-h-[720px]">
             <Image
               src={src}
               alt={alt}
               fill
               unoptimized
-              sizes="(max-width: 90vw) 90vw, 1280px"
               className="modal-img cursor-zoom-out object-contain"
-              onClick={(e) => e.stopPropagation()} // モーダル内クリックで閉じないように
+              onClick={(e) => e.stopPropagation()} // 背景クリック時だけ閉じる
             />
           </div>
         </div>
