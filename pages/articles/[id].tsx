@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -46,7 +44,7 @@ export default function ArticlePage({ article }: Props) {
   return (
     <div className="max-w-[1024px] mx-auto px-4">
       <Head>
-        <title>{article.title} | 📋 レイズクロス Tech Blog</title>
+        <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
       {/* 固定ヘッダー */}
@@ -56,13 +54,13 @@ export default function ArticlePage({ article }: Props) {
         </Link>
         <div className="flex gap-3">
           <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/x.svg" alt="Share on X" className="h-5 w-5" />
+            <img src="/icons/x.svg" alt="Share on X" className="h-7 w-7" />
           </a>
           <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-5 w-5" />
+            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-7 w-7" />
           </a>
           <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/line.svg" alt="Share on LINE" className="h-5 w-5" />
+            <img src="/icons/line.svg" alt="Share on LINE" className="h-7 w-7" />
           </a>
         </div>
       </header>
@@ -131,9 +129,7 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 rounded">{children}</code>
-                )
+                return <code className="bg-yellow-200 text-black px-1 rounded">{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -143,7 +139,7 @@ export default function ArticlePage({ article }: Props) {
               return (
                 <div className="relative bg-[#1e1e2f] rounded-md">
                   <button
-                    className="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                    className="absolute top-2 right-2 text-xs bg-gray-200 text-black px-2 py-1 rounded hover:bg-gray-300"
                     onClick={() => navigator.clipboard.writeText(codeString)}
                   >
                     Copy
