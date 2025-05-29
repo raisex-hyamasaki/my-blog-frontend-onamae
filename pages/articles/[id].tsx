@@ -7,7 +7,7 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-import { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import { GetServerSideProps } from 'next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -24,32 +24,19 @@ type Article = {
   title: string
   content: string
   updatedAt: string
-  tags?: {
-    id: number
-    name: string
-  }[]
-  thumbnail?: {
-    url?: string
-  }[]
+  tags?: { id: number; name: string }[]
+  thumbnail?: { url?: string }[]
 }
 
-type Props = {
-  article: Article | null
-}
+type Props = { article: Article | null }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const { id } = context.query
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate[thumbnail]=true&populate[tags]=true`
-    )
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles?filters[documentId][$eq]=${id}&populate[thumbnail]=true&populate[tags]=true`)
     const json = await res.json()
     if (!json?.data || json.data.length === 0) return { notFound: true }
-
     const raw = json.data[0]
-
     const article: Article = {
       id: raw.id,
       title: raw.title,
@@ -58,7 +45,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       tags: raw.tags || [],
       thumbnail: raw.thumbnail || [],
     }
-
     return { props: { article } }
   } catch {
     return { props: { article: null } }
@@ -67,7 +53,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
 export default function ArticlePage({ article }: Props) {
   const [shareUrl, setShareUrl] = useState('')
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setShareUrl(window.location.href)
@@ -79,16 +64,13 @@ export default function ArticlePage({ article }: Props) {
   }, [])
 
   if (!article) return <div>記事が見つかりませんでした。</div>
-
   const thumbnailUrl = article.thumbnail?.[0]?.url || ''
 
   return (
     <div className="prose prose-slate max-w-screen-lg mx-auto px-4 pb-12 text-justify prose-p:mx-0 prose-ul:mx-0 prose-pre:mx-0">
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm w-full">
         <header className="max-w-screen-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">
-            📝 レイズクロス Tech Blog
-          </Link>
+          <Link href="/" className="text-xl text-blue-600 hover:text-gray-500 font-bold no-underline">📝 レイズクロス Tech Blog</Link>
           <div className="flex gap-3 items-center">
             <a href={`https://twitter.com/share?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
               <img src="/icons/x.svg" alt="X" className="w-6 h-6 inline" />
@@ -107,28 +89,19 @@ export default function ArticlePage({ article }: Props) {
       </div>
 
       <h1 className="mt-8 text-3xl font-bold text-blue-700">{article.title}</h1>
-      <div className="text-sm text-gray-500 mb-4">
-        投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-      </div>
+      <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
 
-      {Array.isArray(article.tags) && article.tags.length > 0 && (
+      {article.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {article.tags.map((tag) => (
-            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-              #{tag.name}
-            </span>
+            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#{tag.name}</span>
           ))}
         </div>
       )}
 
       {thumbnailUrl && (
         <div className="flex justify-center mb-6">
-          <ModalImage
-            src={thumbnailUrl}
-            alt="サムネイル画像"
-            width={1280}
-            height={720}
-          />
+          <ModalImage src={thumbnailUrl} alt="サムネイル画像" />
         </div>
       )}
 
@@ -138,42 +111,18 @@ export default function ArticlePage({ article }: Props) {
         components={{
           img: ({ src = '', alt = '' }) => (
             <div className="flex justify-center my-4">
-              <ModalImage
-                src={src}
-                alt={alt}
-                width={1280}
-                height={720}
-              />
+              <ModalImage src={src} alt={alt} />
             </div>
           ),
-          code(props) {
-            const { inline, className, children, ...rest } = props as {
-              inline?: boolean
-              className?: string
-              children: ReactNode
-            }
+          code({ inline, className, children, ...rest }: any) {
             const match = /language-(\w+)/.exec(className || '')
             if (inline) {
-              return (
-                <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">
-                  {children}
-                </code>
-              )
+              return <code className="bg-sky-100 text-red-600 px-1 py-0.5 rounded font-mono font-bold text-sm">{children}</code>
             }
             return (
               <div className="relative">
-                <button
-                  className="absolute top-2 right-2 copy-button"
-                  onClick={() => navigator.clipboard.writeText(String(children))}
-                >
-                  Copy
-                </button>
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match?.[1]}
-                  PreTag="div"
-                  {...rest}
-                >
+                <button className="absolute top-2 right-2 copy-button" onClick={() => navigator.clipboard.writeText(String(children))}>Copy</button>
+                <SyntaxHighlighter style={oneDark} language={match?.[1]} PreTag="div" {...rest}>
                   {String(children).replace(/\n$/, '')}
                 </SyntaxHighlighter>
               </div>
@@ -193,9 +142,7 @@ export default function ArticlePage({ article }: Props) {
 
       <div className="my-8 text-center">
         <Link href="/">
-          <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">
-            ← 記事一覧に戻る
-          </button>
+          <button className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600">← 記事一覧に戻る</button>
         </Link>
       </div>
 
