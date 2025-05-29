@@ -180,9 +180,30 @@ export default function ArticlePage({ article }: Props) {
             最新技術に携わりたい方、ぜひご応募ください。
           </p>
           <div className="mt-4 text-center">
-            <a href="" class="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" target="_blank"></a>
-            <script src="https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7"></script>
+            <a
+              href=""
+              className="engage-recruit-widget"
+              data-height="300"
+              data-width="500"
+              data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
+              target="_blank"
+            ></a>
           </div>
+
+          {isClient && (
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  (function() {
+                    const script = document.createElement('script');
+                    script.src = "https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7";
+                    script.async = true;
+                    document.body.appendChild(script);
+                  })();
+                `,
+              }}
+            />
+          )}
         </div>
       </article>
     </div>
