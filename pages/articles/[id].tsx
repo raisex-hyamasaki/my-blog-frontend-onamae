@@ -117,12 +117,25 @@ export default function ArticlePage({ article }: Props) {
             td: ({ children }) => (
               <td className="border border-gray-300 px-2 py-1">{children}</td>
             ),
-            code: function CodeBlock({ inline, className, children, ...props }: { inline?: boolean; className?: string; children?: ReactNode } & HTMLAttributes<HTMLElement>) {
+            code: function CodeBlock({
+              inline,
+              className,
+              children,
+              ...props
+            }: {
+              inline?: boolean
+              className?: string
+              children?: ReactNode
+            } & HTMLAttributes<HTMLElement>) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return <code className="bg-yellow-200 text-black px-1 rounded border-none">{children}</code>
+                return (
+                  <code className="bg-yellow-200 text-black px-1 rounded border-none">
+                    {children}
+                  </code>
+                )
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -154,10 +167,11 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
+        {/* ← 記事一覧に戻る ボタン */}
         <div className="text-center mt-8">
           <Link
             href="/"
-            className="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+            className="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
           >
             ← 記事一覧に戻る
           </Link>
