@@ -26,7 +26,6 @@ interface Article {
   content: string
   updatedAt: string
   tags?: { id: number; name: string }[]
-  thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
 type Props = {
@@ -41,11 +40,6 @@ export default function ArticlePage({ article }: Props) {
     return <div>記事が見つかりませんでした。</div>
   }
 
-  const thumbnailUrl =
-    article.thumbnail?.[0]?.formats?.medium?.url ??
-    article.thumbnail?.[0]?.url ??
-    null
-
   return (
     <div className="prose prose-slate mx-auto px-4">
       <Head>
@@ -53,12 +47,6 @@ export default function ArticlePage({ article }: Props) {
       </Head>
 
       <h1>{article.title}</h1>
-
-      {thumbnailUrl && (
-        <div className="mb-4">
-          <ModalImage src={thumbnailUrl} alt="記事サムネイル" />
-        </div>
-      )}
 
       <div className="text-sm text-gray-500 mb-4">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -148,7 +136,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 ) => {
   const { id } = context.query
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true`
   )
 
   if (!res.ok) {
