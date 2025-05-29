@@ -18,7 +18,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
 import Head from 'next/head'
-import type { HTMLAttributes } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
 interface Article {
   id: number
@@ -73,7 +73,7 @@ export default function ArticlePage({ article }: Props) {
             typeof props.src === 'string' ? (
               <ModalImage {...(props as { src: string; alt?: string })} />
             ) : null,
-          code({
+          code: function CodeBlock({
             node,
             inline,
             className,
@@ -82,7 +82,7 @@ export default function ArticlePage({ article }: Props) {
           }: {
             inline?: boolean
             className?: string
-            children: React.ReactNode
+            children?: ReactNode
           } & HTMLAttributes<HTMLElement>) {
             const match = /language-(\w+)/.exec(className || '')
             const codeString = String(children).replace(/\n$/, '')
@@ -126,9 +126,7 @@ export default function ArticlePage({ article }: Props) {
 
       <div className="my-12 border rounded-lg p-6 bg-yellow-50">
         <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
-        <p className="text-sm text-gray-600">
-          最新技術に携わりたい方、ぜひご応募ください。
-        </p>
+        <p className="text-sm text-gray-600">最新技術に携わりたい方、ぜひご応募ください。</p>
       </div>
     </div>
   )
@@ -149,3 +147,4 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const json = await res.json()
   return { props: { article: json.data } }
 }
+
