@@ -3,121 +3,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown 内のインラインコード */
-.prose code:not(pre code) {
+/* Markdown 内のインラインコード用スタイル */
+.prose code {
   background-color: #fef08a !important; /* bg-yellow-200 */
-  color: #1f2937 !important;           /* text-gray-800 */
-  font-weight: bold;
-  padding: 0.2rem 0.4rem;
+  color: #1f2937 !important; /* text-gray-800 */
+  padding: 0.2em 0.4em;
   border-radius: 0.25rem;
-  font-size: 0.85rem;
-  font-family: monospace;
 }
 
-/* ✅ Markdown の見出し内 code */
-.prose h1 code,
-.prose h2 code,
-.prose h3 code,
-.prose h4 code,
-.prose h5 code,
-.prose h6 code {
-  font-size: inherit !important;
-  background-color: #fef08a !important;
-  color: #1f2937 !important;
-  font-weight: bold;
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
-  font-family: monospace;
-}
-
-/* ✅ コードブロック */
-.prose pre {
-  background-color: #1e293b !important;
-  color: #f8fafc;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  position: relative;
-  padding: 1rem;
-}
-.prose pre code {
-  background: none !important;
-  color: inherit !important;
-  font-family: monospace;
-  font-size: 0.9rem;
-}
-
-/* ✅ コピーボタン */
-button.copy-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: #e5e7eb !important;
-  color: #111827 !important;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  z-index: 10;
-  opacity: 1;
-}
-
-/* ✅ テーブル */
-.prose table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-  font-size: 0.95rem;
-}
-.prose th,
-.prose td {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  text-align: left;
-}
-.prose thead {
-  background-color: #e0f2fe;
-  font-weight: bold;
-}
-
-/* ✅ 通常画像：レスポンシブ + ピンボケ防止 */
-img {
+/* Markdown 内の画像中央寄せ＋原寸大 */
+.prose img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   max-width: 100%;
   height: auto;
-  image-rendering: auto;
-  object-fit: contain;
-  aspect-ratio: auto;
 }
 
-/* ✅ モーダルオーバーレイ */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-
-/* ✅ モーダル画像本体 */
+/* モーダル用画像強調 */
 .modal-img {
-  width: auto !important;
-  height: auto !important;
-  max-width: 90vw !important;
-  max-height: 90vh !important;
-  display: block;
-  margin: auto;
-  object-fit: contain;
-  image-rendering: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease-in-out;
 }
-
-/* ✅ モーダル画像のピンボケ防止をより強調 */
-.modal-img {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+.modal-img:hover {
+  transform: scale(1.02);
 }
