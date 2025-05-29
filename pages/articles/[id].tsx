@@ -69,12 +69,11 @@ export default function ArticlePage({ article }: Props) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          img: ({ node, ...props }) =>
+          img: ({ ...props }) =>
             typeof props.src === 'string' ? (
               <ModalImage {...(props as { src: string; alt?: string })} />
             ) : null,
           code: function CodeBlock({
-            node,
             inline,
             className,
             children,
@@ -147,4 +146,3 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const json = await res.json()
   return { props: { article: json.data } }
 }
-
