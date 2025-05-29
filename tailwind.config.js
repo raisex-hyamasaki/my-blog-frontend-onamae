@@ -1,7 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./app/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
-  safelist: ['modal-overlay', 'modal-img'],
+  content: [
+    './app/**/*.{js,ts,jsx,tsx}',
+    './pages/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+    './styles/**/*.{css}',
+  ],
+  safelist: [
+    { pattern: /^modal-overlay$/ },
+    { pattern: /^modal-img$/ },
+  ],
   theme: {
     extend: {},
   },
@@ -10,4 +18,3 @@ module.exports = {
     require('@tailwindcss/aspect-ratio'),
   ],
 }
-
