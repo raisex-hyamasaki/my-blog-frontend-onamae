@@ -26,6 +26,7 @@ interface Article {
   content: string
   updatedAt: string
   tags?: { id: number; name: string }[]
+  thumbnail?: { formats?: { medium?: { url?: string } } }[]
 }
 
 type Props = {
@@ -40,13 +41,18 @@ export default function ArticlePage({ article }: Props) {
     return <div>記事が見つかりませんでした。</div>
   }
 
+  const thumbnailUrl =
+    article.thumbnail?.[0]?.formats?.medium?.url ?? null
+
   return (
     <div className="prose prose-slate mx-auto px-4">
       <Head>
         <title>{article.title} | RaiseX Blog</title>
       </Head>
 
-      <h1>{article.title}</h1>
+      <h1 className="text-3xl font-bold mb-2 sticky top-0 bg-white z-10 pt-4">
+        {article.title}
+      </h1>
 
       <div className="text-sm text-gray-500 mb-4">
         投稿更新日: {new Date(article.updatedAt).toLocaleString()}
@@ -64,6 +70,16 @@ export default function ArticlePage({ article }: Props) {
           ))}
         </div>
       ) : null}
+
+      {thumbnailUrl && (
+        <div className="w-full flex justify-center mb-6">
+          <img
+            src={thumbnailUrl}
+            alt="サムネイル"
+            className="w-full max-w-2xl h-auto rounded"
+          />
+        </div>
+      )}
 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
@@ -99,14 +115,22 @@ export default function ArticlePage({ article }: Props) {
             }
 
             return (
-              <SyntaxHighlighter
-                style={oneDark}
-                language={match?.[1] || 'text'}
-                PreTag="div"
-                {...props}
-              >
-                {codeString}
-              </SyntaxHighlighter>
+              <div className="relative">
+                <button
+                  className="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                  onClick={() => navigator.clipboard.writeText(codeString)}
+                >
+                  Copy
+                </button>
+                <SyntaxHighlighter
+                  style={oneDark}
+                  language={match?.[1] || 'text'}
+                  PreTag="div"
+                  {...props}
+                >
+                  {codeString}
+                </SyntaxHighlighter>
+              </div>
             )
           },
         }}
@@ -125,7 +149,9 @@ export default function ArticlePage({ article }: Props) {
 
       <div className="my-12 border rounded-lg p-6 bg-yellow-50">
         <p className="font-bold mb-2">RaiseXではエンジニアを募集中です！</p>
-        <p className="text-sm text-gray-600">最新技術に携わりたい方、ぜひご応募ください。</p>
+        <p className="text-sm text-gray-600">
+          最新技術に携わりたい方、ぜひご応募ください。
+        </p>
       </div>
     </div>
   )
@@ -136,7 +162,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 ) => {
   const { id } = context.query
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
   )
 
   if (!res.ok) {
