@@ -96,21 +96,11 @@ export default function ArticlePage({ article }: Props) {
           rehypePlugins={[rehypeRaw]}
           components={{
             img: ({ ...props }) =>
-              typeof props.src === 'string' ? (
-                <ModalImage {...(props as { src: string; alt?: string })} />
-              ) : null,
-            table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm">{children}</table>
-            ),
-            thead: ({ children }) => (
-              <thead className="bg-cyan-100 text-black">{children}</thead>
-            ),
-            th: ({ children }) => (
-              <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>
-            ),
-            td: ({ children }) => (
-              <td className="border border-gray-300 px-2 py-1">{children}</td>
-            ),
+              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+            table: ({ children }) => <table className="border border-gray-400 w-full text-sm">{children}</table>,
+            thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
+            th: ({ children }) => <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>,
+            td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
             code: function CodeBlock({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
@@ -159,12 +149,8 @@ export default function ArticlePage({ article }: Props) {
         </div>
 
         <div className="my-12 text-center">
-          <p className="font-bold text-gray-800">
-            合同会社raisexでは一緒に働く仲間を募集中です。
-          </p>
-          <p className="text-sm text-gray-600 mb-4">
-            ご興味のある方は以下の採用情報をご確認ください。
-          </p>
+          <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
+          <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
           <div className="flex justify-center">
             <div
               className="engage-recruit-widget"
