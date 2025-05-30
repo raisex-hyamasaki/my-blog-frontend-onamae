@@ -121,22 +121,17 @@ export default function ArticlePage({ article }: Props) {
             code: function CodeBlock({
               inline,
               className,
-              children,
-              ...props
+              children
             }: {
               inline?: boolean
               className?: string
               children?: ReactNode
-            } & HTMLAttributes<HTMLElement>) {
+            }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 rounded border-none">
-                    {children}
-                  </code>
-                )
+                return <code className="bg-yellow-200 text-black px-1 rounded border-none">{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -151,7 +146,6 @@ export default function ArticlePage({ article }: Props) {
                   customStyle={{ background: 'transparent', padding: 0, margin: 0 }}
                   showLineNumbers={false}
                   wrapLines={true}
-                  {...props}
                 >
                   {codeString}
                 </SyntaxHighlighter>
@@ -171,7 +165,6 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
-        {/* ENGAGEウィジェット */}
         <div className="my-12 text-center">
           <p className="font-bold text-gray-800">
             合同会社raisexでは一緒に働く仲間を募集中です。
