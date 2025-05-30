@@ -67,18 +67,12 @@ export default function ArticlePage({ article }: Props) {
 
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold">{article.title}</h1>
-
-        <div className="text-sm text-gray-500 mb-4">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-        </div>
+        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
 
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
             {article.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-              >
+              <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
                 #{tag.name}
               </span>
             ))}
@@ -95,40 +89,17 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ ...props }) =>
-              typeof props.src === 'string' ? (
-                <ModalImage {...(props as { src: string; alt?: string })} />
-              ) : null,
-            table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm">{children}</table>
-            ),
-            thead: ({ children }) => (
-              <thead className="bg-cyan-100 text-black">{children}</thead>
-            ),
-            th: ({ children }) => (
-              <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>
-            ),
-            td: ({ children }) => (
-              <td className="border border-gray-300 px-2 py-1">{children}</td>
-            ),
-            code: function CodeBlock({
-              inline,
-              className,
-              children
-            }: {
-              inline?: boolean
-              className?: string
-              children?: ReactNode
-            }) {
+            img: ({ ...props }) => typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+            table: ({ children }) => <table className="border border-gray-400 w-full text-sm">{children}</table>,
+            thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
+            th: ({ children }) => <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>,
+            td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
+            code: function CodeBlock({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return (
-                  <code className="inline bg-yellow-200 text-black px-1 whitespace-nowrap rounded-sm border-none">
-                    {children}
-                  </code>
-                )
+                return <code className="bg-yellow-200 text-black px-1 whitespace-nowrap border-none inline">{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -193,14 +164,8 @@ export default function ArticlePage({ article }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.query
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
-  )
-
-  if (!res.ok) {
-    return { props: { article: null } }
-  }
-
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`)
+  if (!res.ok) return { props: { article: null } }
   const json = await res.json()
   return { props: { article: json.data } }
 }
