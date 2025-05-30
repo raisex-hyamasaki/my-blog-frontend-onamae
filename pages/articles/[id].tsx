@@ -128,11 +128,14 @@ export default function ArticlePage({ article }: Props) {
               children?: ReactNode
             }) {
               const match = /language-(\w+)/.exec(className || '')
-              const codeString = String(children).replace(/\n$/, '')
+              const codeString = String(children).replace(/
+$/, '')
 
               if (inline) {
                 return (
-                  <code className="bg-yellow-200 text-black px-1">{children}</code>
+                  <code className="bg-yellow-200 text-black px-1 whitespace-nowrap inline">
+                    {children}
+                  </code>
                 )
               }
 
@@ -167,7 +170,6 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
-        {/* ENGAGEウィジェット */}
         <div className="my-12 text-center">
           <p className="font-bold text-gray-800">
             合同会社raisexでは一緒に働く仲間を募集中です。
