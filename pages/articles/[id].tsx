@@ -141,12 +141,12 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md">
+                <div className="bg-[#1e1e2f] rounded-md p-4">
                   <SyntaxHighlighter
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{ background: 'transparent', padding: '1rem' }}
+                    customStyle={{ background: 'transparent', margin: 0 }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
