@@ -66,14 +66,14 @@ export default function ArticlePage({ article }: Props) {
       </header>
 
       <article className="prose prose-slate max-w-none pt-6">
-        <h1 className="text-3xl font-bold mb-4 border-b pb-2">{article.title}</h1>
+        <h1 className="text-3xl font-bold border-b pb-2 mb-6">{article.title}</h1>
 
         <div className="text-sm text-gray-500 mb-4">
           投稿更新日: {new Date(article.updatedAt).toLocaleString()}
         </div>
 
         {article.tags?.length ? (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-4">
             {article.tags.map((tag) => (
               <span
                 key={tag.id}
@@ -100,7 +100,7 @@ export default function ArticlePage({ article }: Props) {
                 <ModalImage {...(props as { src: string; alt?: string })} />
               ) : null,
             table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm my-4">{children}</table>
+              <table className="border border-gray-400 w-full text-sm my-6">{children}</table>
             ),
             thead: ({ children }) => (
               <thead className="bg-cyan-100 text-black">{children}</thead>
