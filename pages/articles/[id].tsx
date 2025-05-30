@@ -177,6 +177,7 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
+        {/* ENGAGEウィジェット */}
         <div className="my-12 text-center">
           <p className="font-bold text-gray-800">
             合同会社raisexでは一緒に働く仲間を募集中です。
@@ -194,7 +195,7 @@ export default function ArticlePage({ article }: Props) {
           </div>
           <Script
             src="https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7"
-            strategy="lazyOnload"
+            strategy="afterInteractive"
           />
         </div>
       </article>
