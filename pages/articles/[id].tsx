@@ -144,23 +144,17 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md">
-                  <button
-                    className="absolute top-2 right-2 text-xs bg-gray-200 text-black px-2 py-1 rounded hover:bg-gray-300"
-                    onClick={() => navigator.clipboard.writeText(codeString)}
-                  >
-                    Copy
-                  </button>
-                  <SyntaxHighlighter
-                    style={oneDark}
-                    language={match?.[1] || 'text'}
-                    PreTag="div"
-                    customStyle={{ background: 'transparent' }}
-                    {...props}
-                  >
-                    {codeString}
-                  </SyntaxHighlighter>
-                </div>
+                <SyntaxHighlighter
+                  style={oneDark}
+                  language={match?.[1] || 'text'}
+                  PreTag="div"
+                  customStyle={{ background: 'transparent', padding: 0, margin: 0 }}
+                  showLineNumbers={false}
+                  wrapLines={true}
+                  {...props}
+                >
+                  {codeString}
+                </SyntaxHighlighter>
               )
             },
           }}
