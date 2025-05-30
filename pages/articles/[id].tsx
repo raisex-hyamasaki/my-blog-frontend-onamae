@@ -196,13 +196,13 @@ export default function ArticlePage({ article }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {/* 空要素でもいいので中身が必要 */}
+                &nbsp;
               </a>
               <script
                 dangerouslySetInnerHTML={{
                   __html: `
                     (function() {
-                      var s = document.createElement('script');
+                      const s = document.createElement('script');
                       s.src = "https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7";
                       s.async = true;
                       document.body.appendChild(s);
