@@ -167,6 +167,7 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
+        {/* ENGAGEウィジェット */}
         <div className="my-12 text-center">
           <p className="font-bold text-gray-800">
             合同会社raisexでは一緒に働く仲間を募集中です。
