@@ -116,17 +116,26 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return (
-                  <code className="bg-yellow-200 text-black px-1 whitespace-nowrap">{children}</code>
-                )
+                return <code className="bg-yellow-200 text-black px-1 whitespace-nowrap">{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
+              const handleCopy = async () => {
+                await navigator.clipboard.writeText(codeString)
+                alert('Copied!')
+              }
+
               return (
-                <div className="bg-[#1e1e2f] rounded-md p-4">
+                <div className="relative bg-[#1e1e2f] rounded-md p-4">
+                  <button
+                    onClick={handleCopy}
+                    className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
+                  >
+                    Copy
+                  </button>
                   <SyntaxHighlighter
                     style={oneDark}
                     language={match?.[1] || 'text'}
@@ -150,8 +159,12 @@ export default function ArticlePage({ article }: Props) {
         </div>
 
         <div className="my-12 text-center">
-          <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-          <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
+          <p className="font-bold text-gray-800">
+            合同会社raisexでは一緒に働く仲間を募集中です。
+          </p>
+          <p className="text-sm text-gray-600 mb-4">
+            ご興味のある方は以下の採用情報をご確認ください。
+          </p>
           <div className="flex justify-center">
             <div
               className="engage-recruit-widget"
