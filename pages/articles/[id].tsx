@@ -131,7 +131,9 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return <code className="bg-yellow-200 text-black px-1 rounded border-none">{children}</code>
+                return (
+                  <code className="bg-yellow-200 text-black px-1">{children}</code>
+                )
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -139,16 +141,16 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match?.[1] || 'text'}
-                  PreTag="div"
-                  customStyle={{ background: 'transparent', padding: 0, margin: 0 }}
-                  showLineNumbers={false}
-                  wrapLines={true}
-                >
-                  {codeString}
-                </SyntaxHighlighter>
+                <div className="relative bg-[#1e1e2f] rounded-md">
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={match?.[1] || 'text'}
+                    PreTag="div"
+                    customStyle={{ background: 'transparent' }}
+                  >
+                    {codeString}
+                  </SyntaxHighlighter>
+                </div>
               )
             },
           }}
@@ -165,6 +167,7 @@ export default function ArticlePage({ article }: Props) {
           </Link>
         </div>
 
+        {/* ENGAGEウィジェット */}
         <div className="my-12 text-center">
           <p className="font-bold text-gray-800">
             合同会社raisexでは一緒に働く仲間を募集中です。
