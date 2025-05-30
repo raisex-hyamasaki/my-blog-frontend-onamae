@@ -19,7 +19,7 @@ import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
 import Head from 'next/head'
 import Script from 'next/script'
-import type { HTMLAttributes, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface Article {
   id: number
@@ -49,10 +49,7 @@ export default function ArticlePage({ article }: Props) {
       </Head>
 
       <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
-        <Link
-          href="/"
-          className="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold"
-        >
+        <Link href="/" className="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold">
           📋 レイズクロス Tech Blog
         </Link>
         <div className="flex gap-3">
@@ -90,11 +87,7 @@ export default function ArticlePage({ article }: Props) {
 
         {thumbnailUrl && (
           <div className="w-full flex justify-center mb-6">
-            <img
-              src={thumbnailUrl}
-              alt="サムネイル"
-              className="w-full max-w-[800px] h-auto rounded"
-            />
+            <img src={thumbnailUrl} alt="サムネイル" className="w-full max-w-[800px] h-auto rounded" />
           </div>
         )}
 
@@ -118,21 +111,13 @@ export default function ArticlePage({ article }: Props) {
             td: ({ children }) => (
               <td className="border border-gray-300 px-2 py-1">{children}</td>
             ),
-            code: function CodeBlock({
-              inline,
-              className,
-              children
-            }: {
-              inline?: boolean
-              className?: string
-              children?: ReactNode
-            }) {
+            code: function CodeBlock({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
                 return (
-                  <code className="bg-yellow-200 text-black px-1">{children}</code>
+                  <code className="bg-yellow-200 text-black px-1 whitespace-nowrap">{children}</code>
                 )
               }
 
@@ -159,22 +144,14 @@ export default function ArticlePage({ article }: Props) {
         </ReactMarkdown>
 
         <div className="text-center mt-8">
-          <Link
-            href="/"
-            className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700"
-          >
+          <Link href="/" className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700">
             ← 記事一覧に戻る
           </Link>
         </div>
 
-        {/* ENGAGEウィジェット */}
         <div className="my-12 text-center">
-          <p className="font-bold text-gray-800">
-            合同会社raisexでは一緒に働く仲間を募集中です。
-          </p>
-          <p className="text-sm text-gray-600 mb-4">
-            ご興味のある方は以下の採用情報をご確認ください。
-          </p>
+          <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
+          <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
           <div className="flex justify-center">
             <div
               className="engage-recruit-widget"
@@ -193,9 +170,7 @@ export default function ArticlePage({ article }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
   const { id } = context.query
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
