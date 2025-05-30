@@ -43,7 +43,7 @@ export default function ArticlePage({ article }: Props) {
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   return (
-    <div className="max-w-[1024px] mx-auto px-4">
+    <div className="max-w-[768px] mx-auto px-6">
       <Head>
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
@@ -66,24 +66,18 @@ export default function ArticlePage({ article }: Props) {
       </header>
 
       <article className="prose prose-slate max-w-none pt-6">
-        <h1 className="text-3xl font-bold">{article.title}</h1>
+        <h1 className="text-4xl font-bold mb-2">{article.title}</h1>
+        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
 
-        <div className="text-sm text-gray-500 mb-4">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-        </div>
-
-        {article.tags?.length ? (
+        {article.tags?.length && (
           <div className="flex flex-wrap gap-2 mb-4">
             {article.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-              >
+              <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
                 #{tag.name}
               </span>
             ))}
           </div>
-        ) : null}
+        )}
 
         {thumbnailUrl && (
           <div className="w-full flex justify-center mb-6">
@@ -95,41 +89,28 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ ...props }) =>
-              typeof props.src === 'string' ? (
-                <ModalImage {...(props as { src: string; alt?: string })} />
-              ) : null,
-            table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm">{children}</table>
-            ),
-            thead: ({ children }) => (
-              <thead className="bg-cyan-100 text-black">{children}</thead>
-            ),
-            th: ({ children }) => (
-              <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>
-            ),
-            td: ({ children }) => (
-              <td className="border border-gray-300 px-2 py-1">{children}</td>
-            ),
+            h2: ({ children }) => <h2 className="text-2xl font-bold border-b border-gray-300 pb-1 mt-8">{children}</h2>,
+            h3: ({ children }) => <h3 className="text-xl font-semibold mt-6">{children}</h3>,
+            img: ({ ...props }) => typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+            table: ({ children }) => <table className="border border-gray-400 w-full text-sm my-4">{children}</table>,
+            thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
+            th: ({ children }) => <th className="border border-gray-400 px-2 py-1 text-left">{children}</th>,
+            td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
             code: function CodeBlock({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
-
               if (inline) {
                 return <code className="bg-yellow-200 text-black px-1 whitespace-nowrap border-none inline">{children}</code>
               }
-
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
-
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
               }
-
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md p-4">
+                <div className="relative bg-[#1e1e2f] rounded-md p-4 overflow-x-auto">
                   <button
                     onClick={handleCopy}
                     className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
