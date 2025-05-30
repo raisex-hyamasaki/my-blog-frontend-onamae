@@ -188,14 +188,16 @@ export default function ArticlePage({ article }: Props) {
           {isClient && (
             <>
               <a
-                href=""
+                href="https://en-gage.net/raisex_jobs/"
                 className="engage-recruit-widget"
                 data-height="300"
                 data-width="500"
                 data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
                 target="_blank"
                 rel="noopener noreferrer"
-              />
+              >
+                {/* 空要素でもいいので中身が必要 */}
+              </a>
               <script
                 dangerouslySetInnerHTML={{
                   __html: `
