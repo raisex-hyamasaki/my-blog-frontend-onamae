@@ -112,21 +112,21 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコード（黄色背景＋黒太文字）
+              // ✅ インラインコード（黄色背景＋黒文字）
               if (!className) {
                 return (
-                  <code className="bg-yellow-100 text-black text-base font-bold font-mono px-1 rounded">
+                  <code className="bg-yellow-100 text-black text-base font-mono px-1 rounded">
                     {children}
                   </code>
                 )
               }
 
-              // ✅ Mermaidブロック
+              // ✅ Mermaid用
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
-              // ✅ 通常のブロックコード（黄色背景を除去しTailwind背景なし）
+              // ✅ 通常のコードブロック
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
@@ -150,10 +150,12 @@ export default function ArticlePage({ article }: Props) {
                       background: 'transparent',
                       padding: '1rem',
                       borderRadius: '0.5rem',
+                      margin: 0,
                     }}
                     codeTagProps={{
                       style: {
-                        backgroundColor: 'transparent',
+                        backgroundColor: 'transparent', // ✅ 黄色行ハイライト除去
+                        fontWeight: 'normal',           // ✅ 太字解除
                       },
                     }}
                   >
