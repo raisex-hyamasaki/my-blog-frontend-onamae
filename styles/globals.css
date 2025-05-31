@@ -5,12 +5,15 @@
 
 /* Markdown 内のインラインコード用スタイル */
 .prose code {
-  background-color: #fef08a !important; /* bg-yellow-200 */
-  color: #1f2937 !important; /* text-gray-800 */
+  background-color: #fef3c7 !important; /* Tailwind: bg-yellow-100 */
+  color: #000000 !important;           /* 完全な黒 */
   padding: 0 0.25rem !important;
+  font-size: 0.75rem !important;       /* Tailwind: text-xs */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   border: none !important;
-  white-space: nowrap !important; /* ← 改行防止 */
-  display: inline !important;      /* ← ブロック化防止 */
+  border-radius: 0.25rem !important;   /* Tailwind: rounded */
+  white-space: normal !important;      /* ← 改行OK（スクショと一致） */
+  display: inline !important;
 }
 
 /* Markdown 内の画像中央寄せ＋原寸大 */
