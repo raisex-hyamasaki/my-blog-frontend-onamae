@@ -3,10 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ インラインコード専用スタイル */
+/* ✅ インラインコード専用スタイル（pre 内を除外）*/
 .prose :not(pre) > code {
   background-color: #fef3c7 !important;         /* bg-yellow-100 */
-  color: #000 !important;
+  color: #000 !important;                       /* text-black */
   font-size: 0.875rem !important;              /* text-sm */
   font-weight: normal !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
@@ -17,32 +17,8 @@
   border: none !important;
 }
 
-/* ✅ インラインコードの ::before/::after を消す（バッククォート抑制） */
+/* ✅ インラインコードの ::before/::after を消す（バッククォート抑制）*/
 .prose :not(pre) > code::before,
 .prose :not(pre) > code::after {
   content: none !important;
-}
-
-/* ✅ コードブロック内の pre > code に枠線などが継承しないように */
-pre code {
-  background: transparent !important;
-  font-weight: normal !important;
-  font-size: 0.9rem !important;
-}
-
-/* ✅ Markdown画像中央寄せ＆レスポンシブ */
-.prose img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 100%;
-  height: auto;
-}
-
-/* ✅ モーダル画像アニメ */
-.modal-img {
-  transition: transform 0.2s ease-in-out;
-}
-.modal-img:hover {
-  transform: scale(1.02);
 }
