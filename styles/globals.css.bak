@@ -3,11 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ インラインコード専用スタイル */
+/* ✅ インラインコード専用スタイル（pre 内を除外） */
 .prose :not(pre) > code {
   background-color: #fef3c7 !important;         /* bg-yellow-100 */
-  color: #000 !important;
-  font-size: 0.875rem !important;              /* text-sm */
+  color: #000 !important;                       /* text-black */
+  font-size: 0.875rem !important;               /* text-sm */
   font-weight: normal !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   padding: 0.1rem 0.3rem !important;
@@ -23,14 +23,17 @@
   content: none !important;
 }
 
-/* ✅ コードブロック内の pre > code に枠線などが継承しないように */
-pre code {
+/* ✅ コードブロック（pre > code）をリセット・整形 */
+.prose pre code {
+  all: unset !important;
   background: transparent !important;
+  color: inherit !important;
   font-weight: normal !important;
   font-size: 0.9rem !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
 }
 
-/* ✅ Markdown画像中央寄せ＆レスポンシブ */
+/* ✅ Markdown画像中央寄せ＆レスポンシブ対応 */
 .prose img {
   display: block;
   margin-left: auto;
@@ -39,10 +42,19 @@ pre code {
   height: auto;
 }
 
-/* ✅ モーダル画像アニメ */
+/* ✅ モーダル画像のホバーアニメーション */
 .modal-img {
   transition: transform 0.2s ease-in-out;
 }
 .modal-img:hover {
   transform: scale(1.02);
+}
+
+/* ✅ コードブロック全体の余分な紺背景やパディング除去 */
+.prose pre {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
 }
