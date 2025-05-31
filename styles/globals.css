@@ -58,32 +58,3 @@
   border-radius: 0 !important;
   overflow: visible !important;
 }
-
-/* ✅ インラインコード（pre外）を黄色背景＋黒文字＋枠なし＋改行なしで表示 */
-.prose p > code,
-.prose li > code,
-.prose span > code {
-  background-color: #fef3c7;
-  color: #000;
-  font-size: 0.875rem;
-  font-weight: normal;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.25rem;
-  border: none;
-  white-space: nowrap;
-}
-
-/* ✅ バッククォート除去 */
-.prose p > code::before,
-.prose p > code::after,
-.prose li > code::before,
-.prose li > code::after {
-  content: none;
-}
-
-/* ✅ Copyボタン抑止（もし code 中にボタンが入ってきた場合） */
-.prose p > code button,
-.prose li > code button {
-  display: none;
-}
