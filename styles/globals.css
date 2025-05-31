@@ -3,11 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ インラインコード専用スタイル（pre 内を除外）*/
+/* ✅ インラインコード用（pre の中は除く） */
 .prose :not(pre) > code {
   background-color: #fef3c7 !important;         /* bg-yellow-100 */
-  color: #000 !important;                       /* text-black */
-  font-size: 0.875rem !important;              /* text-sm */
+  color: #000 !important;
+  font-size: 0.875rem !important;
   font-weight: normal !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   padding: 0.1rem 0.3rem !important;
@@ -17,8 +17,17 @@
   border: none !important;
 }
 
-/* ✅ インラインコードの ::before/::after を消す（バッククォート抑制）*/
+/* ✅ バッククォート除去 */
 .prose :not(pre) > code::before,
 .prose :not(pre) > code::after {
   content: none !important;
+}
+
+/* ✅ コードブロック内の code に絶対優先で transparent */
+.prose pre > code {
+  background: transparent !important;
+  font-weight: normal !important;
+  font-size: 0.9rem !important;
+  padding: 0 !important;
+  border: none !important;
 }
