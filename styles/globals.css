@@ -3,34 +3,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown内のインラインコードに見た目を強制適用 */
-.prose code:not(pre code) {
-  background-color: #fef3c7 !important;         /* bg-yellow-100 */
-  color: #000000 !important;                    /* text-black */
-  font-size: 0.875rem !important;               /* text-sm */
-  font-weight: normal !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  padding: 0 0.25rem !important;                /* px-1 */
-  border-radius: 0.25rem !important;            /* rounded */
-  display: inline !important;
+/* ✅ インラインコード（例: `hello-world`） */
+.prose :not(pre) > code {
+  background-color: #fef3c7 !important; /* bg-yellow-100 */
+  color: #1f2937 !important;            /* text-gray-800 */
+  font-size: 0.875rem !important;       /* text-sm */
+  padding: 0.15rem 0.3rem !important;   /* px-1 */
+  border-radius: 0.25rem !important;    /* rounded */
   white-space: nowrap !important;
+  font-weight: normal !important;       /* 通常の太さ */
   border: none !important;
 }
 
-/* ✅ コードブロック内は背景のみ */
-pre code {
-  background-color: transparent !important;
-  color: inherit !important;
-  font-weight: normal !important;
-}
-
-/* ✅ タイポグラフィの ::before/::after を消す（不要なバッククォート） */
+/* ✅ ::before/::after のバッククォート削除 */
 .prose code::before,
 .prose code::after {
   content: none !important;
 }
 
-/* ✅ Markdown 内の画像を中央寄せし、レスポンシブに */
+/* ✅ コードブロック（複数行） */
+.prose pre {
+  background-color: #1e1e2f !important;
+  color: #ffffff !important;
+  border: none !important;             /* 外枠を消す */
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  overflow-x: auto !important;
+}
+
+/* ✅ Mermaid や画像の調整 */
 .prose img {
   display: block;
   margin-left: auto;
@@ -39,7 +40,6 @@ pre code {
   height: auto;
 }
 
-/* ✅ モーダル画像にホバーアニメーションを追加 */
 .modal-img {
   transition: transform 0.2s ease-in-out;
 }

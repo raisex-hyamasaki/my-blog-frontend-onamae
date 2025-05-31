@@ -7,8 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -102,20 +100,10 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
-
-            code: function CodeBlock({
-              inline,
-              className,
-              children,
-            }: {
-              inline?: boolean
-              className?: string
-              children?: ReactNode
-            }) {
+            code: function CodeBlock({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコードはプレーン出力。スタイルは globals.css 側に任せる。
               if (inline) {
                 return <code>{children}</code>
               }
@@ -141,7 +129,7 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{ background: 'transparent', margin: 0 }}
+                    customStyle={{ background: 'transparent', margin: 0, fontWeight: 'normal' }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
@@ -154,10 +142,7 @@ export default function ArticlePage({ article }: Props) {
         </ReactMarkdown>
 
         <div className="text-center mt-8">
-          <Link
-            href="/"
-            className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700"
-          >
+          <Link href="/" className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700">
             ← 記事一覧に戻る
           </Link>
         </div>
@@ -166,12 +151,7 @@ export default function ArticlePage({ article }: Props) {
           <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
           <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
           <div className="flex justify-center">
-            <div
-              className="engage-recruit-widget"
-              data-height="300"
-              data-width="500"
-              data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            />
+            <div className="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1" />
           </div>
           <Script
             src="https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7"
