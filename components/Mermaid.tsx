@@ -12,17 +12,18 @@ export default function Mermaid({ chart }: { chart: string }) {
 
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'dark', // ← ダークテーマに合わせる（背景黒＋白線）
+      theme: 'dark',
       themeVariables: {
-        primaryColor: '#ffffff',
+        background: '#1e1e2f',
+        primaryColor: '#1e1e2f',
+        primaryTextColor: '#ffffff',     // テーブルのカラム名など
+        secondaryTextColor: '#ffffff',   // タイトルや補足情報
+        tertiaryTextColor: '#ffffff',    // edgeのラベル文字など
+        nodeTextColor: '#ffffff',        // ノード内のテキスト全般
+        lineColor: '#ffffff',            // コネクタ線の色
         edgeLabelBackground: '#1e1e2f',
         fontSize: '14px',
         fontFamily: 'sans-serif',
-        lineColor: '#ffffff', // ← コネクタ線を白
-        textColor: '#ffffff', // ← ラベル文字も白
-        nodeTextColor: '#000000', // ← テーブル内部のテキストは黒（逆に明るく見やすく）
-        clusterBkg: '#f3f4f6', // クラスタ背景（灰色）
-        clusterBorder: '#cccccc',
       },
     })
 
