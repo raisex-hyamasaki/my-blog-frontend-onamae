@@ -58,28 +58,3 @@
   border-radius: 0 !important;
   overflow: visible !important;
 }
-
-/* ✅ インラインコード（preタグ内除外）に黒枠を表示させない */
-.prose :not(pre) > code {
-  border: none !important;
-  white-space: nowrap !important;
-  background-color: #fef3c7 !important; /* bg-yellow-100 */
-  color: #000 !important;
-  font-size: 0.875rem !important;       /* text-sm */
-  font-weight: normal !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  padding: 0.1rem 0.3rem !important;
-  border-radius: 0.25rem !important;
-  display: inline !important;
-}
-
-/* ✅ ::before/::after を完全排除してバグ回避 */
-.prose :not(pre) > code::before,
-.prose :not(pre) > code::after {
-  content: none !important;
-}
-
-/* ✅ preタグ外ではコードブロック系ボタンは表示されないように調整（もし独自スタイルを適用してる場合）*/
-.prose :not(pre) > code button {
-  display: none !important;
-}
