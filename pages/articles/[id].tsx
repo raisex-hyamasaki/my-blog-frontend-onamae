@@ -90,18 +90,31 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ ...props }) => typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
-            table: ({ children }) => <table className="border border-gray-400 w-full text-sm my-4">{children}</table>,
+            img: ({ ...props }) =>
+              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+            table: ({ children }) => (
+              <table className="border border-gray-400 w-full text-sm my-4">{children}</table>
+            ),
             thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
-            th: ({ children }) => <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>,
+            th: ({ children }) => (
+              <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
+            ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
-            code: function CodeBlock({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
+            code: function CodeBlock({
+              inline,
+              className,
+              children,
+            }: {
+              inline?: boolean
+              className?: string
+              children?: ReactNode
+            }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
                 return (
-                  <code className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-mono text-sm">
+                  <code className="inline-block bg-yellow-100 text-black text-xs font-mono px-1 py-[1px] border border-yellow-300 rounded">
                     {children}
                   </code>
                 )
@@ -141,7 +154,10 @@ export default function ArticlePage({ article }: Props) {
         </ReactMarkdown>
 
         <div className="text-center mt-8">
-          <Link href="/" className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700">
+          <Link
+            href="/"
+            className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700"
+          >
             ← 記事一覧に戻る
           </Link>
         </div>
@@ -167,9 +183,13 @@ export default function ArticlePage({ article }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (
+  context: GetServerSidePropsContext
+) => {
   const { id } = context.query
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`)
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
+  )
   if (!res.ok) return { props: { article: null } }
   const json = await res.json()
   return { props: { article: json.data } }
