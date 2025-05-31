@@ -114,7 +114,7 @@ export default function ArticlePage({ article }: Props) {
 
               if (inline) {
                 return (
-                  <code className="inline-block bg-yellow-100 text-black text-xs font-mono px-1 py-[1px] border border-yellow-300 rounded">
+                  <code className="bg-yellow-100 text-black text-xs font-mono px-1 rounded">
                     {children}
                   </code>
                 )
