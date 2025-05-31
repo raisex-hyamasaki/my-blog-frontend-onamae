@@ -58,3 +58,16 @@
   border-radius: 0 !important;
   overflow: visible !important;
 }
+
+/* Markdown内のインラインコードに適用（pre内を除外） */
+.prose :not(pre) > code {
+  background-color: #fef3c7 !important;  /* bg-yellow-200 */
+  color: #000 !important;                /* text-black */
+  font-size: 0.875rem !important;        /* text-sm */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  padding: 0.1rem 0.3rem !important;
+  border-radius: 0.25rem !important;
+  display: inline !important;
+  white-space: nowrap !important;
+  border: none !important;
+}
