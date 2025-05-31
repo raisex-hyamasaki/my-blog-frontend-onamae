@@ -40,8 +40,9 @@
   transform: scale(1.02);
 }
 
-/* ✅ react-syntax-highlighter の span.token の黄色背景を完全に無効化 */
-pre span {
+/* ✅ react-syntax-highlighter の span.token に背景が残るのを防止 */
+pre span,
+pre span[class*='token'] {
   background-color: transparent !important;
 }
 
