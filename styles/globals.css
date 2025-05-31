@@ -58,31 +58,3 @@
   border-radius: 0 !important;
   overflow: visible !important;
 }
-
-/* ✅ インラインコードのみに黄色背景＋黒文字＋枠なし＋改行なしを適用（pre外） */
-.prose :not(pre) > code {
-  background-color: #fef3c7 !important;  /* bg-yellow-100 */
-  color: #000 !important;                /* text-black */
-  font-size: 0.875rem !important;
-  font-weight: normal !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  padding: 0.1rem 0.3rem !important;
-  border-radius: 0.25rem !important;
-  display: inline !important;
-  white-space: nowrap !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* ✅ インラインコードの ::before/::after バッククォート削除 */
-.prose :not(pre) > code::before,
-.prose :not(pre) > code::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* ✅ 万が一 Copyボタンが inline code に出たら非表示にする */
-.prose :not(pre) > code button {
-  display: none !important;
-  visibility: hidden !important;
-}
