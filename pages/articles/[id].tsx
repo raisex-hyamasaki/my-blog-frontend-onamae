@@ -68,9 +68,7 @@ export default function ArticlePage({ article }: Props) {
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
 
-        <div className="text-sm text-gray-500 mb-4">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-        </div>
+        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
 
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -116,7 +114,7 @@ export default function ArticlePage({ article }: Props) {
 
               if (inline) {
                 return (
-                  <code className="bg-yellow-100 text-black text-sm font-mono px-1 rounded">
+                  <code className="bg-yellow-100 text-black text-base font-normal font-mono px-1 rounded">
                     {children}
                   </code>
                 )
@@ -142,25 +140,15 @@ export default function ArticlePage({ article }: Props) {
                   <SyntaxHighlighter
                     language={match?.[1] || 'text'}
                     style={oneDark}
-                    PreTag="div"
-                    wrapLines={true}
-                    customStyle={{
-                      background: 'transparent',
-                      padding: '1rem',
-                      borderRadius: '0.5rem',
-                      margin: 0,
-                    }}
+                    customStyle={{ background: 'transparent', margin: 0 }}
+                    wrapLines
                     codeTagProps={{
                       style: {
                         backgroundColor: 'transparent',
                         fontWeight: 'normal',
+                        fontSize: '1rem',
                       },
                     }}
-                    lineProps={() => ({
-                      style: {
-                        backgroundColor: 'transparent',
-                      },
-                    })}
                   >
                     {codeString}
                   </SyntaxHighlighter>

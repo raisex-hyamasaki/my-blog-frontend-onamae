@@ -3,12 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown内のインラインコードに見た目を強制適用（黄色背景・黒文字・太字なし） */
+/* ✅ Markdown内のインラインコードに強制スタイル適用 */
 .prose code {
   background-color: #fef3c7 !important;         /* bg-yellow-100 */
   color: #000000 !important;                    /* text-black */
   font-size: 1rem !important;                   /* text-base */
-  font-weight: normal !important;               /* 太字禁止（font-normal） */
+  font-weight: normal !important;               /* ← 太字解除 */
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   padding: 0 0.25rem !important;                /* px-1 */
   border-radius: 0.25rem !important;            /* rounded */
@@ -17,13 +17,32 @@
   border: none !important;
 }
 
-/* ✅ タイポグラフィの ::before/::after を消す（不要なバッククォート） */
+/* ✅ インラインコードのバッククォート削除 */
 .prose code::before,
 .prose code::after {
   content: none !important;
 }
 
-/* ✅ Markdown 内の画像を中央寄せし、レスポンシブに */
+/* ✅ Markdown由来のpre/codeブロックを初期化（SyntaxHighlighterと干渉しないように） */
+.prose pre {
+  background-color: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.prose pre > code {
+  background-color: transparent !important;
+  font-weight: normal !important;               /* ← 太字解除 */
+  font-size: 1rem !important;
+  padding: 0 !important;
+  display: block !important;
+  white-space: pre-wrap !important;
+  color: inherit !important;
+  border: none !important;
+}
+
+/* ✅ Markdown 内の画像を中央寄せ＆レスポンシブに */
 .prose img {
   display: block;
   margin-left: auto;
@@ -32,7 +51,7 @@
   height: auto;
 }
 
-/* ✅ モーダル画像にホバーアニメーションを追加 */
+/* ✅ モーダル画像にホバーアニメーション */
 .modal-img {
   transition: transform 0.2s ease-in-out;
 }
@@ -40,9 +59,4 @@
   transform: scale(1.02);
 }
 
-/* ✅ react-syntax-highlighter の span.token に背景が残るのを防止 */
-pre span,
-pre span[class*='token'] {
-  background-color: transparent !important;
-}
 
