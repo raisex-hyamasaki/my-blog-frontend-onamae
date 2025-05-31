@@ -112,7 +112,7 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコード（黄色背景＋黒文字）
+              // ✅ インラインコード（強調）
               if (!className) {
                 return (
                   <code className="bg-yellow-100 text-black text-base font-mono px-1 rounded">
@@ -154,10 +154,15 @@ export default function ArticlePage({ article }: Props) {
                     }}
                     codeTagProps={{
                       style: {
-                        backgroundColor: 'transparent', // ✅ 黄色行ハイライト除去
-                        fontWeight: 'normal',           // ✅ 太字解除
+                        backgroundColor: 'transparent',
+                        fontWeight: 'normal',
                       },
                     }}
+                    lineProps={() => ({
+                      style: {
+                        backgroundColor: 'transparent', // ✅ 行背景も完全透明化
+                      },
+                    })}
                   >
                     {codeString}
                   </SyntaxHighlighter>
