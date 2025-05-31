@@ -49,3 +49,12 @@
 .modal-img:hover {
   transform: scale(1.02);
 }
+
+/* ✅ コードブロック全体の余分な紺背景やパディング除去 */
+.prose pre {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
