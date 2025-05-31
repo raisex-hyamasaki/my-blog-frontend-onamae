@@ -7,6 +7,7 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import Head from 'next/head'
@@ -101,19 +102,11 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
-            code({
-              inline,
-              className,
-              children,
-            }: {
-              inline?: boolean
-              className?: string
-              children?: ReactNode
-            }) {
+            code({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              if (inline) {
+              if (inline && (!className || !className.includes('language-'))) {
                 return <code>{children}</code>
               }
 
