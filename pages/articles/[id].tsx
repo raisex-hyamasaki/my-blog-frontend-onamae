@@ -1,4 +1,4 @@
-// pages/articles/[id].tsx
+tsxif (inline)// pages/articles/[id].tsx
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
@@ -107,7 +107,11 @@ export default function ArticlePage({ article }: Props) {
 
               // ✅ インラインコード
               if (inline) {
-                return <code>{children}</code>
+                return (
+                  <code className="bg-yellow-200 text-black text-sm font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap">
+                    {children}
+                  </code>
+                )
               }
 
               // ✅ Mermaid対応
