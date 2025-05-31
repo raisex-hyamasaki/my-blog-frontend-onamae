@@ -1,4 +1,4 @@
-tsxif (inline)// pages/articles/[id].tsx
+// pages/articles/[id].tsx
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
