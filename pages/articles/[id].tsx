@@ -7,7 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import Head from 'next/head'
@@ -106,10 +105,12 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              if (inline && (!className || !className.includes('language-'))) {
+              // ✅ インラインコード
+              if (inline) {
                 return <code>{children}</code>
               }
 
+              // ✅ Mermaid対応
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
