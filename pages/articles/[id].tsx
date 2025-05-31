@@ -112,7 +112,7 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ classNameが無い場合はインラインコードとみなしてスタイル適用
+              // インラインコード対応
               if (!className) {
                 return (
                   <code className="bg-yellow-100 text-black text-base font-bold font-mono px-1 rounded">
@@ -121,12 +121,10 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              // Mermaidコード（ブロック）
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
-              // 通常のブロックコード
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
@@ -144,7 +142,16 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{ background: 'transparent', margin: 0 }}
+                    customStyle={{
+                      background: 'transparent',
+                      margin: 0,
+                      padding: 0,
+                    }}
+                    codeTagProps={{
+                      style: {
+                        backgroundColor: 'transparent', // ← 不要な黄色背景を完全に無効化
+                      },
+                    }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
