@@ -115,7 +115,7 @@ export default function ArticlePage({ article }: Props) {
               // ✅ classNameが無い場合はインラインコードとみなしてスタイル適用
               if (!className) {
                 return (
-                  <code className="bg-yellow-100 text-black text-xs font-mono px-1 rounded">
+                  <code className="bg-yellow-100 text-black text-base font-bold font-mono px-1 rounded">
                     {children}
                   </code>
                 )
