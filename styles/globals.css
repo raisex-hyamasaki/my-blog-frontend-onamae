@@ -3,27 +3,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown内のインラインコード専用スタイル */
-.prose :not(pre) > code {
-  background-color: #fef3c7 !important;        /* bg-yellow-100 */
-  color: #000 !important;                      /* text-black */
-  font-size: 0.875rem !important;              /* text-sm */
-  font-weight: normal !important;              /* 太字ではない */
+/* ✅ Markdown内のインラインコードに見た目を強制適用 */
+.prose code:not(pre code) {
+  background-color: #fef3c7 !important;         /* bg-yellow-100 */
+  color: #000000 !important;                    /* text-black */
+  font-size: 0.875rem !important;               /* text-sm */
+  font-weight: normal !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  padding: 0 0.25rem !important;               /* px-1 */
-  border-radius: 0.25rem !important;           /* rounded */
+  padding: 0 0.25rem !important;                /* px-1 */
+  border-radius: 0.25rem !important;            /* rounded */
   display: inline !important;
   white-space: nowrap !important;
   border: none !important;
 }
 
-/* ✅ ::before/after のバッククォート抑制 */
+/* ✅ コードブロック内は背景のみ */
+pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  font-weight: normal !important;
+}
+
+/* ✅ タイポグラフィの ::before/::after を消す（不要なバッククォート） */
 .prose code::before,
 .prose code::after {
   content: none !important;
 }
 
-/* ✅ Markdown 内の画像中央寄せ＋レスポンシブ */
+/* ✅ Markdown 内の画像を中央寄せし、レスポンシブに */
 .prose img {
   display: block;
   margin-left: auto;
@@ -32,11 +39,10 @@
   height: auto;
 }
 
-/* ✅ モーダル画像拡大 */
+/* ✅ モーダル画像にホバーアニメーションを追加 */
 .modal-img {
   transition: transform 0.2s ease-in-out;
 }
 .modal-img:hover {
   transform: scale(1.02);
 }
-

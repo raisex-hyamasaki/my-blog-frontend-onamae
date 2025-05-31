@@ -7,6 +7,8 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -100,6 +102,7 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
+
             code: function CodeBlock({
               inline,
               className,
@@ -112,12 +115,9 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
+              // ✅ インラインコードはプレーン出力。スタイルは globals.css 側に任せる。
               if (inline) {
-                return (
-                  <code className="bg-yellow-100 text-black text-sm font-mono px-1 rounded border-none whitespace-nowrap">
-                    {children}
-                  </code>
-                )
+                return <code>{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -141,11 +141,7 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{
-                      background: 'transparent',
-                      margin: 0,
-                      fontWeight: 'normal',
-                    }}
+                    customStyle={{ background: 'transparent', margin: 0 }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
