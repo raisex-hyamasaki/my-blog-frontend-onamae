@@ -1,7 +1,7 @@
 // pages/articles/[id].tsx
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
-// インラインコードに黄色背景＋黒文字対応済み（CSSで補強）
+// インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
 // モーダルウィンドウ・原寸大対応
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応
@@ -112,7 +112,8 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              if (inline) {
+              // ✅ classNameが無い場合はインラインコードとみなしてスタイル適用
+              if (!className) {
                 return (
                   <code className="bg-yellow-100 text-black text-xs font-mono px-1 rounded">
                     {children}
@@ -120,10 +121,12 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
+              // Mermaidコード（ブロック）
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
+              // 通常のブロックコード
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
