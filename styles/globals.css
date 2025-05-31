@@ -3,20 +3,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Markdown 内のインラインコード用スタイル */
-.prose code {
-  background-color: #fef3c7 !important; /* Tailwind: bg-yellow-100 */
-  color: #000000 !important;           /* 完全な黒 */
-  padding: 0 0.25rem !important;
-  font-size: 0.75rem !important;       /* Tailwind: text-xs */
+/* インラインコード専用（preの中以外の code 要素） */
+.prose :not(pre) > code {
+  background-color: #fef3c7 !important; /* bg-yellow-100 */
+  color: #000 !important;
+  font-size: 0.75rem !important; /* text-xs */
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  border: none !important;
-  border-radius: 0.25rem !important;   /* Tailwind: rounded */
-  white-space: normal !important;      /* ← 改行OK（スクショと一致） */
+  padding: 0 0.25rem !important;
+  border-radius: 0.25rem !important;
+  white-space: normal !important;
   display: inline !important;
+  border: none !important;
 }
 
-/* Markdown 内の画像中央寄せ＋原寸大 */
+/* 通常の img スタイル（中央寄せ＋レスポンシブ） */
 .prose img {
   display: block;
   margin-left: auto;
@@ -25,10 +25,11 @@
   height: auto;
 }
 
-/* モーダル用画像強調 */
+/* モーダル用画像 */
 .modal-img {
   transition: transform 0.2s ease-in-out;
 }
 .modal-img:hover {
   transform: scale(1.02);
 }
+
