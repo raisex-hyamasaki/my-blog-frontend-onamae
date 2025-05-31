@@ -33,3 +33,15 @@
   transform: scale(1.02);
 }
 
+/* Markdown 内のインラインコードを完全に画像と同じ見た目に統一 */
+.prose code {
+  all: unset;
+  background-color: #fef3c7 !important; /* bg-yellow-100 相当 */
+  color: #000000 !important;            /* 完全な黒文字 */
+  font-size: 0.75rem !important;        /* text-xs */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  padding: 0 0.25rem !important;
+  border-radius: 0.25rem !important;
+  display: inline !important;
+  white-space: normal !important;
+}
