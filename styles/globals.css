@@ -3,12 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ Markdown内のインラインコードに見た目を強制適用 */
+/* ✅ Markdown内のインラインコードに見た目を強制適用（黄色背景・黒文字・太字なし） */
 .prose code {
   background-color: #fef3c7 !important;         /* bg-yellow-100 */
   color: #000000 !important;                    /* text-black */
   font-size: 1rem !important;                   /* text-base */
-  font-weight: 700 !important;                  /* font-bold */
+  font-weight: normal !important;               /* 太字禁止（font-normal） */
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   padding: 0 0.25rem !important;                /* px-1 */
   border-radius: 0.25rem !important;            /* rounded */

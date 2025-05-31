@@ -112,7 +112,6 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコード（強調）
               if (!className) {
                 return (
                   <code className="bg-yellow-100 text-black text-base font-mono px-1 rounded">
@@ -121,12 +120,10 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              // ✅ Mermaid用
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
-              // ✅ 通常のコードブロック
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
@@ -160,7 +157,7 @@ export default function ArticlePage({ article }: Props) {
                     }}
                     lineProps={() => ({
                       style: {
-                        backgroundColor: 'transparent', // ✅ 行背景も完全透明化
+                        backgroundColor: 'transparent',
                       },
                     })}
                   >
