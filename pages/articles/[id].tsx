@@ -68,7 +68,9 @@ export default function ArticlePage({ article }: Props) {
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
 
-        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
+        <div className="text-sm text-gray-500 mb-4">
+          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+        </div>
 
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -112,9 +114,9 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              if (!className) {
+              if (inline) {
                 return (
-                  <code className="bg-yellow-100 text-black text-base font-mono px-1 rounded font-normal">
+                  <code className="bg-yellow-100 text-black text-sm font-mono px-1 rounded">
                     {children}
                   </code>
                 )
@@ -130,19 +132,18 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <div className="my-6">
-                  <div className="flex justify-end mb-1">
-                    <button
-                      onClick={handleCopy}
-                      className="text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
-                    >
-                      Copy
-                    </button>
-                  </div>
+                <div className="relative bg-[#1e1e2f] rounded-md p-4 my-4">
+                  <button
+                    onClick={handleCopy}
+                    className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
+                  >
+                    Copy
+                  </button>
                   <SyntaxHighlighter
-                    style={oneDark}
                     language={match?.[1] || 'text'}
+                    style={oneDark}
                     PreTag="div"
+                    wrapLines={true}
                     customStyle={{
                       background: 'transparent',
                       padding: '1rem',
