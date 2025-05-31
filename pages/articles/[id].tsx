@@ -114,7 +114,7 @@ export default function ArticlePage({ article }: Props) {
 
               if (!className) {
                 return (
-                  <code className="bg-yellow-100 text-black text-base font-mono px-1 rounded">
+                  <code className="bg-yellow-100 text-black text-base font-mono px-1 rounded font-normal">
                     {children}
                   </code>
                 )
