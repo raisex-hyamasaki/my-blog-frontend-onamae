@@ -100,7 +100,11 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return <code className="bg-yellow-200 text-black px-1 rounded text-sm font-mono whitespace-nowrap border-none inline">{children}</code>
+                return (
+                  <code className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-mono text-sm">
+                    {children}
+                  </code>
+                )
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
