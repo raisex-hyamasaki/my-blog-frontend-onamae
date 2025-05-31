@@ -7,6 +7,7 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -68,7 +69,9 @@ export default function ArticlePage({ article }: Props) {
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
 
-        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
+        <div className="text-sm text-gray-500 mb-4">
+          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+        </div>
 
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -91,7 +94,9 @@ export default function ArticlePage({ article }: Props) {
           rehypePlugins={[rehypeRaw]}
           components={{
             img: ({ ...props }) =>
-              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+              typeof props.src === 'string' ? (
+                <ModalImage {...(props as { src: string; alt?: string })} />
+              ) : null,
             table: ({ children }) => (
               <table className="border border-gray-400 w-full text-sm my-4">{children}</table>
             ),
@@ -113,11 +118,7 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return (
-                  <code className="bg-yellow-100 text-black text-base font-normal font-mono px-1 rounded">
-                    {children}
-                  </code>
-                )
+                return <code>{children}</code> // ← インラインはスタイル無指定（globals.css 側で制御）
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -130,7 +131,7 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md p-4 my-4">
+                <div className="relative bg-[#1e1e2f] rounded-md p-4 my-4 overflow-x-auto">
                   <button
                     onClick={handleCopy}
                     className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
@@ -138,16 +139,13 @@ export default function ArticlePage({ article }: Props) {
                     Copy
                   </button>
                   <SyntaxHighlighter
-                    language={match?.[1] || 'text'}
                     style={oneDark}
-                    customStyle={{ background: 'transparent', margin: 0 }}
-                    wrapLines
-                    codeTagProps={{
-                      style: {
-                        backgroundColor: 'transparent',
-                        fontWeight: 'normal',
-                        fontSize: '1rem',
-                      },
+                    language={match?.[1] || 'text'}
+                    PreTag="div"
+                    customStyle={{
+                      background: 'transparent',
+                      margin: 0,
+                      fontWeight: 'normal',
                     }}
                   >
                     {codeString}
