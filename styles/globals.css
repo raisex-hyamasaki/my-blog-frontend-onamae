@@ -39,3 +39,9 @@
 .modal-img:hover {
   transform: scale(1.02);
 }
+
+/* ✅ react-syntax-highlighter の span.token の黄色背景を完全に無効化 */
+pre span {
+  background-color: transparent !important;
+}
+
