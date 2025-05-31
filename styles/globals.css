@@ -3,20 +3,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* インラインコード専用（preの中以外の code 要素） */
-.prose :not(pre) > code {
-  background-color: #fef3c7 !important; /* bg-yellow-100 */
-  color: #000 !important;
-  font-size: 0.75rem !important; /* text-xs */
+/* ✅ Markdown内のインラインコードに見た目を強制適用 */
+.prose code {
+  background-color: #fef3c7 !important;         /* bg-yellow-100 */
+  color: #000000 !important;                    /* text-black */
+  font-size: 1rem !important;                   /* text-base */
+  font-weight: 700 !important;                  /* font-bold */
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  padding: 0 0.25rem !important;
-  border-radius: 0.25rem !important;
-  white-space: normal !important;
+  padding: 0 0.25rem !important;                /* px-1 */
+  border-radius: 0.25rem !important;            /* rounded */
   display: inline !important;
+  white-space: normal !important;
   border: none !important;
 }
 
-/* 通常の img スタイル（中央寄せ＋レスポンシブ） */
+/* ✅ タイポグラフィの ::before/::after を消す（不要なバッククォート） */
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
+/* ✅ Markdown 内の画像を中央寄せし、レスポンシブに */
 .prose img {
   display: block;
   margin-left: auto;
@@ -25,23 +32,10 @@
   height: auto;
 }
 
-/* モーダル用画像 */
+/* ✅ モーダル画像にホバーアニメーションを追加 */
 .modal-img {
   transition: transform 0.2s ease-in-out;
 }
 .modal-img:hover {
   transform: scale(1.02);
-}
-
-/* Markdown 内のインラインコードを完全に画像と同じ見た目に統一 */
-.prose code {
-  all: unset;
-  background-color: #fef3c7 !important; /* bg-yellow-100 相当 */
-  color: #000000 !important;            /* 完全な黒文字 */
-  font-size: 0.75rem !important;        /* text-xs */
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  padding: 0 0.25rem !important;
-  border-radius: 0.25rem !important;
-  display: inline !important;
-  white-space: normal !important;
 }
