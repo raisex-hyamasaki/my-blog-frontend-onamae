@@ -112,7 +112,7 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // インラインコード対応
+              // ✅ インラインコード（黄色背景＋黒太文字）
               if (!className) {
                 return (
                   <code className="bg-yellow-100 text-black text-base font-bold font-mono px-1 rounded">
@@ -121,35 +121,39 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
+              // ✅ Mermaidブロック
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
+              // ✅ 通常のブロックコード（黄色背景を除去しTailwind背景なし）
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
               }
 
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md p-4 my-4">
-                  <button
-                    onClick={handleCopy}
-                    className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
-                  >
-                    Copy
-                  </button>
+                <div className="my-6">
+                  <div className="flex justify-end mb-1">
+                    <button
+                      onClick={handleCopy}
+                      className="text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
+                    >
+                      Copy
+                    </button>
+                  </div>
                   <SyntaxHighlighter
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
                     customStyle={{
                       background: 'transparent',
-                      margin: 0,
-                      padding: 0,
+                      padding: '1rem',
+                      borderRadius: '0.5rem',
                     }}
                     codeTagProps={{
                       style: {
-                        backgroundColor: 'transparent', // ← 不要な黄色背景を完全に無効化
+                        backgroundColor: 'transparent',
                       },
                     }}
                   >
