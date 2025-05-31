@@ -7,19 +7,20 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
+// pages/articles/[id].tsx
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
 import Head from 'next/head'
 import Script from 'next/script'
-import type { ReactNode } from 'react'
 
 interface Article {
   id: number
@@ -68,7 +69,9 @@ export default function ArticlePage({ article }: Props) {
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
 
-        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
+        <div className="text-sm text-gray-500 mb-4">
+          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+        </div>
 
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -91,7 +94,10 @@ export default function ArticlePage({ article }: Props) {
           rehypePlugins={[rehypeRaw]}
           components={{
             img: ({ ...props }) =>
-              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+              typeof props.src === 'string' ? (
+                <ModalImage {...(props as { src: string; alt?: string })} />
+              ) : null,
+
             table: ({ children }) => (
               <table className="border border-gray-400 w-full text-sm my-4">{children}</table>
             ),
@@ -100,12 +106,21 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
-            code({ inline, className, children }) {
+
+            code({
+              inline,
+              className,
+              children,
+            }: {
+              inline?: boolean
+              className?: string
+              children?: ReactNode
+            }) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
               if (inline) {
-                return <code>{children}</code> // ← ここで Tailwind は使わず、CSS適用に任せる
+                return <code>{children}</code>
               }
 
               if (match?.[1] === 'mermaid' && isClient) {
@@ -129,7 +144,12 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{ background: '#1e1e2f', padding: '1rem', borderRadius: '0.5rem', margin: 0 }}
+                    customStyle={{
+                      background: '#1e1e2f',
+                      padding: '1rem',
+                      borderRadius: '0.5rem',
+                      margin: 0,
+                    }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
