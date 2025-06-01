@@ -102,16 +102,21 @@ export default function ArticlePage({ article }: Props) {
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
             code(props: any) {
-              const { className, children } = props
+              const { className, children, node } = props
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
 
               const isInline = !className
-              console.log('inline:', isInline, 'codeString:', codeString)
+              const parentTag = node?.parent?.name || ''
+              const isHeading = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(parentTag)
 
               if (isInline) {
                 return (
-                  <code className="bg-yellow-200 text-black font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-[1em]">
+                  <code
+                    className={`bg-yellow-200 text-black font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap ${
+                      isHeading ? 'text-inherit' : 'text-sm'
+                    }`}
+                  >
                     {children}
                   </code>
                 )
