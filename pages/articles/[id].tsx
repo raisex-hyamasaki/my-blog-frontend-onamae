@@ -14,7 +14,7 @@ import Script from 'next/script'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { useEffect, useState, ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
@@ -102,7 +102,7 @@ export default function ArticlePage({ article }: Props) {
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
             code(props: any) {
-              const { className, children, node } = props
+              const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
 
@@ -111,7 +111,7 @@ export default function ArticlePage({ article }: Props) {
 
               if (isInline) {
                 return (
-                  <code className="bg-yellow-200 text-black text-sm font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap">
+                  <code className="bg-yellow-200 text-black font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap">
                     {children}
                   </code>
                 )

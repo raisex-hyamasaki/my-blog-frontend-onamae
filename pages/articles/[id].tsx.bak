@@ -101,12 +101,15 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
-            code({ inline, className, children }: { inline?: boolean; className?: string; children?: ReactNode }) {
-              const match = /language-(\w+)/.exec(className || '')
+            code(props: any) {
+              const { className, children, node } = props
               const codeString = String(children).replace(/\n$/, '')
+              const match = /language-(\w+)/.exec(className || '')
 
-              // ✅ インラインコード
-              if (inline) {
+              const isInline = !className
+              console.log('inline:', isInline, 'codeString:', codeString)
+
+              if (isInline) {
                 return (
                   <code className="bg-yellow-200 text-black text-sm font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap">
                     {children}
@@ -114,7 +117,6 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              // ✅ Mermaid対応
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
