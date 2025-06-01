@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
 import ShareButtons from '@/components/ShareButtons'
-import JobBanner from '@/components/JobBanner'
+// ✅ JobBanner は削除済み
 
 type Article = {
   id: number
@@ -88,7 +88,6 @@ export default function ArticleDetail({ article }: Props) {
                 )
               }
 
-              // Mermaid対応
               const match = /language-(\w+)/.exec(className || '')
               const lang = match?.[1]
               if (lang === 'mermaid' && hydrated) {
@@ -120,7 +119,7 @@ export default function ArticleDetail({ article }: Props) {
         </ReactMarkdown>
       </div>
 
-      <JobBanner />
+      {/* ✅ JobBanner は削除済み */}
 
       <ShareButtons title={article.title} />
 
@@ -136,7 +135,6 @@ export default function ArticleDetail({ article }: Props) {
   )
 }
 
-// 🔽 Strapi構造に準拠したサーバーサイド取得
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
