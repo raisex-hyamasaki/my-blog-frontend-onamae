@@ -66,11 +66,15 @@
 
 /* ✅ コードブロック全体の余分な紺背景やパディング除去 */
 .prose pre {
-  background: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  overflow: visible !important;
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  overflow-x: auto;                     /* ✅ 横スクロールだけ許可 */
+  background-color: #1e1e1e !important; /* ✅ ダーク背景 */
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #f8f8f2;
+  line-height: 1.6;
 }
 
 /* ✅ h1〜h6内のcode要素にも親の文字サイズを継承させる */

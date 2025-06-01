@@ -135,8 +135,6 @@ export default function ArticlePage({ article }: Props) {
                   <SyntaxHighlighter
                     style={oneDark}
                     language={match?.[1] || 'text'}
-                    PreTag="div"
-                    customStyle={{ background: 'transparent', margin: 0 }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
