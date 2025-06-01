@@ -133,23 +133,17 @@ export default function ArticlePage({ article }: Props) {
                     Copy
                   </button>
                   <SyntaxHighlighter
+                    style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="pre"
                     customStyle={{
                       background: 'transparent',
-                      margin: 0,
                       padding: 0,
-                      boxShadow: 'none',
+                      margin: 0,
                       borderRadius: 0,
-                    }}
-                    codeTagProps={{
-                      style: {
-                        background: 'transparent',
-                        boxShadow: 'none',
-                        margin: 0,
-                        padding: 0,
-                        borderRadius: 0,
-                      },
+                      boxShadow: 'none',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
                     }}
                   >
                     {codeString}
