@@ -58,3 +58,13 @@
   border-radius: 0 !important;
   overflow: visible !important;
 }
+
+/* ✅ h1〜h6内のcode要素にも親の文字サイズを継承させる */
+.prose h1 > code,
+.prose h2 > code,
+.prose h3 > code,
+.prose h4 > code,
+.prose h5 > code,
+.prose h6 > code {
+  font-size: inherit !important;
+}

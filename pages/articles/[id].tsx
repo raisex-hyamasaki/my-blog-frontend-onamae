@@ -7,15 +7,6 @@
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
 
-// pages/articles/[id].tsx
-// Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
-// 投稿更新日とタグ表示に対応（Strapi v5構造対応）
-// インラインコードに黄色背景＋黒文字対応済み（text-inherit 継承）
-// モーダルウィンドウ・原寸大対応
-// ER図表示対応（Mermaid導入）
-// 求人バナー表示対応
-// SNSシェアボタン表示対応
-
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import Head from 'next/head'
