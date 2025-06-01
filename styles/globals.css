@@ -25,7 +25,7 @@
 
 /* ✅ コードブロック（pre > code）をリセット・整形 */
 .prose pre code {
-  all: unset !important;
+  /* all: unset !important; */
   background: transparent !important;
   color: inherit !important;
   font-weight: normal !important;
