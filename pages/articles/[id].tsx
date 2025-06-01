@@ -8,184 +8,161 @@
 // SNSシェアボタン表示対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
-import Link from 'next/link'
-import Head from 'next/head'
-import Script from 'next/script'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import rehypeHighlight from 'rehype-highlight'
+import 'highlight.js/styles/github-dark.css'
+
+import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
+import ShareButtons from '@/components/ShareButtons'
+import JobBanner from '@/components/JobBanner'
 
-interface Article {
+type Article = {
   id: number
   title: string
   content: string
   updatedAt: string
-  tags?: { id: number; name: string }[]
-  thumbnail?: { formats?: { medium?: { url?: string } } }[]
+  tags: string[]
+  thumbnail?: string
 }
 
 type Props = {
-  article: Article | null
+  article: Article
 }
 
-export default function ArticlePage({ article }: Props) {
-  const [isClient, setIsClient] = useState(false)
-  useEffect(() => setIsClient(true), [])
-
-  if (!article) return <div>記事が見つかりませんでした。</div>
-
-  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
+export default function ArticleDetail({ article }: Props) {
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
 
   return (
-    <div className="max-w-[1024px] mx-auto px-4">
-      <Head>
-        <title>{article.title} | レイズクロス Tech Blog</title>
-      </Head>
-
-      <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
-        <Link href="/" className="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold">
-          📋 レイズクロス Tech Blog
-        </Link>
-        <div className="flex gap-3">
-          <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/x.svg" alt="Share on X" className="h-7 w-7" />
-          </a>
-          <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-7 w-7" />
-          </a>
-          <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
-            <img src="/icons/line.svg" alt="Share on LINE" className="h-7 w-7" />
-          </a>
-        </div>
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur py-4">
+        <h1 className="text-2xl font-bold">{article.title}</h1>
       </header>
 
-      <article className="prose prose-slate max-w-none pt-6">
-        <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
-
-        <div className="text-sm text-gray-500 mb-4">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
+      {article.thumbnail && (
+        <div className="mt-6">
+          <ModalImage
+            src={article.thumbnail}
+            alt={article.title}
+            width={800}
+            height={400}
+            className="w-full h-auto max-w-[800px] mx-auto rounded"
+            unoptimized
+          />
         </div>
+      )}
 
-        {article.tags?.length ? (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {article.tags.map((tag) => (
-              <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-                #{tag.name}
+      <div className="flex items-center gap-4 text-sm text-gray-500 mt-6">
+        <span>更新日: {new Date(article.updatedAt).toLocaleDateString()}</span>
+        {article.tags && article.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {article.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs"
+              >
+                #{tag}
               </span>
             ))}
           </div>
-        ) : null}
-
-        {thumbnailUrl && (
-          <div className="w-full flex justify-center mb-6">
-            <img src={thumbnailUrl} alt="サムネイル" className="w-full max-w-[800px] h-auto rounded" />
-          </div>
         )}
+      </div>
 
+      <div className="prose prose-neutral max-w-none mt-8">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
+          rehypePlugins={[rehypeRaw, rehypeHighlight]}
           components={{
-            img: ({ ...props }) =>
-              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
-            table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm my-4">{children}</table>
-            ),
-            thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
-            th: ({ children }) => (
-              <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
-            ),
-            td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
-            code(props: any) {
-              const { className, children } = props
-              const codeString = String(children).replace(/\n$/, '')
-              const match = /language-(\w+)/.exec(className || '')
-
-              const isInline = !className || !className.includes('language-')
-              if (isInline) {
+            code({ node, inline, className, children, ...props }) {
+              if (inline) {
                 return (
-                  <code className="bg-yellow-200 font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-inherit">
+                  <code className="bg-yellow-200 text-black px-1 rounded text-sm font-mono whitespace-nowrap border-none inline">
                     {children}
                   </code>
                 )
               }
 
-              if (match?.[1] === 'mermaid' && isClient) {
-                return <Mermaid chart={codeString} />
-              }
-
-              const handleCopy = async () => {
-                await navigator.clipboard.writeText(codeString)
-                alert('Copied!')
+              // Mermaid対応
+              const match = /language-(\w+)/.exec(className || '')
+              const lang = match?.[1]
+              if (lang === 'mermaid' && hydrated) {
+                return <Mermaid chart={String(children).trim()} />
               }
 
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md p-4 my-4">
-                  <button
-                    onClick={handleCopy}
-                    className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
-                  >
-                    Copy
-                  </button>
-                  <SyntaxHighlighter
-                    style={oneDark}
-                    language={match?.[1] || 'text'}
-                    PreTag="div"
-                    customStyle={{ background: 'transparent', margin: 0 }}
-                  >
-                    {codeString}
-                  </SyntaxHighlighter>
-                </div>
+                <pre className={className}>
+                  <code {...props}>{children}</code>
+                </pre>
               )
             },
+            img({ src, alt }) {
+              if (!src) return null
+              return (
+                <ModalImage
+                  src={src}
+                  alt={alt || ''}
+                  width={800}
+                  height={600}
+                  className="w-full h-auto max-w-full mx-auto rounded"
+                  unoptimized
+                />
+              )
+            }
           }}
         >
           {article.content}
         </ReactMarkdown>
+      </div>
 
-        <div className="text-center mt-8">
-          <Link
-            href="/"
-            className="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700"
-          >
-            ← 記事一覧に戻る
-          </Link>
-        </div>
+      <JobBanner />
 
-        <div className="my-12 text-center">
-          <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-          <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
-          <div className="flex justify-center">
-            <div
-              className="engage-recruit-widget"
-              data-height="300"
-              data-width="500"
-              data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            />
-          </div>
-          <Script
-            src="https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7"
-            strategy="afterInteractive"
-          />
-        </div>
-      </article>
+      <ShareButtons title={article.title} />
+
+      <div className="mt-8">
+        <Link
+          href="/"
+          className="inline-block text-blue-600 hover:underline hover:text-blue-800 text-sm"
+        >
+          ← 記事一覧に戻る
+        </Link>
+      </div>
     </div>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
+// 🔽 Strapi構造に準拠したサーバーサイド取得
+export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const { id } = context.query
+  const id = context.params?.id
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}`
   )
-  if (!res.ok) return { props: { article: null } }
   const json = await res.json()
-  return { props: { article: json.data } }
+
+  if (!json || !json.data) {
+    return { notFound: true }
+  }
+
+  const raw = json.data
+  const article: Article = {
+    id: raw.id,
+    title: raw.title,
+    content: raw.content,
+    updatedAt: raw.updatedAt,
+    tags: raw.tags || [],
+    thumbnail: raw.thumbnail?.[0]?.formats?.medium?.url || null
+  }
+
+  return {
+    props: {
+      article
+    }
+  }
 }
