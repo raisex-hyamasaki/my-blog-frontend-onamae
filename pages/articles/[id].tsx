@@ -20,7 +20,6 @@ import { useEffect, useState } from 'react'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
 import ShareButtons from '@/components/ShareButtons'
-// ✅ JobBanner は削除済み
 
 type Article = {
   id: number
@@ -79,7 +78,13 @@ export default function ArticleDetail({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw, rehypeHighlight]}
           components={{
-            code({ node, inline, className, children, ...props }) {
+            code(props) {
+              const { inline, className, children, ...rest } = props as {
+                inline?: boolean
+                className?: string
+                children: React.ReactNode
+              }
+
               if (inline) {
                 return (
                   <code className="bg-yellow-200 text-black px-1 rounded text-sm font-mono whitespace-nowrap border-none inline">
@@ -96,7 +101,7 @@ export default function ArticleDetail({ article }: Props) {
 
               return (
                 <pre className={className}>
-                  <code {...props}>{children}</code>
+                  <code {...rest}>{children}</code>
                 </pre>
               )
             },
@@ -119,7 +124,7 @@ export default function ArticleDetail({ article }: Props) {
         </ReactMarkdown>
       </div>
 
-      {/* ✅ JobBanner は削除済み */}
+      {/* JobBanner は表示されません */}
 
       <ShareButtons title={article.title} />
 
