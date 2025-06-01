@@ -105,7 +105,9 @@ export default function ArticlePage({ article }: Props) {
               const match = /language-(\w+)/.exec(className || '')
               const codeString = String(children).replace(/\n$/, '')
 
-              // ✅ インラインコード
+              // ✅ デバッグログ追加
+              console.log('inline:', inline, 'codeString:', codeString)
+
               if (inline) {
                 return (
                   <code className="bg-yellow-200 text-black text-sm font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap">
@@ -114,7 +116,6 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              // ✅ Mermaid対応
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
