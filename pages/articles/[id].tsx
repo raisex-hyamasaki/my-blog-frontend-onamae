@@ -136,13 +136,7 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="div"
-                    customStyle={{
-                      background: 'transparent',
-                      padding: 0,
-                      margin: 0,
-                      borderRadius: 0,
-                      boxShadow: 'none',
-                    }}
+                    customStyle={{ background: 'transparent', margin: 0 }}
                   >
                     {codeString}
                   </SyntaxHighlighter>
