@@ -111,7 +111,7 @@ export default function ArticlePage({ article }: Props) {
 
               if (isInline) {
                 return (
-                  <code className="bg-yellow-200 text-black font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap">
+                  <code className="bg-yellow-200 text-black font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-[1em]">
                     {children}
                   </code>
                 )
