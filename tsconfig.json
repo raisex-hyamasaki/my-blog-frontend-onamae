@@ -15,9 +15,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",                    // ✅ 追加
+
+    "baseUrl": ".",                         // ✅ プロジェクトルートをベースに
     "paths": {
-      "@/*": ["./*"]                   // ✅ 追加
+      "@/*": ["./*"]                        // ✅ ルート配下すべてに対してエイリアス指定
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
