@@ -16,6 +16,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { useEffect, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
 
@@ -134,13 +135,21 @@ export default function ArticlePage({ article }: Props) {
                   <SyntaxHighlighter
                     language={match?.[1] || 'text'}
                     PreTag="pre"
-                    style={{}} // ← oneDark を削除し、完全に customStyle に移行
                     customStyle={{
                       background: 'transparent',
                       margin: 0,
                       padding: 0,
-                      borderRadius: 0,
                       boxShadow: 'none',
+                      borderRadius: 0,
+                    }}
+                    codeTagProps={{
+                      style: {
+                        background: 'transparent',
+                        boxShadow: 'none',
+                        margin: 0,
+                        padding: 0,
+                        borderRadius: 0,
+                      },
                     }}
                   >
                     {codeString}
