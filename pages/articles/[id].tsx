@@ -106,7 +106,7 @@ export default function ArticlePage({ article }: Props) {
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
 
-              const isInline = !className
+              const isInline = !className || !className.includes('language-')
               const baseClass =
                 'bg-yellow-200 text-black font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap'
               const headingClass = 'text-inherit'
