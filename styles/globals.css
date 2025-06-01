@@ -92,3 +92,13 @@
 .prose h6 > code {
   font-size: inherit !important;
 }
+
+/* ✅ react-syntax-highlighter の .hljs クラスにも適用 */
+.hljs {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
