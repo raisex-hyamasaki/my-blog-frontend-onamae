@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ インラインコード専用スタイル（pre 内を除外） */
+/* ✅ Markdownインラインコード（pre内は除外） */
 .prose :not(pre) > code {
   background-color: #fef3c7 !important;         /* bg-yellow-100 */
   color: #000 !important;                       /* text-black */
@@ -17,20 +17,40 @@
   border: none !important;
 }
 
-/* ✅ インラインコードの ::before/::after を消す（バッククォート抑制） */
-.prose :not(pre) > code::before,
-.prose :not(pre) > code::after {
+/* ✅ インラインコードの::before / ::after装飾を除去 */
+.prose code::before,
+.prose code::after {
   content: none !important;
 }
 
-/* ✅ コードブロック（pre > code）をリセット・整形 */
+/* ✅ コードブロック（pre > code）内の改行を許可 */
+.prose pre {
+  white-space: pre-wrap !important;  /* ← 改行反映の要 */
+  word-break: break-word;
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #1e1e1e; /* dark background */
+  color: #f8f8f2;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* ✅ コードブロック内の code 要素 */
 .prose pre code {
-  /* all: unset !important; */
-  background: transparent !important;
-  color: inherit !important;
-  font-weight: normal !important;
-  font-size: 0.9rem !important;
+  background: none !important;
+  padding: 0 !important;
+  border: none !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  color: inherit !important;
+  font-size: 0.875rem !important;
+  line-height: inherit !important;
+}
+
+/* ✅ react-syntax-highlighter の <code> による内枠を消す */
+.prose pre code {
+  box-shadow: none !important;
+  margin: 0 !important;
 }
 
 /* ✅ Markdown画像中央寄せ＆レスポンシブ対応 */
@@ -52,11 +72,15 @@
 
 /* ✅ コードブロック全体の余分な紺背景やパディング除去 */
 .prose pre {
-  background: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  overflow: visible !important;
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  overflow-x: auto;                     /* ✅ 横スクロールだけ許可 */
+  background-color: #1e1e1e !important; /* ✅ ダーク背景 */
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #f8f8f2;
+  line-height: 1.6;
 }
 
 /* ✅ h1〜h6内のcode要素にも親の文字サイズを継承させる */
@@ -67,4 +91,14 @@
 .prose h5 > code,
 .prose h6 > code {
   font-size: inherit !important;
+}
+
+/* ✅ react-syntax-highlighter の .hljs クラスにも適用 */
+.hljs {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
 }

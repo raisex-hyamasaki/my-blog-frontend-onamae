@@ -6,6 +6,7 @@
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応
 // SNSシェアボタン表示対応
+// 🔁 記事内リンクは別タブで開く対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -101,6 +102,14 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
+            a: ({ href, children }) =>
+              href ? (
+                <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                  {children}
+                </a>
+              ) : (
+                <>{children}</>
+              ),
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
