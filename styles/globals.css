@@ -47,6 +47,12 @@
   line-height: inherit !important;
 }
 
+/* ✅ react-syntax-highlighter の <code> による内枠を消す */
+.prose pre code {
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
 /* ✅ Markdown画像中央寄せ＆レスポンシブ対応 */
 .prose img {
   display: block;
