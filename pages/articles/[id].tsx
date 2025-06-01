@@ -125,7 +125,7 @@ export default function ArticlePage({ article }: Props) {
               }
 
               return (
-                <div className="relative bg-[#1e1e2f] rounded-md p-4 my-4">
+                <div className="relative my-4">
                   <button
                     onClick={handleCopy}
                     className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
@@ -138,12 +138,13 @@ export default function ArticlePage({ article }: Props) {
                     PreTag="pre"
                     customStyle={{
                       background: 'transparent',
-                      padding: 0,
-                      margin: 0,
+                      padding: '0',
+                      margin: '0',
                       borderRadius: 0,
                       boxShadow: 'none',
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-word',
+                      overflow: 'auto',
                     }}
                   >
                     {codeString}
