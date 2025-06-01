@@ -40,23 +40,25 @@ export default function ArticlePage({ article }: Props) {
     setIsClient(true)
   }, [])
 
-  // ✅ engageバナー再描画対応
+  // ✅ engageバナー再描画対応（完全版）
   useEffect(() => {
-    const existingScript = document.querySelector('script[src*="widget.js"]')
-    if ((window as any).EngageWidget?.init) {
-      (window as any).EngageWidget.init()
-    } else if (!existingScript) {
-      const script = document.createElement('script')
-      script.src =
-        'https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7'
-      script.async = true
-      script.onload = () => {
-        if ((window as any).EngageWidget?.init) {
-          (window as any).EngageWidget.init()
-        }
-      }
-      document.body.appendChild(script)
+    const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
+    if (!engageWidgetContainer) return
+
+    const scriptId = 'engage-widget-script'
+    const existingScript = document.getElementById(scriptId)
+
+    if (existingScript) {
+      existingScript.remove()
     }
+
+    engageWidgetContainer.innerHTML = ''
+
+    const script = document.createElement('script')
+    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
+    script.async = true
+    script.id = scriptId
+    document.body.appendChild(script)
   }, [])
 
   if (!article) return <div>記事が見つかりませんでした。</div>
