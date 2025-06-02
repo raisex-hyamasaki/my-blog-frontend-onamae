@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 Markdown改行反映対応
+// 📝 改行反映＋余分な行間除去対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -89,7 +89,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       </header>
 
-      <article className="prose prose-slate whitespace-pre-wrap max-w-none pt-6">
+      <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
 
         <div className="text-sm text-gray-500 mb-4">
@@ -171,13 +171,11 @@ export default function ArticlePage({ article }: Props) {
                     PreTag="pre"
                     customStyle={{
                       background: 'transparent',
-                      padding: '0',
+                      padding: '0.75rem',
                       margin: '0',
-                      borderRadius: 0,
-                      boxShadow: 'none',
+                      borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      overflow: 'auto',
+                      overflowX: 'auto',
                     }}
                   >
                     {codeString}
