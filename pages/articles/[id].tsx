@@ -2,7 +2,7 @@
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
-// モーダルウィンドウ・原寸大対応
+// モーダルウィンドウ・原寸大対応（中央寄せ＋幅制限）
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応（リロード不要で描画）
 // SNSシェアボタン表示対応
@@ -10,6 +10,8 @@
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
 // ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
+
+'use client'
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -127,7 +129,14 @@ export default function ArticlePage({ article }: Props) {
           rehypePlugins={[rehypeRaw]}
           components={{
             img: ({ ...props }) =>
-              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+              typeof props.src === 'string' ? (
+                <div className="text-center my-6">
+                  <ModalImage
+                    {...(props as { src: string; alt?: string })}
+                    className="mx-auto w-full max-w-[800px] h-auto cursor-zoom-in"
+                  />
+                </div>
+              ) : null,
             table: ({ children }) => (
               <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed">
                 {children}

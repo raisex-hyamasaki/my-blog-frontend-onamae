@@ -1,4 +1,5 @@
 // components/ModalImage.tsx
+
 import Image, { ImageProps } from 'next/image'
 import { useState } from 'react'
 import Modal from 'react-modal'
@@ -22,7 +23,7 @@ export default function ModalImage({
   alt = '',
   width = 800,
   height = 600,
-  className = 'w-full h-auto cursor-zoom-in modal-img',
+  className = 'mx-auto w-full max-w-[800px] h-auto cursor-zoom-in',
   unoptimized = true,
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -63,7 +64,7 @@ export default function ModalImage({
             width={width}
             height={height}
             unoptimized={unoptimized}
-            className="max-w-full max-h-screen rounded"
+            className="mx-auto max-w-full max-h-screen rounded"
           />
         </div>
       </Modal>
