@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 改行反映＋文字色保持（textはfallback表示）対応
+// 🧠 改行反映＋ハイライト併用ロジック
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -148,16 +148,16 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              if (!match || match[1] === 'text') {
-                return (
-                  <pre className="bg-gray-900 text-white text-sm font-mono p-4 rounded overflow-x-auto whitespace-pre-wrap break-words">
-                    <code>{codeString}</code>
-                  </pre>
-                )
+              if (match?.[1] === 'mermaid' && isClient) {
+                return <Mermaid chart={codeString} />
               }
 
-              if (match[1] === 'mermaid' && isClient) {
-                return <Mermaid chart={codeString} />
+              if (!match) {
+                return (
+                  <pre className="bg-gray-900 text-white text-sm p-4 rounded whitespace-pre-wrap overflow-x-auto">
+                    {codeString}
+                  </pre>
+                )
               }
 
               const handleCopy = async () => {
@@ -175,7 +175,7 @@ export default function ArticlePage({ article }: Props) {
                   </button>
                   <SyntaxHighlighter
                     style={oneDark}
-                    language={match?.[1] || 'text'}
+                    language={match[1]}
                     PreTag="pre"
                     customStyle={{
                       background: 'transparent',
