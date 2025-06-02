@@ -137,9 +137,11 @@ export default function ArticlePage({ article }: Props) {
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
-              const match = /language-(\w+)/.exec(className || '')
+              console.log('codeString:', JSON.stringify(codeString)) // ← デバッグ出力
 
+              const match = /language-(\w+)/.exec(className || '')
               const isInline = !className || !className.includes('language-')
+
               if (isInline) {
                 return (
                   <code className="bg-yellow-200 font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-inherit">
