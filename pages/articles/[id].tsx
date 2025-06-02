@@ -10,6 +10,7 @@
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
 // 📌 language-markdown のコードブロックを Markdown 表として表示対応
+// 🚑 marked.parse() 型エラー解消対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -22,7 +23,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
-import { marked } from 'marked' // ← 追加（npm install marked）
+import { marked } from 'marked'
 
 interface Article {
   id: number
@@ -37,7 +38,7 @@ type Props = {
   article: Article | null
 }
 
-// ✅ Markdownテーブルの崩れを防ぐ整形関数
+// ✅ テーブル整形：Markdown改行崩れを防ぐ
 function cleanMarkdownTables(markdown: string): string {
   const lines = markdown.split('\n')
   const cleaned: string[] = []
@@ -62,9 +63,10 @@ function cleanMarkdownTables(markdown: string): string {
   return cleaned.join('\n')
 }
 
-// ✅ markdownコード → HTMLに変換（表表示用）
+// ✅ markdownコード → HTMLに変換（Promise対応済）
 function markdownToHtml(md: string): string {
-  return marked.parse(md)
+  const result = marked.parse(md)
+  return typeof result === 'string' ? result : String(result)
 }
 
 export default function ArticlePage({ article }: Props) {
@@ -75,18 +77,12 @@ export default function ArticlePage({ article }: Props) {
   }, [])
 
   useEffect(() => {
-    const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
-    if (!engageWidgetContainer) return
-
+    const container = document.querySelector('.engage-recruit-widget')
+    if (!container) return
     const scriptId = 'engage-widget-script'
-    const existingScript = document.getElementById(scriptId)
-
-    if (existingScript) {
-      existingScript.remove()
-    }
-
-    engageWidgetContainer.innerHTML = ''
-
+    const existing = document.getElementById(scriptId)
+    if (existing) existing.remove()
+    container.innerHTML = ''
     const script = document.createElement('script')
     script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
     script.async = true
@@ -170,10 +166,10 @@ export default function ArticlePage({ article }: Props) {
               ),
             code(props: any) {
               const { className, children } = props
-              let codeString = String(children).replace(/\n$/, '').replace(/\\n/g, '\n')
+              const codeString = String(children).replace(/\n$/, '').replace(/\\n/g, '\n')
               const match = /language-(\w+)/.exec(className || '')
-
               const isInline = !className || !className.includes('language-')
+
               if (isInline) {
                 return (
                   <code className="bg-yellow-200 font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-inherit">
@@ -182,7 +178,6 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              // ✅ Markdownをテーブルに変換
               if (match?.[1] === 'markdown') {
                 console.log('[Client] MarkdownテーブルをHTMLに変換中')
                 try {
