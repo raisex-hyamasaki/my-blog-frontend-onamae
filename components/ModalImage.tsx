@@ -1,7 +1,7 @@
 // components/ModalImage.tsx
 
 import Image, { ImageProps } from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal from 'react-modal'
 
 type ModalImageProps = {
@@ -11,10 +11,9 @@ type ModalImageProps = {
   unoptimized?: boolean
   width?: number
   height?: number
-  onModalToggle?: (isOpen: boolean) => void
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
-// SSR対策済み：モーダルのルート指定
+// モーダルのルート要素指定（SSR対策済）
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body')
 }
@@ -26,19 +25,19 @@ export default function ModalImage({
   height = 600,
   className = 'w-full h-auto cursor-zoom-in modal-img',
   unoptimized = true,
-  onModalToggle,
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const openModal = () => {
-    setIsOpen(true)
-    onModalToggle?.(true)
-  }
-
-  const closeModal = () => {
-    setIsOpen(false)
-    onModalToggle?.(false)
-  }
+  useEffect(() => {
+    const header = document.querySelector('header')
+    if (!header) return
+    if (isOpen) {
+      header.classList.add('hidden')
+    } else {
+      header.classList.remove('hidden')
+    }
+    return () => header.classList.remove('hidden')
+  }, [isOpen])
 
   return (
     <>
@@ -49,19 +48,19 @@ export default function ModalImage({
         height={height}
         unoptimized={unoptimized}
         className={className}
-        onClick={openModal}
+        onClick={() => setIsOpen(true)}
         style={{ cursor: 'zoom-in' }}
       />
 
       <Modal
         isOpen={isOpen}
-        onRequestClose={closeModal}
+        onRequestClose={() => setIsOpen(false)}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
       >
         <div className="relative bg-white rounded shadow-lg p-4">
           <button
-            onClick={closeModal}
+            onClick={() => setIsOpen(false)}
             className="absolute -top-4 -right-4 text-white bg-red-600 hover:bg-red-700 text-lg font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-50"
             aria-label="Close Modal"
           >
