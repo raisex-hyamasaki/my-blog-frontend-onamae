@@ -9,6 +9,7 @@
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
+// ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -65,6 +66,15 @@ export default function ArticlePage({ article }: Props) {
   if (!article) return <div>記事が見つかりませんでした。</div>
 
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
+
+  const isInternalLink = (url: string) => {
+    try {
+      const link = new URL(url, 'https://my-blog-frontend.vercel.app')
+      return link.hostname.includes('my-blog-frontend')
+    } catch {
+      return false
+    }
+  }
 
   return (
     <div className="max-w-[1024px] mx-auto px-4">
@@ -136,7 +146,12 @@ export default function ArticlePage({ article }: Props) {
             ),
             a: ({ href, children }) =>
               href ? (
-                <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                <a
+                  href={href}
+                  target={isInternalLink(href) ? '_self' : '_blank'}
+                  rel={isInternalLink(href) ? undefined : 'noopener noreferrer'}
+                  className="text-blue-600 underline"
+                >
                   {children}
                 </a>
               ) : (
@@ -158,22 +173,6 @@ export default function ArticlePage({ article }: Props) {
 
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
-              }
-
-              if (match?.[1] === 'markdown') {
-                return (
-                  <div className="relative my-4">
-                    <button
-                      onClick={() => navigator.clipboard.writeText(codeString)}
-                      className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
-                    >
-                      Copy
-                    </button>
-                    <pre className="bg-gray-900 text-white text-sm p-4 rounded overflow-x-auto">
-                      <code>{codeString}</code>
-                    </pre>
-                  </div>
-                )
               }
 
               return (
