@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 改行反映＋余分な行間除去対応済み
+// 📝 改行反映＋余分な行間除去＋コードブロック \n→<br> 変換対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -137,11 +137,9 @@ export default function ArticlePage({ article }: Props) {
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
-              console.log('codeString:', JSON.stringify(codeString)) // ← デバッグ出力
-
               const match = /language-(\w+)/.exec(className || '')
-              const isInline = !className || !className.includes('language-')
 
+              const isInline = !className || !className.includes('language-')
               if (isInline) {
                 return (
                   <code className="bg-yellow-200 font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-inherit">
@@ -153,6 +151,8 @@ export default function ArticlePage({ article }: Props) {
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
+
+              const formatted = codeString.replace(/\n/g, '<br>')
 
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
@@ -167,21 +167,10 @@ export default function ArticlePage({ article }: Props) {
                   >
                     Copy
                   </button>
-                  <SyntaxHighlighter
-                    style={oneDark}
-                    language={match?.[1] || 'text'}
-                    PreTag="pre"
-                    customStyle={{
-                      background: 'transparent',
-                      padding: '0.75rem',
-                      margin: '0',
-                      borderRadius: '0.5rem',
-                      whiteSpace: 'pre-wrap',
-                      overflowX: 'auto',
-                    }}
-                  >
-                    {codeString}
-                  </SyntaxHighlighter>
+                  <div
+                    className="bg-gray-900 text-white text-sm p-4 rounded whitespace-pre-wrap break-words overflow-x-auto"
+                    dangerouslySetInnerHTML={{ __html: formatted }}
+                  />
                 </div>
               )
             },
