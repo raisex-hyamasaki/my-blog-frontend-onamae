@@ -136,7 +136,7 @@ export default function ArticlePage({ article }: Props) {
               ),
             code(props: any) {
               const { className, children } = props
-              const codeString = String(children).replace(/\n$/, '')
+              let codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
 
               const isInline = !className || !className.includes('language-')
@@ -151,6 +151,10 @@ export default function ArticlePage({ article }: Props) {
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
+
+              // ✅ 改行文字列を変換（
+ → 実際の改行）
+              codeString = codeString.replace(/\\n/g, '\n')
 
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
@@ -176,6 +180,7 @@ export default function ArticlePage({ article }: Props) {
                       borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
                       overflowX: 'auto',
+                      wordBreak: 'break-word'
                     }}
                   >
                     {codeString}
