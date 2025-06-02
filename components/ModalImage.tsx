@@ -4,16 +4,17 @@ import Image, { ImageProps } from 'next/image'
 import { useState } from 'react'
 import Modal from 'react-modal'
 
-type ModalImageProps = {
+export type ModalImageProps = {
   src: string
   alt?: string
   className?: string
   unoptimized?: boolean
   width?: number
   height?: number
+  onOpenModal?: () => void
+  onCloseModal?: () => void
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
-// モーダルのルートを body に指定（必要）
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body')
 }
@@ -25,11 +26,20 @@ export default function ModalImage({
   height = 600,
   className = 'mx-auto w-full max-w-[800px] h-auto cursor-zoom-in',
   unoptimized = true,
+  onOpenModal,
+  onCloseModal,
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const openModal = () => setIsOpen(true)
-  const closeModal = () => setIsOpen(false)
+  const openModal = () => {
+    setIsOpen(true)
+    onOpenModal?.()
+  }
+
+  const closeModal = () => {
+    setIsOpen(false)
+    onCloseModal?.()
+  }
 
   return (
     <>
@@ -48,25 +58,19 @@ export default function ModalImage({
         isOpen={isOpen}
         onRequestClose={closeModal}
         contentLabel="Image Modal"
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-50"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-70"
+        shouldCloseOnOverlayClick={true}
       >
-        <div className="relative">
-          <button
-            onClick={closeModal}
-            className="absolute top-2 right-2 bg-white text-black px-2 py-1 rounded z-50"
-          >
-            × Close
-          </button>
-          <Image
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            unoptimized={unoptimized}
-            className="mx-auto max-w-full max-h-screen rounded"
-          />
-        </div>
+        <Image
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          unoptimized={unoptimized}
+          className="mx-auto max-w-full max-h-screen rounded cursor-zoom-out"
+          onClick={closeModal}
+        />
       </Modal>
     </>
   )
