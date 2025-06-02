@@ -119,13 +119,21 @@ export default function ArticlePage({ article }: Props) {
             img: ({ ...props }) =>
               typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
             table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap">{children}</table>
+              <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed">
+                {children}
+              </table>
             ),
             thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
             th: ({ children }) => (
-              <th className="border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">{children}</th>
+              <th className="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">
+                {children}
+              </th>
             ),
-            td: ({ children }) => <td className="border border-gray-300 px-2 py-1 whitespace-pre-wrap">{children}</td>,
+            td: ({ children }) => (
+              <td className="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">
+                {children}
+              </td>
+            ),
             a: ({ href, children }) =>
               href ? (
                 <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
