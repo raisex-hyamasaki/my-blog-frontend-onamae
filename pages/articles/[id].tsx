@@ -2,7 +2,7 @@
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
-// モーダルウィンドウ・原寸大対応
+// ✅ Reactモーダルによる画像拡大表示対応済み
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応（リロード不要で描画）
 // SNSシェアボタン表示対応
@@ -10,6 +10,8 @@
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
 // ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
+
+'use client'
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -21,7 +23,7 @@ import { useEffect, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
-import ModalImage from '@/components/ModalImage'
+import Modal from 'react-modal'
 
 interface Article {
   id: number
@@ -38,34 +40,12 @@ type Props = {
 
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalImage, setModalImage] = useState<{ src: string; alt?: string }>({ src: '', alt: '' })
 
   useEffect(() => {
     setIsClient(true)
   }, [])
-
-  useEffect(() => {
-    const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
-    if (!engageWidgetContainer) return
-
-    const scriptId = 'engage-widget-script'
-    const existingScript = document.getElementById(scriptId)
-
-    if (existingScript) {
-      existingScript.remove()
-    }
-
-    engageWidgetContainer.innerHTML = ''
-
-    const script = document.createElement('script')
-    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
-    script.async = true
-    script.id = scriptId
-    document.body.appendChild(script)
-  }, [])
-
-  if (!article) return <div>記事が見つかりませんでした。</div>
-
-  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   const isInternalLink = (url: string) => {
     try {
@@ -75,6 +55,10 @@ export default function ArticlePage({ article }: Props) {
       return false
     }
   }
+
+  if (!article) return <div>記事が見つかりませんでした。</div>
+
+  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   return (
     <div className="max-w-[1024px] mx-auto px-4">
@@ -101,7 +85,6 @@ export default function ArticlePage({ article }: Props) {
 
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
-
         <div className="text-sm text-gray-500 mb-4">
           投稿更新日: {new Date(article.updatedAt).toLocaleString()}
         </div>
@@ -118,7 +101,15 @@ export default function ArticlePage({ article }: Props) {
 
         {thumbnailUrl && (
           <div className="w-full flex justify-center mb-6">
-            <img src={thumbnailUrl} alt="サムネイル" className="w-full max-w-[800px] h-auto rounded" />
+            <img
+              src={thumbnailUrl}
+              alt="サムネイル"
+              className="w-full max-w-[800px] h-auto rounded cursor-pointer"
+              onClick={() => {
+                setModalImage({ src: thumbnailUrl })
+                setModalOpen(true)
+              }}
+            />
           </div>
         )}
 
@@ -126,23 +117,16 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ ...props }) =>
-              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
-            table: ({ children }) => (
-              <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed">
-                {children}
-              </table>
-            ),
-            thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
-            th: ({ children }) => (
-              <th className="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">
-                {children}
-              </th>
-            ),
-            td: ({ children }) => (
-              <td className="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">
-                {children}
-              </td>
+            img: ({ src = '', alt = '' }) => (
+              <img
+                src={src}
+                alt={alt}
+                className="mx-auto cursor-pointer max-w-full h-auto"
+                onClick={() => {
+                  setModalImage({ src, alt })
+                  setModalOpen(true)
+                }}
+              />
             ),
             a: ({ href, children }) =>
               href ? (
@@ -161,7 +145,6 @@ export default function ArticlePage({ article }: Props) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
-
               const isInline = !className || !className.includes('language-')
               if (isInline) {
                 return (
@@ -170,11 +153,9 @@ export default function ArticlePage({ article }: Props) {
                   </code>
                 )
               }
-
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
-
               return (
                 <div className="relative my-4">
                   <button
@@ -207,6 +188,24 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
+        <Modal
+          isOpen={modalOpen}
+          onRequestClose={() => setModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-60"
+          ariaHideApp={false}
+        >
+          <div className="bg-white p-4 rounded shadow-lg max-w-4xl max-h-[90vh] overflow-auto">
+            <button
+              onClick={() => setModalOpen(false)}
+              className="float-right text-gray-600 hover:text-black"
+            >
+              ✕
+            </button>
+            <img src={modalImage.src} alt={modalImage.alt} className="max-w-full h-auto mx-auto mt-4" />
+          </div>
+        </Modal>
+
         <div className="text-center mt-8">
           <Link
             href="/"
@@ -214,19 +213,6 @@ export default function ArticlePage({ article }: Props) {
           >
             ← 記事一覧に戻る
           </Link>
-        </div>
-
-        <div className="my-12 text-center">
-          <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
-          <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
-          <div className="flex justify-center">
-            <div
-              className="engage-recruit-widget"
-              data-height="300"
-              data-width="500"
-              data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
-            />
-          </div>
         </div>
       </article>
     </div>
