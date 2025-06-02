@@ -23,34 +23,44 @@
   content: none !important;
 }
 
-/* ✅ コードブロック（pre > code）内の改行を許可 */
+/* ✅ コードブロック（pre > code）全体スタイル調整 */
 .prose pre {
-  white-space: pre-wrap !important;  /* ← 改行反映の要 */
-  word-break: break-word;
-  overflow-x: auto;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: #1e1e1e; /* dark background */
-  color: #f8f8f2;
-  font-size: 0.875rem;
-  line-height: 1.6;
+  white-space: pre !important;                 /* ✅ 折り返さず横並びに表示 */
+  word-break: normal !important;               /* ✅ 単語途中での折返し禁止 */
+  overflow-x: auto !important;                 /* ✅ 横スクロール許可 */
+  background-color: #1e1e1e !important;        /* ✅ ダーク背景 */
+  color: #f8f8f2 !important;
+  font-size: 0.875rem !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  line-height: 1.6 !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
 }
 
 /* ✅ コードブロック内の code 要素 */
 .prose pre code {
   background: none !important;
   padding: 0 !important;
+  margin: 0 !important;
   border: none !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
   color: inherit !important;
-  font-size: 0.875rem !important;
-  line-height: inherit !important;
+  white-space: inherit !important;
+  word-break: inherit !important;
+  box-shadow: none !important;
 }
 
-/* ✅ react-syntax-highlighter の <code> による内枠を消す */
-.prose pre code {
+/* ✅ react-syntax-highlighter の .hljs クラスにも適用 */
+.hljs {
+  background: none !important;
   box-shadow: none !important;
+  padding: 0 !important;
   margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
 /* ✅ Markdown画像中央寄せ＆レスポンシブ対応 */
@@ -70,19 +80,6 @@
   transform: scale(1.02);
 }
 
-/* ✅ コードブロック全体の余分な紺背景やパディング除去 */
-.prose pre {
-  white-space: pre-wrap !important;
-  word-break: break-word;
-  overflow-x: auto;                     /* ✅ 横スクロールだけ許可 */
-  background-color: #1e1e1e !important; /* ✅ ダーク背景 */
-  padding: 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: #f8f8f2;
-  line-height: 1.6;
-}
-
 /* ✅ h1〜h6内のcode要素にも親の文字サイズを継承させる */
 .prose h1 > code,
 .prose h2 > code,
@@ -93,17 +90,7 @@
   font-size: inherit !important;
 }
 
-/* ✅ react-syntax-highlighter の .hljs クラスにも適用 */
-.hljs {
-  background: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
-}
-
-/* ✅ インラインコード全体に対して改行許可を補強 */
+/* ✅ インラインcode（全体補強用） */
 .prose code {
-  white-space: pre-wrap !important;
+  white-space: pre-wrap !important; /* インラインでも折り返し許可（安全措置） */
 }
