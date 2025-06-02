@@ -10,7 +10,6 @@ type ModalImageProps = {
   unoptimized?: boolean
   width?: number
   height?: number
-  onModalToggle?: (visible: boolean) => void // ✅ 追加
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
 if (typeof window !== 'undefined') {
@@ -24,19 +23,24 @@ export default function ModalImage({
   height = 600,
   className = 'w-full h-auto cursor-zoom-in modal-img',
   unoptimized = true,
-  onModalToggle, // ✅ 追加
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
+  useEffect(() => {
+    const header = document.querySelector('header')
+    if (!header) return
+
+    if (isOpen) {
+      header.classList.add('hidden')
+    } else {
+      header.classList.remove('hidden')
+    }
+
+    return () => header.classList.remove('hidden')
+  }, [isOpen])
+
   const openModal = () => setIsOpen(true)
   const closeModal = () => setIsOpen(false)
-
-  // ✅ モーダルの開閉状態が変わったときに親へ通知
-  useEffect(() => {
-    if (onModalToggle) {
-      onModalToggle(isOpen)
-    }
-  }, [isOpen, onModalToggle])
 
   return (
     <>
