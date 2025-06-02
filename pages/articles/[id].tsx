@@ -200,18 +200,6 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
-        <div className="mt-6">
-          <p className="text-base font-medium">📎 関連資料：</p>
-          <a
-            href="/docs/読み取りテスト文書.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            読み取りテスト文書.pdf
-          </a>
-        </div>
-
         <div className="text-center mt-8">
           <Link
             href="/"
