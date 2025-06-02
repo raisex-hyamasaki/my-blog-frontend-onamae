@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 改行反映＋余分な行間除去対応済み
+// 📝 改行反映＋文字色保持（textはfallback表示）対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -148,7 +148,15 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              if (match?.[1] === 'mermaid' && isClient) {
+              if (!match || match[1] === 'text') {
+                return (
+                  <pre className="bg-gray-900 text-white text-sm font-mono p-4 rounded overflow-x-auto whitespace-pre-wrap break-words">
+                    <code>{codeString}</code>
+                  </pre>
+                )
+              }
+
+              if (match[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
@@ -169,14 +177,13 @@ export default function ArticlePage({ article }: Props) {
                     style={oneDark}
                     language={match?.[1] || 'text'}
                     PreTag="pre"
-                    wrapLines={true}
-                    lineProps={{ style: { whiteSpace: 'pre-wrap', wordBreak: 'break-word' } }}
                     customStyle={{
                       background: 'transparent',
                       padding: '0.75rem',
                       margin: '0',
                       borderRadius: '0.5rem',
-                      overflowX: 'auto'
+                      whiteSpace: 'pre-wrap',
+                      overflowX: 'auto',
                     }}
                   >
                     {codeString}
