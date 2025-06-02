@@ -8,6 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
+// 📝 改行反映＋余分な行間除去対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -170,13 +171,11 @@ export default function ArticlePage({ article }: Props) {
                     PreTag="pre"
                     customStyle={{
                       background: 'transparent',
-                      padding: '0',
+                      padding: '0.75rem',
                       margin: '0',
-                      borderRadius: 0,
-                      boxShadow: 'none',
+                      borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      overflow: 'auto',
+                      overflowX: 'auto',
                     }}
                   >
                     {codeString}
@@ -189,7 +188,6 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
-        {/* ✅ PDF リンク表示 */}
         <div className="mt-6">
           <p className="text-base font-medium">📎 関連資料：</p>
           <a

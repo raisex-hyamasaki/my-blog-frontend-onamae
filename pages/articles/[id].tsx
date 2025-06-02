@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 改行反映＋余分な行間除去対応済み
+// 📝 改行・行間調整＋コードブロック改行反映対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -176,6 +176,7 @@ export default function ArticlePage({ article }: Props) {
                       borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
                       overflowX: 'auto',
+                      wordBreak: 'break-word'
                     }}
                   >
                     {codeString}
