@@ -9,6 +9,7 @@
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
+// 📌 language-markdown のコードブロックを Markdown 表として表示対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -21,6 +22,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
+import { marked } from 'marked' // ← 追加（npm install marked）
 
 interface Article {
   id: number
@@ -60,6 +62,11 @@ function cleanMarkdownTables(markdown: string): string {
   return cleaned.join('\n')
 }
 
+// ✅ markdownコード → HTMLに変換（表表示用）
+function markdownToHtml(md: string): string {
+  return marked.parse(md)
+}
+
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
 
@@ -89,7 +96,6 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
-  // ✅ ログ出力：記事データの全体確認
   console.log('[Client] 表示する記事データ:', article)
 
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
@@ -176,11 +182,26 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
+              // ✅ Markdownをテーブルに変換
+              if (match?.[1] === 'markdown') {
+                console.log('[Client] MarkdownテーブルをHTMLに変換中')
+                try {
+                  return (
+                    <div
+                      className="border border-gray-300 bg-gray-50 text-sm rounded p-4 whitespace-pre-wrap overflow-x-auto"
+                      dangerouslySetInnerHTML={{ __html: markdownToHtml(codeString) }}
+                    />
+                  )
+                } catch (e) {
+                  console.warn('Markdownテーブル変換失敗:', e)
+                  return <pre>{codeString}</pre>
+                }
+              }
+
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
 
-              // ✅ ログ出力：コードブロックの中身確認
               console.log('[Client] コードブロック（language: %s）:\n%s', match?.[1] || 'text', codeString)
 
               const handleCopy = async () => {
@@ -269,8 +290,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   if (!res.ok) return { props: { article: null } }
 
   const json = await res.json()
-
-  // ✅ ログ出力：Strapi APIレスポンス確認
   console.log('[Server] Strapi API レスポンス:', json)
 
   const article = json.data
