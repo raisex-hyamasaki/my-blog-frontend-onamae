@@ -137,6 +137,7 @@ export default function ArticlePage({ article }: Props) {
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
+              console.log('🪵 codeString:', codeString) // ← 改行が含まれているか確認
               const match = /language-(\w+)/.exec(className || '')
 
               const isInline = !className || !className.includes('language-')
