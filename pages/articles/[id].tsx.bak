@@ -4,13 +4,14 @@
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
 // モーダルウィンドウ・原寸大対応
 // ER図表示対応（Mermaid導入）
-// 求人バナー表示対応
+// 求人バナー表示対応（リロード不要で描画）
 // SNSシェアボタン表示対応
+// 🔁 記事内リンクは別タブで開く対応済み
+// 📎 PDFリンク対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import Head from 'next/head'
-import Script from 'next/script'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -35,7 +36,30 @@ type Props = {
 
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
-  useEffect(() => setIsClient(true), [])
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
+    if (!engageWidgetContainer) return
+
+    const scriptId = 'engage-widget-script'
+    const existingScript = document.getElementById(scriptId)
+
+    if (existingScript) {
+      existingScript.remove()
+    }
+
+    engageWidgetContainer.innerHTML = ''
+
+    const script = document.createElement('script')
+    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
+    script.async = true
+    script.id = scriptId
+    document.body.appendChild(script)
+  }, [])
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
@@ -101,6 +125,14 @@ export default function ArticlePage({ article }: Props) {
               <th className="border border-gray-400 px-2 py-1 text-left font-medium">{children}</th>
             ),
             td: ({ children }) => <td className="border border-gray-300 px-2 py-1">{children}</td>,
+            a: ({ href, children }) =>
+              href ? (
+                <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                  {children}
+                </a>
+              ) : (
+                <>{children}</>
+              ),
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
@@ -157,6 +189,19 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
+        {/* ✅ PDF リンク表示 */}
+        <div className="mt-6">
+          <p className="text-base font-medium">📎 関連資料：</p>
+          <a
+            href="/docs/読み取りテスト文書.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            読み取りテスト文書.pdf
+          </a>
+        </div>
+
         <div className="text-center mt-8">
           <Link
             href="/"
@@ -177,10 +222,6 @@ export default function ArticlePage({ article }: Props) {
               data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
             />
           </div>
-          <Script
-            src="https://en-gage.net/common_new/company_script/recruit/widget.js?v=74abd4d08c3f541ffc47d90ca4e4bec1babf87cd5ec5620798da6c97ecc886c7"
-            strategy="afterInteractive"
-          />
         </div>
       </article>
     </div>

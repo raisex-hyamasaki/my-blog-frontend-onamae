@@ -8,6 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
+// 📝 Markdown改行反映対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -88,7 +89,7 @@ export default function ArticlePage({ article }: Props) {
         </div>
       </header>
 
-      <article className="prose prose-slate max-w-none pt-6">
+      <article className="prose prose-slate whitespace-pre-wrap max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
 
         <div className="text-sm text-gray-500 mb-4">
@@ -189,7 +190,6 @@ export default function ArticlePage({ article }: Props) {
           {article.content}
         </ReactMarkdown>
 
-        {/* ✅ PDF リンク表示 */}
         <div className="mt-6">
           <p className="text-base font-medium">📎 関連資料：</p>
           <a
