@@ -10,8 +10,10 @@ type ModalImageProps = {
   unoptimized?: boolean
   width?: number
   height?: number
+  onModalToggle?: (isOpen: boolean) => void // ✅ 追加
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
+// モーダルのルート要素指定（SSR対策）
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body')
 }
@@ -23,24 +25,19 @@ export default function ModalImage({
   height = 600,
   className = 'w-full h-auto cursor-zoom-in modal-img',
   unoptimized = true,
+  onModalToggle, // ✅ 受け取り
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    const header = document.querySelector('header')
-    if (!header) return
+  const openModal = () => {
+    setIsOpen(true)
+    onModalToggle?.(true)
+  }
 
-    if (isOpen) {
-      header.classList.add('hidden')
-    } else {
-      header.classList.remove('hidden')
-    }
-
-    return () => header.classList.remove('hidden')
-  }, [isOpen])
-
-  const openModal = () => setIsOpen(true)
-  const closeModal = () => setIsOpen(false)
+  const closeModal = () => {
+    setIsOpen(false)
+    onModalToggle?.(false)
+  }
 
   return (
     <>

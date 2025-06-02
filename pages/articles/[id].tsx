@@ -42,9 +42,7 @@ export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+  useEffect(() => setIsClient(true), [])
 
   useEffect(() => {
     const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
@@ -52,13 +50,9 @@ export default function ArticlePage({ article }: Props) {
 
     const scriptId = 'engage-widget-script'
     const existingScript = document.getElementById(scriptId)
-
-    if (existingScript) {
-      existingScript.remove()
-    }
+    if (existingScript) existingScript.remove()
 
     engageWidgetContainer.innerHTML = ''
-
     const script = document.createElement('script')
     script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
     script.async = true
@@ -106,12 +100,9 @@ export default function ArticlePage({ article }: Props) {
 
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
+        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
 
-        <div className="text-sm text-gray-500 mb-4">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-        </div>
-
-        {article.tags?.length ? (
+        {article.tags?.length && (
           <div className="flex flex-wrap gap-2 mb-4">
             {article.tags.map((tag) => (
               <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
@@ -119,7 +110,7 @@ export default function ArticlePage({ article }: Props) {
               </span>
             ))}
           </div>
-        ) : null}
+        )}
 
         {thumbnailUrl && (
           <div className="w-full flex justify-center mb-6">
@@ -131,7 +122,10 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ src = '', alt = '' }) => <ModalImage src={src} alt={alt} onModalToggle={setIsModalOpen} />,
+            img: ({ src = '', alt = '' }) =>
+              typeof src === 'string' ? (
+                <ModalImage src={src} alt={alt} onModalToggle={setIsModalOpen} />
+              ) : null,
             a: ({ href, children }) =>
               href ? (
                 <a
@@ -149,8 +143,8 @@ export default function ArticlePage({ article }: Props) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
-
               const isInline = !className || !className.includes('language-')
+
               if (isInline) {
                 return (
                   <code className="bg-yellow-200 font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-inherit">
@@ -182,7 +176,7 @@ export default function ArticlePage({ article }: Props) {
                       borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
                       overflowX: 'auto',
-                      wordBreak: 'break-word'
+                      wordBreak: 'break-word',
                     }}
                   >
                     {codeString}
