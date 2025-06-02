@@ -1,4 +1,5 @@
 // components/ModalImage.tsx
+
 import Image, { ImageProps } from 'next/image'
 import { useState } from 'react'
 import Modal from 'react-modal'
@@ -10,9 +11,10 @@ type ModalImageProps = {
   unoptimized?: boolean
   width?: number
   height?: number
+  onModalToggle?: (isOpen: boolean) => void
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
-// モーダルのルート要素指定（SSR対策済）
+// SSR対策済み：モーダルのルート指定
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body')
 }
@@ -24,11 +26,19 @@ export default function ModalImage({
   height = 600,
   className = 'w-full h-auto cursor-zoom-in modal-img',
   unoptimized = true,
+  onModalToggle,
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const openModal = () => setIsOpen(true)
-  const closeModal = () => setIsOpen(false)
+  const openModal = () => {
+    setIsOpen(true)
+    onModalToggle?.(true)
+  }
+
+  const closeModal = () => {
+    setIsOpen(false)
+    onModalToggle?.(false)
+  }
 
   return (
     <>
