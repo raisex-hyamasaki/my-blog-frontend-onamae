@@ -94,12 +94,3 @@
 .prose code {
   white-space: pre-wrap !important; /* インラインでも折り返し許可（安全措置） */
 }
-
-/* ✅ コードブロック内の Markdown テーブル風表記に整列補正 */
-.prose pre code {
-  font-family: 'Courier New', Courier, 'Source Code Pro', monospace !important;
-  letter-spacing: 0.05em !important;  /* ← 横詰まり補正 */
-  display: block;
-  tab-size: 4;                        /* ← タブ幅補正（必要あれば） */
-  white-space: pre !important;
-}
