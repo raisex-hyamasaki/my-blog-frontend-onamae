@@ -1,6 +1,6 @@
 // components/ModalImage.tsx
 import Image, { ImageProps } from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Modal from 'react-modal'
 
 type ModalImageProps = {
@@ -10,10 +10,9 @@ type ModalImageProps = {
   unoptimized?: boolean
   width?: number
   height?: number
-  onModalToggle?: (isOpen: boolean) => void // ✅ 追加
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
-// モーダルのルート要素指定（SSR対策）
+// モーダルのルートを body に指定（必要）
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body')
 }
@@ -25,19 +24,11 @@ export default function ModalImage({
   height = 600,
   className = 'w-full h-auto cursor-zoom-in modal-img',
   unoptimized = true,
-  onModalToggle, // ✅ 受け取り
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const openModal = () => {
-    setIsOpen(true)
-    onModalToggle?.(true)
-  }
-
-  const closeModal = () => {
-    setIsOpen(false)
-    onModalToggle?.(false)
-  }
+  const openModal = () => setIsOpen(true)
+  const closeModal = () => setIsOpen(false)
 
   return (
     <>
@@ -55,16 +46,16 @@ export default function ModalImage({
       <Modal
         isOpen={isOpen}
         onRequestClose={closeModal}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
+        contentLabel="Image Modal"
+        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
       >
-        <div className="relative bg-white rounded shadow-lg p-4">
+        <div className="relative">
           <button
             onClick={closeModal}
-            className="absolute -top-4 -right-4 text-white bg-red-600 hover:bg-red-700 text-lg font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-50"
-            aria-label="Close Modal"
+            className="absolute top-2 right-2 bg-white text-black px-2 py-1 rounded z-50"
           >
-            ×
+            × Close
           </button>
           <Image
             src={src}
@@ -72,7 +63,7 @@ export default function ModalImage({
             width={width}
             height={height}
             unoptimized={unoptimized}
-            className="w-auto h-auto max-h-[90vh] max-w-[90vw] rounded"
+            className="max-w-full max-h-screen rounded"
           />
         </div>
       </Modal>
