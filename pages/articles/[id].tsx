@@ -64,6 +64,9 @@ export default function ArticlePage({ article }: Props) {
 
   if (!article) return <div>記事が見つかりませんでした。</div>
 
+  // ✅ ログ出力：記事データの全体確認
+  console.log('[Client] 表示する記事データ:', article)
+
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   return (
@@ -152,6 +155,9 @@ export default function ArticlePage({ article }: Props) {
                 return <Mermaid chart={codeString} />
               }
 
+              // ✅ ログ出力：コードブロックの中身確認
+              console.log('[Client] コードブロック（language: %s）:\n%s', match?.[1] || 'text', codeString)
+
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
@@ -234,7 +240,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
   )
+
   if (!res.ok) return { props: { article: null } }
+
   const json = await res.json()
+
+  // ✅ ログ出力：Strapi APIからのレスポンス確認
+  console.log('[Server] Strapi API レスポンス:', json)
+
   return { props: { article: json.data } }
 }
