@@ -35,6 +35,31 @@ type Props = {
   article: Article | null
 }
 
+// ✅ Markdownテーブルの崩れを防ぐ整形関数
+function cleanMarkdownTables(markdown: string): string {
+  const lines = markdown.split('\n')
+  const cleaned: string[] = []
+  let inTable = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    if (/^\|.*\|$/.test(line.trim())) {
+      if (!inTable) inTable = true
+      cleaned.push(line.trim().replace(/\s+/g, ' '))
+    } else if (inTable && line.trim() === '') {
+      inTable = false
+      cleaned.push('')
+    } else if (inTable) {
+      continue
+    } else {
+      cleaned.push(line)
+    }
+  }
+
+  return cleaned.join('\n')
+}
+
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
 
@@ -245,8 +270,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
 
   const json = await res.json()
 
-  // ✅ ログ出力：Strapi APIからのレスポンス確認
+  // ✅ ログ出力：Strapi APIレスポンス確認
   console.log('[Server] Strapi API レスポンス:', json)
 
-  return { props: { article: json.data } }
+  const article = json.data
+  article.content = cleanMarkdownTables(article.content)
+
+  return { props: { article } }
 }
