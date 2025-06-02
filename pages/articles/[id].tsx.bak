@@ -11,6 +11,8 @@
 // 📝 改行反映＋余分な行間除去対応済み
 // ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
 
+'use client'
+
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import Head from 'next/head'
@@ -127,7 +129,14 @@ export default function ArticlePage({ article }: Props) {
           rehypePlugins={[rehypeRaw]}
           components={{
             img: ({ ...props }) =>
-              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+              typeof props.src === 'string' ? (
+                <div className="text-center my-6">
+                  <ModalImage
+                    {...(props as { src: string; alt?: string })}
+                    className="mx-auto w-full max-w-[800px] h-auto cursor-zoom-in"
+                  />
+                </div>
+              ) : null,
             table: ({ children }) => (
               <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed">
                 {children}
@@ -194,7 +203,7 @@ export default function ArticlePage({ article }: Props) {
                       borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
                       overflowX: 'auto',
-                      wordBreak: 'break-word'
+                      wordBreak: 'break-word',
                     }}
                   >
                     {codeString}
