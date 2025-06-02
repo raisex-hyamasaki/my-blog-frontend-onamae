@@ -2,7 +2,7 @@
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
-// ✅ Reactモーダルによる画像拡大表示対応済み
+// モーダルウィンドウ・原寸大対応
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応（リロード不要で描画）
 // SNSシェアボタン表示対応
@@ -10,8 +10,6 @@
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
 // ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
-
-'use client'
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -40,7 +38,34 @@ type Props = {
 
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
-  useEffect(() => setIsClient(true), [])
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
+    if (!engageWidgetContainer) return
+
+    const scriptId = 'engage-widget-script'
+    const existingScript = document.getElementById(scriptId)
+
+    if (existingScript) {
+      existingScript.remove()
+    }
+
+    engageWidgetContainer.innerHTML = ''
+
+    const script = document.createElement('script')
+    script.src = 'https://en-gage.net/common_new/company_script/recruit/widget.js'
+    script.async = true
+    script.id = scriptId
+    document.body.appendChild(script)
+  }, [])
+
+  if (!article) return <div>記事が見つかりませんでした。</div>
+
+  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
 
   const isInternalLink = (url: string) => {
     try {
@@ -51,18 +76,32 @@ export default function ArticlePage({ article }: Props) {
     }
   }
 
-  if (!article) return <div>記事が見つかりませんでした。</div>
-
-  const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
-
   return (
     <div className="max-w-[1024px] mx-auto px-4">
       <Head>
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
+        <Link href="/" className="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold">
+          📋 レイズクロス Tech Blog
+        </Link>
+        <div className="flex gap-3">
+          <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/x.svg" alt="Share on X" className="h-7 w-7" />
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-7 w-7" />
+          </a>
+          <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/line.svg" alt="Share on LINE" className="h-7 w-7" />
+          </a>
+        </div>
+      </header>
+
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
+
         <div className="text-sm text-gray-500 mb-4">
           投稿更新日: {new Date(article.updatedAt).toLocaleString()}
         </div>
@@ -70,10 +109,7 @@ export default function ArticlePage({ article }: Props) {
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
             {article.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full"
-              >
+              <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
                 #{tag.name}
               </span>
             ))}
@@ -82,7 +118,7 @@ export default function ArticlePage({ article }: Props) {
 
         {thumbnailUrl && (
           <div className="w-full flex justify-center mb-6">
-            <ModalImage src={thumbnailUrl} alt="サムネイル" />
+            <img src={thumbnailUrl} alt="サムネイル" className="w-full max-w-[800px] h-auto rounded" />
           </div>
         )}
 
@@ -90,7 +126,24 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ src = '', alt = '' }) => <ModalImage src={src} alt={alt} />,
+            img: ({ ...props }) =>
+              typeof props.src === 'string' ? <ModalImage {...(props as { src: string; alt?: string })} /> : null,
+            table: ({ children }) => (
+              <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed">
+                {children}
+              </table>
+            ),
+            thead: ({ children }) => <thead className="bg-cyan-100 text-black">{children}</thead>,
+            th: ({ children }) => (
+              <th className="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">
+                {children}
+              </th>
+            ),
+            td: ({ children }) => (
+              <td className="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">
+                {children}
+              </td>
+            ),
             a: ({ href, children }) =>
               href ? (
                 <a
@@ -108,6 +161,7 @@ export default function ArticlePage({ article }: Props) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
+
               const isInline = !className || !className.includes('language-')
               if (isInline) {
                 return (
@@ -116,9 +170,11 @@ export default function ArticlePage({ article }: Props) {
                   </code>
                 )
               }
+
               if (match?.[1] === 'mermaid' && isClient) {
                 return <Mermaid chart={codeString} />
               }
+
               return (
                 <div className="relative my-4">
                   <button
@@ -145,7 +201,7 @@ export default function ArticlePage({ article }: Props) {
                   </SyntaxHighlighter>
                 </div>
               )
-            }
+            },
           }}
         >
           {article.content}
@@ -158,6 +214,19 @@ export default function ArticlePage({ article }: Props) {
           >
             ← 記事一覧に戻る
           </Link>
+        </div>
+
+        <div className="my-12 text-center">
+          <p className="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p>
+          <p className="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p>
+          <div className="flex justify-center">
+            <div
+              className="engage-recruit-widget"
+              data-height="300"
+              data-width="500"
+              data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"
+            />
+          </div>
         </div>
       </article>
     </div>
