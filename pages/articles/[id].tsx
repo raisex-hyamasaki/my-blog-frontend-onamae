@@ -152,8 +152,6 @@ export default function ArticlePage({ article }: Props) {
                 return <Mermaid chart={codeString} />
               }
 
-              // ✅ 改行文字列を変換（
- → 実際の改行）
               codeString = codeString.replace(/\\n/g, '\n')
 
               const handleCopy = async () => {
