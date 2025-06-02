@@ -7,6 +7,7 @@
 // 求人バナー表示対応（リロード不要で描画）
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
+// 📎 PDFリンク対応
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -40,7 +41,6 @@ export default function ArticlePage({ article }: Props) {
     setIsClient(true)
   }, [])
 
-  // ✅ engageバナー再描画対応（完全版）
   useEffect(() => {
     const engageWidgetContainer = document.querySelector('.engage-recruit-widget')
     if (!engageWidgetContainer) return
@@ -188,6 +188,19 @@ export default function ArticlePage({ article }: Props) {
         >
           {article.content}
         </ReactMarkdown>
+
+        {/* ✅ PDF リンク表示 */}
+        <div className="mt-6">
+          <p className="text-base font-medium">📎 関連資料：</p>
+          <a
+            href="/docs/読み取りテスト文書.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            読み取りテスト文書.pdf
+          </a>
+        </div>
 
         <div className="text-center mt-8">
           <Link
