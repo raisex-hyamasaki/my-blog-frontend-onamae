@@ -105,6 +105,7 @@ export default function Home({ articles }: { articles: Article[] }) {
             <Link
               key={id}
               href={`/articles/${documentId}`}
+              prefetch={false}
               className="block border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition bg-white"
             >
               {thumbnail?.url && (
@@ -114,6 +115,7 @@ export default function Home({ articles }: { articles: Article[] }) {
                     alt={title}
                     layout="fill"
                     objectFit="cover"
+                    unoptimized
                   />
                 </div>
               )}
@@ -131,7 +133,7 @@ export default function Home({ articles }: { articles: Article[] }) {
         <ul className="space-y-6">
           {paginatedArticles.map(({ id, title, updatedAt, documentId, tags }) => (
             <li key={id} className="border rounded-lg p-4 hover:shadow-md transition bg-white">
-              <Link href={`/articles/${documentId}`}>
+              <Link href={`/articles/${documentId}`} prefetch={false}>
                 <h2 className="text-xl font-semibold text-blue-600 hover:underline">{title}</h2>
               </Link>
               <p className="text-gray-500 text-sm mt-1">
@@ -187,16 +189,9 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const res = await fetch(fetchUrl)
     const json = await res.json()
 
-    console.log('📦 JSON length:', json.data?.length)
-    if (!json.data?.[0]) {
-      console.warn('⚠ json.data[0] is null or undefined!')
-    } else {
-      console.log('🧪 json.data[0]:', JSON.stringify(json.data[0], null, 2))
-    }
-
     const sorted: Article[] = (json.data || [])
       .map((item: any) => {
-        const thumbnailItem = Array.isArray(item.thumbnail) ? item.thumbnail[0] : null
+        const thumbnailItem = Array.isArray(item.thumbnail) ? item.thumbnail[0] : item.thumbnail
         return {
           id: item.id,
           documentId: item.documentId ?? null,
