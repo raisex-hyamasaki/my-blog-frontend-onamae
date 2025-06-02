@@ -102,3 +102,8 @@
   border: none !important;
   border-radius: 0 !important;
 }
+
+/* ✅ インラインコード全体に対して改行許可を補強 */
+.prose code {
+  white-space: pre-wrap !important;
+}
