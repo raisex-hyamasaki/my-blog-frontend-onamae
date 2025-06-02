@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 改行反映＋余分な行間除去＋コードブロック \n→<br> 変換対応
+// 📝 改行反映＋余分な行間除去対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -152,8 +152,6 @@ export default function ArticlePage({ article }: Props) {
                 return <Mermaid chart={codeString} />
               }
 
-              const formatted = codeString.replace(/\n/g, '<br>')
-
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
@@ -167,10 +165,22 @@ export default function ArticlePage({ article }: Props) {
                   >
                     Copy
                   </button>
-                  <div
-                    className="bg-gray-900 text-white text-sm p-4 rounded whitespace-pre-wrap break-words overflow-x-auto"
-                    dangerouslySetInnerHTML={{ __html: formatted }}
-                  />
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={match?.[1] || 'text'}
+                    PreTag="pre"
+                    wrapLines={true}
+                    lineProps={{ style: { whiteSpace: 'pre-wrap', wordBreak: 'break-word' } }}
+                    customStyle={{
+                      background: 'transparent',
+                      padding: '0.75rem',
+                      margin: '0',
+                      borderRadius: '0.5rem',
+                      overflowX: 'auto'
+                    }}
+                  >
+                    {codeString}
+                  </SyntaxHighlighter>
                 </div>
               )
             },
