@@ -9,6 +9,22 @@ module.exports = {
   safelist: [
     { pattern: /^modal-overlay$/ },
     { pattern: /^modal-img$/ },
+    'fixed',
+    'inset-0',
+    'z-50',
+    'flex',
+    'items-center',
+    'justify-center',
+    'p-4',
+    'bg-black',
+    'bg-opacity-50',
+    'bg-opacity-60',
+    'bg-white',
+    'rounded',
+    'shadow-lg',
+    'max-w-4xl',
+    'max-h-[90vh]',
+    'overflow-auto',
   ],
   theme: {
     extend: {
