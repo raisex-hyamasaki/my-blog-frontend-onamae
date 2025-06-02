@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
-import Modal from 'react-modal'
+import ModalImage from '@/components/ModalImage'
 
 interface Article {
   id: number
@@ -40,12 +40,7 @@ type Props = {
 
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalImage, setModalImage] = useState<{ src: string; alt?: string }>({ src: '', alt: '' })
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+  useEffect(() => setIsClient(true), [])
 
   const isInternalLink = (url: string) => {
     try {
@@ -85,9 +80,7 @@ export default function ArticlePage({ article }: Props) {
 
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
-        <div className="text-sm text-gray-500 mb-4">
-          投稿更新日: {new Date(article.updatedAt).toLocaleString()}
-        </div>
+        <div className="text-sm text-gray-500 mb-4">投稿更新日: {new Date(article.updatedAt).toLocaleString()}</div>
 
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -101,15 +94,7 @@ export default function ArticlePage({ article }: Props) {
 
         {thumbnailUrl && (
           <div className="w-full flex justify-center mb-6">
-            <img
-              src={thumbnailUrl}
-              alt="サムネイル"
-              className="w-full max-w-[800px] h-auto rounded cursor-pointer"
-              onClick={() => {
-                setModalImage({ src: thumbnailUrl })
-                setModalOpen(true)
-              }}
-            />
+            <ModalImage src={thumbnailUrl} alt="サムネイル" />
           </div>
         )}
 
@@ -117,17 +102,7 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ src = '', alt = '' }) => (
-              <img
-                src={src}
-                alt={alt}
-                className="mx-auto cursor-pointer max-w-full h-auto"
-                onClick={() => {
-                  setModalImage({ src, alt })
-                  setModalOpen(true)
-                }}
-              />
-            ),
+            img: ({ src = '', alt = '' }) => <ModalImage src={src} alt={alt} />,
             a: ({ href, children }) =>
               href ? (
                 <a
@@ -182,29 +157,11 @@ export default function ArticlePage({ article }: Props) {
                   </SyntaxHighlighter>
                 </div>
               )
-            },
+            }
           }}
         >
           {article.content}
         </ReactMarkdown>
-
-        <Modal
-          isOpen={modalOpen}
-          onRequestClose={() => setModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          overlayClassName="fixed inset-0 bg-black bg-opacity-60"
-          ariaHideApp={false}
-        >
-          <div className="bg-white p-4 rounded shadow-lg max-w-4xl max-h-[90vh] overflow-auto">
-            <button
-              onClick={() => setModalOpen(false)}
-              className="float-right text-gray-600 hover:text-black"
-            >
-              ✕
-            </button>
-            <img src={modalImage.src} alt={modalImage.alt} className="max-w-full h-auto mx-auto mt-4" />
-          </div>
-        </Modal>
 
         <div className="text-center mt-8">
           <Link
