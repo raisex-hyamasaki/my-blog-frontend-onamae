@@ -137,7 +137,6 @@ export default function ArticlePage({ article }: Props) {
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
-              console.log('🪵 codeString:', codeString) // ← 改行が含まれているか確認
               const match = /language-(\w+)/.exec(className || '')
 
               const isInline = !className || !className.includes('language-')
@@ -169,7 +168,7 @@ export default function ArticlePage({ article }: Props) {
                   <SyntaxHighlighter
                     style={oneDark}
                     language={match?.[1] || 'text'}
-                    PreTag="pre"
+                    PreTag="div"
                     customStyle={{
                       background: 'transparent',
                       padding: '0.75rem',
@@ -177,7 +176,7 @@ export default function ArticlePage({ article }: Props) {
                       borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
                       overflowX: 'auto',
-                      wordBreak: 'break-word'
+                      wordBreak: 'break-word',
                     }}
                   >
                     {codeString}
