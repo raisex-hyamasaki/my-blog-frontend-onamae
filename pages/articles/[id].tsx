@@ -8,7 +8,7 @@
 // SNSシェアボタン表示対応
 // 🔁 記事内リンクは別タブで開く対応済み
 // 📎 PDFリンク対応
-// 📝 改行反映＋余分な行間除去＋シンタックスハイライト復元対応済み
+// 📝 改行反映＋余分な行間除去対応済み
 
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
@@ -148,30 +148,26 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              if (!match) {
-                return (
-                  <pre className="bg-gray-900 text-white text-sm p-4 rounded overflow-x-auto">
-                    {codeString.split('\n').map((line, i) => (
-                      <div key={i}>{line}</div>
-                    ))}
-                  </pre>
-                )
+              if (match?.[1] === 'mermaid' && isClient) {
+                return <Mermaid chart={codeString} />
+              }
+
+              const handleCopy = async () => {
+                await navigator.clipboard.writeText(codeString)
+                alert('Copied!')
               }
 
               return (
                 <div className="relative my-4">
                   <button
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(codeString)
-                      alert('Copied!')
-                    }}
+                    onClick={handleCopy}
                     className="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600"
                   >
                     Copy
                   </button>
                   <SyntaxHighlighter
                     style={oneDark}
-                    language={match[1]}
+                    language={match?.[1] || 'text'}
                     PreTag="pre"
                     customStyle={{
                       background: 'transparent',
