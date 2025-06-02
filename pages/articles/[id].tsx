@@ -148,10 +148,6 @@ export default function ArticlePage({ article }: Props) {
                 )
               }
 
-              if (match?.[1] === 'mermaid' && isClient) {
-                return <Mermaid chart={codeString} />
-              }
-
               const handleCopy = async () => {
                 await navigator.clipboard.writeText(codeString)
                 alert('Copied!')
