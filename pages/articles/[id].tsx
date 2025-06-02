@@ -2,7 +2,7 @@
 // Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
 // 投稿更新日とタグ表示に対応（Strapi v5構造対応）
 // インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
-// モーダルウィンドウ・原寸大対応（中央寄せ＋幅制限）
+// モーダルウィンドウ・原寸大対応
 // ER図表示対応（Mermaid導入）
 // 求人バナー表示対応（リロード不要で描画）
 // SNSシェアボタン表示対応
@@ -10,7 +10,6 @@
 // 📎 PDFリンク対応
 // 📝 改行反映＋余分な行間除去対応済み
 // ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
-// ✅ヘッダーをモーダル表示時のみ非表示にする対応
 
 'use client'
 
@@ -41,7 +40,6 @@ type Props = {
 
 export default function ArticlePage({ article }: Props) {
   const [isClient, setIsClient] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
@@ -86,24 +84,22 @@ export default function ArticlePage({ article }: Props) {
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
 
-      {!isModalOpen && (
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
-          <Link href="/" className="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold">
-            📋 レイズクロス Tech Blog
-          </Link>
-          <div className="flex gap-3">
-            <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/x.svg" alt="Share on X" className="h-7 w-7" />
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-7 w-7" />
-            </a>
-            <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
-              <img src="/icons/line.svg" alt="Share on LINE" className="h-7 w-7" />
-            </a>
-          </div>
-        </header>
-      )}
+      <header className="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4">
+        <Link href="/" className="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold">
+          📋 レイズクロス Tech Blog
+        </Link>
+        <div className="flex gap-3">
+          <a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/x.svg" alt="Share on X" className="h-7 w-7" />
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/facebook.svg" alt="Share on Facebook" className="h-7 w-7" />
+          </a>
+          <a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer">
+            <img src="/icons/line.svg" alt="Share on LINE" className="h-7 w-7" />
+          </a>
+        </div>
+      </header>
 
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
@@ -138,8 +134,6 @@ export default function ArticlePage({ article }: Props) {
                   <ModalImage
                     {...(props as { src: string; alt?: string })}
                     className="mx-auto w-full max-w-[800px] h-auto cursor-zoom-in"
-                    onOpenModal={() => setIsModalOpen(true)}
-                    onCloseModal={() => setIsModalOpen(false)}
                   />
                 </div>
               ) : null,
@@ -209,7 +203,7 @@ export default function ArticlePage({ article }: Props) {
                       borderRadius: '0.5rem',
                       whiteSpace: 'pre-wrap',
                       overflowX: 'auto',
-                      wordBreak: 'break-word'
+                      wordBreak: 'break-word',
                     }}
                   >
                     {codeString}
