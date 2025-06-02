@@ -1,5 +1,4 @@
 // components/ModalImage.tsx
-
 import Image, { ImageProps } from 'next/image'
 import { useState, useEffect } from 'react'
 import Modal from 'react-modal'
@@ -11,9 +10,9 @@ type ModalImageProps = {
   unoptimized?: boolean
   width?: number
   height?: number
+  onModalToggle?: (visible: boolean) => void // ✅ 追加
 } & Partial<Pick<ImageProps, 'width' | 'height' | 'className' | 'unoptimized'>>
 
-// モーダルのルート要素指定（SSR対策済）
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body')
 }
@@ -25,19 +24,19 @@ export default function ModalImage({
   height = 600,
   className = 'w-full h-auto cursor-zoom-in modal-img',
   unoptimized = true,
+  onModalToggle, // ✅ 追加
 }: ModalImageProps) {
   const [isOpen, setIsOpen] = useState(false)
 
+  const openModal = () => setIsOpen(true)
+  const closeModal = () => setIsOpen(false)
+
+  // ✅ モーダルの開閉状態が変わったときに親へ通知
   useEffect(() => {
-    const header = document.querySelector('header')
-    if (!header) return
-    if (isOpen) {
-      header.classList.add('hidden')
-    } else {
-      header.classList.remove('hidden')
+    if (onModalToggle) {
+      onModalToggle(isOpen)
     }
-    return () => header.classList.remove('hidden')
-  }, [isOpen])
+  }, [isOpen, onModalToggle])
 
   return (
     <>
@@ -48,19 +47,19 @@ export default function ModalImage({
         height={height}
         unoptimized={unoptimized}
         className={className}
-        onClick={() => setIsOpen(true)}
+        onClick={openModal}
         style={{ cursor: 'zoom-in' }}
       />
 
       <Modal
         isOpen={isOpen}
-        onRequestClose={() => setIsOpen(false)}
+        onRequestClose={closeModal}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
       >
         <div className="relative bg-white rounded shadow-lg p-4">
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={closeModal}
             className="absolute -top-4 -right-4 text-white bg-red-600 hover:bg-red-700 text-lg font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-50"
             aria-label="Close Modal"
           >
