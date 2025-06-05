@@ -1,19 +1,9 @@
 // pages/articles/[id].tsx
-// Markdown表示（画像中央寄せ＋レスポンシブ対応＋原寸超え防止）
-// 投稿更新日とタグ表示に対応（Strapi v5構造対応）
-// インラインコードに黄色背景＋黒文字対応済み（classNameベース判定）
-// モーダルウィンドウ・原寸大対応
-// ER図表示対応（Mermaid導入）
-// 求人バナー表示対応（リロード不要で描画）
-// SNSシェアボタン表示対応
-// 🔁 記事内リンクは別タブで開く対応済み
-// 📎 PDFリンク対応
-// 📝 改行反映＋余分な行間除去対応済み
-// ✅ 自サイトリンク：target="_self"、外部リンク：target="_blank" に切替対応済み
+// getStaticProps + getStaticPaths による静的HTML対応
 
 'use client'
 
-import { GetServerSideProps, GetServerSidePropsContext } from 'next'
+import { GetStaticPaths, GetStaticProps } from 'next'
 import Link from 'next/link'
 import Head from 'next/head'
 import ReactMarkdown from 'react-markdown'
@@ -27,6 +17,7 @@ import ModalImage from '@/components/ModalImage'
 
 interface Article {
   id: number
+  documentId: string
   title: string
   content: string
   updatedAt: string
@@ -51,11 +42,7 @@ export default function ArticlePage({ article }: Props) {
 
     const scriptId = 'engage-widget-script'
     const existingScript = document.getElementById(scriptId)
-
-    if (existingScript) {
-      existingScript.remove()
-    }
-
+    if (existingScript) existingScript.remove()
     engageWidgetContainer.innerHTML = ''
 
     const script = document.createElement('script')
@@ -128,7 +115,7 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: ({ ...props }) =>
+            img: (props) =>
               typeof props.src === 'string' ? (
                 <div className="text-center my-6">
                   <ModalImage
@@ -170,8 +157,8 @@ export default function ArticlePage({ article }: Props) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
               const match = /language-(\w+)/.exec(className || '')
-
               const isInline = !className || !className.includes('language-')
+
               if (isInline) {
                 return (
                   <code className="bg-yellow-200 font-mono px-[0.3rem] py-[0.1rem] rounded whitespace-nowrap text-inherit">
@@ -242,14 +229,34 @@ export default function ArticlePage({ article }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context: GetServerSidePropsContext
-) => {
-  const { id } = context.query
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/articles/${id}?populate[tags]=true&populate[thumbnail]=true`
-  )
-  if (!res.ok) return { props: { article: null } }
+// ✅ documentId に対応した静的パス生成
+export const getStaticPaths: GetStaticPaths = async () => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+  const res = await fetch(`${apiUrl}/api/articles?pagination[pageSize]=9999`)
   const json = await res.json()
-  return { props: { article: json.data } }
+
+  console.log(`Fetched ${json.data.length} articles from Strapi`) // ✅ デバッグ用
+
+  const paths = (json.data || [])
+    .filter((article: any) => article.documentId)
+    .map((article: any) => ({
+      params: { id: article.documentId },
+    }))
+
+  return {
+    paths,
+    fallback: false,
+  }
+}
+
+// ✅ documentId で個別記事取得
+export const getStaticProps: GetStaticProps<Props> = async (context) => {
+  const { id } = context.params as { id: string }
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+
+  const res = await fetch(`${apiUrl}/api/articles?filters[documentId][$eq]=${id}&populate[tags]=true&populate[thumbnail]=true`)
+  const json = await res.json()
+  const article = json.data?.[0] ?? null
+
+  return { props: { article } }
 }

@@ -1,9 +1,8 @@
 // pages/index.tsx
-// 記事一覧ページ（サムネイル/リスト切替、投稿更新日とタグ表示）
-// SSR（getServerSideProps）による動的レンダリング対応（Strapi v5完全対応）
+// 静的HTML出力対応（getStaticProps）
+// 記事一覧ページ（カード/リスト切替、検索、ページネーション対応）
 
-// pages/index.tsx
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -172,10 +171,9 @@ export default function Home({ articles }: { articles: Article[] }) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+// ✅ getStaticProps に書き換え（next export 対応）
+export const getStaticProps: GetStaticProps = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  console.log('⚡ getServerSideProps 呼び出し')
-  console.log('🌐 NEXT_PUBLIC_API_URL =', apiUrl)
 
   if (!apiUrl) {
     console.error('❌ NEXT_PUBLIC_API_URL is not defined')
@@ -183,9 +181,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   }
 
   try {
-    const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=999999`
-    console.log('📡 Fetching from:', fetchUrl)
-
+    const fetchUrl = `${apiUrl}/api/articles?populate[thumbnail]=true&populate[tags]=true&pagination[pageSize]=9999`
     const res = await fetch(fetchUrl)
     const json = await res.json()
 

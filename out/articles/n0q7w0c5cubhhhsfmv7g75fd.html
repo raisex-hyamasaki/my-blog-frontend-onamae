@@ -1,0 +1,267 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>【データモデリング】 概念設計のチュートリアル<!-- --> | レイズクロス Tech Blog</title><meta name="next-head-count" content="4"/><link rel="preload" href="/_next/static/css/7d757bdfdfb985a7.css" as="style"/><link rel="stylesheet" href="/_next/static/css/7d757bdfdfb985a7.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-42372ed130431b0a.js"></script><script src="/_next/static/chunks/webpack-2c547fd4592db0a6.js" defer=""></script><script src="/_next/static/chunks/framework-e952fed463eb8e34.js" defer=""></script><script src="/_next/static/chunks/main-db60732262e3da6e.js" defer=""></script><script src="/_next/static/chunks/pages/_app-b6737859a806843a.js" defer=""></script><script src="/_next/static/chunks/a2bf56a3-f921f321ae1e0e8d.js" defer=""></script><script src="/_next/static/chunks/61-92d26e53a2a7fcf5.js" defer=""></script><script src="/_next/static/chunks/257-c12ad0b16790f4c5.js" defer=""></script><script src="/_next/static/chunks/pages/articles/%5Bid%5D-7cfc7284c2566c9d.js" defer=""></script><script src="/_next/static/QTcQf_D8J2NMGF1e92-0w/_buildManifest.js" defer=""></script><script src="/_next/static/QTcQf_D8J2NMGF1e92-0w/_ssgManifest.js" defer=""></script></head><body><div id="__next"><div class="max-w-[1024px] mx-auto px-4"><header class="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4"><a class="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold" href="/">📋 レイズクロス Tech Blog</a><div class="flex gap-3"><a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="Share on X" class="h-7 w-7"/></a><a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Share on Facebook" class="h-7 w-7"/></a><a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="Share on LINE" class="h-7 w-7"/></a></div></header><article class="prose prose-slate max-w-none pt-6"><h1 class="text-3xl font-bold border-b pb-2">【データモデリング】 概念設計のチュートリアル</h1><div class="text-sm text-gray-500 mb-4">投稿更新日: <!-- -->2025/6/2 14:31:55</div><div class="flex flex-wrap gap-2 mb-4"><span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#<!-- -->Database</span><span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#<!-- -->Tutorial</span></div><div class="w-full flex justify-center mb-6"><img src="https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/medium_20250513_24_770ed9dea0.png" alt="サムネイル" class="w-full max-w-[800px] h-auto rounded"/></div><p>データモデリングは、システム設計の基盤となる重要なプロセスです。
+特に、エンティティを適切に抽出することで、データの構造が明確になり、システムの拡張性や保守性が向上します。
+本記事では、ECサイトを題材にして、エンティティ抽出の手順を詳しく解説します。</p>
+<h2>1. シナリオの設定</h2>
+<p>まず、ECサイトにおける主要な機能を整理しましょう。</p>
+<ul>
+<li><strong>商品一覧の表示</strong></li>
+<li><strong>カートへの追加・削除</strong></li>
+<li><strong>注文処理</strong></li>
+<li><strong>決済処理</strong></li>
+</ul>
+<p>このシナリオをもとに、データモデルの基盤となるエンティティを抽出します。</p>
+<h2>2. エンティティ抽出の手順</h2>
+<p>エンティティとは、システム内で管理すべき「データのまとまり」です。
+エンティティを抽出する際には、以下の観点からアプローチすると整理しやすくなります。</p>
+<h3>2.1 モノとコトの視点でのエンティティ抽出</h3>
+<p>エンティティは、大きく「モノ（物理的または概念的な存在）」と「コト（イベントや取引）」の2種類に分類できます。</p>
+<ul>
+<li><strong>モノ:</strong> ユーザー、商品 など、実態として存在するもの</li>
+<li><strong>コト:</strong> 注文、決済 など、システム内で発生する出来事や取引</li>
+</ul>
+<p>この視点でシナリオを整理し、以下の手順でエンティティを洗い出します。</p>
+<ol>
+<li>システム内で管理する必要がある「<strong>モノ</strong>」を特定する</li>
+<li>システム内で発生する「<strong>コト</strong>」を特定する</li>
+<li>エンティティごとに**ナチュラルキー（自然キー）**を見つける
+<ul>
+<li>ナチュラルキーとは、データを一意に識別できる属性の組み合わせ（例: ユーザー は メールアドレス、 商品 は 商品コード など）</li>
+</ul>
+</li>
+<li>エンティティ間の関連を整理する</li>
+</ol>
+<h2>3. エンティティと属性</h2>
+<p>以下のようなエンティティを抽出し、それぞれの属性を定義します。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table class="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed"><thead class="bg-cyan-100 text-black"><tr><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">エンティティ和名</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">エンティティ英名</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">区分</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">属性名 (日)</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">属性名 (英)</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">説明</th></tr></thead><tbody><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ユーザー</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"><strong>User</strong></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">モノ</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ユーザー名</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">username</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ユーザーの識別情報</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">メールアドレス</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">email</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ユーザーの連絡先（ナチュラルキー）</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">パスワード</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">password</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">認証情報</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">商品</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"><strong>Product</strong></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">モノ</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">商品名</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">name</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">商品の名称</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">商品コード</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">product_code</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">一意に識別できる商品番号（ナチュラルキー）</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">価格</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">price</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">商品の販売価格</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">在庫数</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">stock</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">在庫の数量</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">カート</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"><strong>Cart</strong></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">コト</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ユーザー</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">user</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">カートを持つユーザー</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">商品</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">product</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">カートに入っている商品</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">数量</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">quantity</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">選択された商品の個数</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">追加日時</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">added_at</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">カートに追加した日時</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"><strong>Order</strong></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">コト</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文番号</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">order_number</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">一意に識別できる注文番号（ナチュラルキー）</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ユーザー</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">user</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文を行ったユーザー</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">合計金額</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">total_price</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文の総額</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ステータス</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">status</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文の状態（例: 確定、発送済み）</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文日時</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">orderd_at</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文した日時</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">決済</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"><strong>Payment</strong></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">コト</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">決済番号</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">payment_number</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">一意に識別できる決済番号（ナチュラルキー）</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">注文</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">order</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">対応する注文</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">決済方法</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">method</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">クレジットカード、銀行振込などの支払い方法</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">ステータス</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">status</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">決済の状態（成功、失敗など）</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">決済日時</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">payment_at</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">決済した日時</td></tr></tbody></table>
+<h2>4. エンティティ間の関係（ER図）</h2>
+<p>以下のER図を使用して、エンティティ間の関係を可視化します。</p>
+<pre><div class="relative my-4"><button class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600">Copy</button><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre-wrap;word-spacing:normal;word-break:break-word;line-height:1.5;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:0.75rem;margin:0;overflow:auto;border-radius:0.5rem;overflow-x:auto"><code class="language-mermaid" style="white-space:pre;background:hsl(220, 13%, 18%);color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;word-spacing:normal;word-break:normal;line-height:1.5;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:hsl(286, 60%, 67%)">erDiagram</span><span>
+</span><span>    User </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span>        string username
+<!-- -->        string email
+<!-- -->        string password
+<span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span><span>    Product </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span>        string name
+<!-- -->        string product_code
+<!-- -->        float price
+<!-- -->        int stock
+<span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span><span>    Cart </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span>        string user
+<!-- -->        string product
+<!-- -->        int quantity
+<span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span><span>    Order </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span>        string order_number
+<!-- -->        string user
+<!-- -->        float total_price
+<!-- -->        string status
+<span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span><span>    Payment </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span>        string payment_number
+<!-- -->        string order
+<!-- -->        string method
+<!-- -->        string status
+<span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span>
+<span>    User </span><span class="token arrow" style="color:hsl(207, 82%, 66%)">||--o{</span><span> Cart </span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> has
+</span><span>    User </span><span class="token arrow" style="color:hsl(207, 82%, 66%)">||--o{</span><span> Order </span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> places
+</span><span>    Cart </span><span class="token arrow" style="color:hsl(207, 82%, 66%)">}o--||</span><span> Product </span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> contains
+</span><span>    Order </span><span class="token arrow" style="color:hsl(207, 82%, 66%)">}o--||</span><span> Product </span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> includes
+</span><span>    Order </span><span class="token arrow" style="color:hsl(207, 82%, 66%)">||--o{</span><span> Payment </span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> processes
+</span></code></pre></div></pre>
+<h3>関係の説明</h3>
+<ul>
+<li><strong>User と Cart</strong>: 1人のユーザーが複数のカートエントリを持つ（1対多）</li>
+<li><strong>User と Order</strong>: 1人のユーザーが複数の注文を行う（1対多）</li>
+<li><strong>Cart と Product</strong>: 1つのカートには複数の商品が含まれる（多対多）</li>
+<li><strong>Order と Product</strong>: 1つの注文には複数の商品が含まれる（多対多）</li>
+<li><strong>Order と Payment</strong>: 1つの注文に対して1つの決済が行われる（1対1）</li>
+</ul>
+<p>ここでは、エンティティの物理名やIDについては言及せず、ナチュラルキーに着目してエンティティを定義しています。</p>
+<h2>5. まとめ</h2>
+<p>エンティティ抽出は、データモデリングの第一歩です。本記事では、ECサイトの基本機能をもとに、エンティティを抽出し、それぞれの属性を定義しました。また、「モノとコト」の視点からエンティティを整理し、ナチュラルキーに着目する手法を紹介しました。</p>
+<p>次のステップとして、正規化やリレーショナルデータベースの設計へと進んでいきましょう。</p>
+<hr/><div class="text-center mt-8"><a class="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700" href="/">← 記事一覧に戻る</a></div><div class="my-12 text-center"><p class="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p><p class="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p><div class="flex justify-center"><div class="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"></div></div></div></article></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"article":{"id":216,"documentId":"n0q7w0c5cubhhhsfmv7g75fd","title":"【データモデリング】 概念設計のチュートリアル","content":"データモデリングは、システム設計の基盤となる重要なプロセスです。\n特に、エンティティを適切に抽出することで、データの構造が明確になり、システムの拡張性や保守性が向上します。\n本記事では、ECサイトを題材にして、エンティティ抽出の手順を詳しく解説します。\n\n## 1. シナリオの設定\n\nまず、ECサイトにおける主要な機能を整理しましょう。\n\n- **商品一覧の表示**\n- **カートへの追加・削除**\n- **注文処理**\n- **決済処理**\n\nこのシナリオをもとに、データモデルの基盤となるエンティティを抽出します。\n\n## 2. エンティティ抽出の手順\n\nエンティティとは、システム内で管理すべき「データのまとまり」です。\nエンティティを抽出する際には、以下の観点からアプローチすると整理しやすくなります。\n\n### 2.1 モノとコトの視点でのエンティティ抽出\n\nエンティティは、大きく「モノ（物理的または概念的な存在）」と「コト（イベントや取引）」の2種類に分類できます。\n\n- **モノ:** ユーザー、商品 など、実態として存在するもの\n- **コト:** 注文、決済 など、システム内で発生する出来事や取引\n\nこの視点でシナリオを整理し、以下の手順でエンティティを洗い出します。\n\n1. システム内で管理する必要がある「**モノ**」を特定する\n2. システム内で発生する「**コト**」を特定する\n3. エンティティごとに**ナチュラルキー（自然キー）**を見つける\n    - ナチュラルキーとは、データを一意に識別できる属性の組み合わせ（例: ユーザー は メールアドレス、 商品 は 商品コード など）\n4. エンティティ間の関連を整理する\n\n## 3. エンティティと属性\n\n以下のようなエンティティを抽出し、それぞれの属性を定義します。\n\n| エンティティ和名 | エンティティ英名 | 区分 | 属性名 (日) | 属性名 (英) | 説明 |\n| --- | --- | --- | --- | --- | --- |\n| ユーザー | **User** | モノ | ユーザー名 | username | ユーザーの識別情報 |\n|  |  |  | メールアドレス | email | ユーザーの連絡先（ナチュラルキー） |\n|  |  |  | パスワード | password | 認証情報 |\n| 商品 | **Product** | モノ | 商品名 | name | 商品の名称 |\n|  |  |  | 商品コード | product_code | 一意に識別できる商品番号（ナチュラルキー） |\n|  |  |  | 価格 | price | 商品の販売価格 |\n|  |  |  | 在庫数 | stock | 在庫の数量 |\n| カート | **Cart** | コト | ユーザー | user | カートを持つユーザー |\n|  |  |  | 商品 | product | カートに入っている商品 |\n|  |  |  | 数量 | quantity | 選択された商品の個数 |\n|  |  |  | 追加日時 | added_at | カートに追加した日時 |\n| 注文 | **Order** | コト | 注文番号 | order_number | 一意に識別できる注文番号（ナチュラルキー） |\n|  |  |  | ユーザー | user | 注文を行ったユーザー |\n|  |  |  | 合計金額 | total_price | 注文の総額 |\n|  |  |  | ステータス | status | 注文の状態（例: 確定、発送済み） |\n|  |  |  | 注文日時 | orderd_at | 注文した日時 |\n| 決済 | **Payment** | コト | 決済番号 | payment_number | 一意に識別できる決済番号（ナチュラルキー） |\n|  |  |  | 注文 | order | 対応する注文 |\n|  |  |  | 決済方法 | method | クレジットカード、銀行振込などの支払い方法 |\n|  |  |  | ステータス | status | 決済の状態（成功、失敗など） |\n|  |  |  | 決済日時 | payment_at | 決済した日時 |\n\n## 4. エンティティ間の関係（ER図）\n\n以下のER図を使用して、エンティティ間の関係を可視化します。\n\n```mermaid\nerDiagram\n    User {\n        string username\n        string email\n        string password\n    }\n    Product {\n        string name\n        string product_code\n        float price\n        int stock\n    }\n    Cart {\n        string user\n        string product\n        int quantity\n    }\n    Order {\n        string order_number\n        string user\n        float total_price\n        string status\n    }\n    Payment {\n        string payment_number\n        string order\n        string method\n        string status\n    }\n\n    User ||--o{ Cart : has\n    User ||--o{ Order : places\n    Cart }o--|| Product : contains\n    Order }o--|| Product : includes\n    Order ||--o{ Payment : processes\n\n```\n\n### 関係の説明\n\n- **User と Cart**: 1人のユーザーが複数のカートエントリを持つ（1対多）\n- **User と Order**: 1人のユーザーが複数の注文を行う（1対多）\n- **Cart と Product**: 1つのカートには複数の商品が含まれる（多対多）\n- **Order と Product**: 1つの注文には複数の商品が含まれる（多対多）\n- **Order と Payment**: 1つの注文に対して1つの決済が行われる（1対1）\n\nここでは、エンティティの物理名やIDについては言及せず、ナチュラルキーに着目してエンティティを定義しています。\n\n## 5. まとめ\n\nエンティティ抽出は、データモデリングの第一歩です。本記事では、ECサイトの基本機能をもとに、エンティティを抽出し、それぞれの属性を定義しました。また、「モノとコト」の視点からエンティティを整理し、ナチュラルキーに着目する手法を紹介しました。\n\n次のステップとして、正規化やリレーショナルデータベースの設計へと進んでいきましょう。\n\n---\n\n","createdAt":"2025-05-19T08:50:58.499Z","updatedAt":"2025-06-02T05:31:55.706Z","publishedAt":"2025-06-02T05:31:55.717Z","docId":"epxkohh8giq3ixsw7zblinio","tags":[{"id":6,"documentId":"bnetm5oe2jokv3u2ib1nibia","createdAt":"2025-05-19T09:45:00.761Z","updatedAt":"2025-05-19T09:45:00.761Z","publishedAt":"2025-05-19T09:45:00.769Z","name":"Database"},{"id":4,"documentId":"zc573y83cxbfql2umdwbhot9","createdAt":"2025-05-19T09:44:33.028Z","updatedAt":"2025-05-19T09:44:33.028Z","publishedAt":"2025-05-19T09:44:33.035Z","name":"Tutorial"}],"thumbnail":[{"id":28,"documentId":"sxm796ppmcgbr1lcrynslvnk","name":"20250513-24.png","alternativeText":null,"caption":null,"width":1503,"height":844,"formats":{"thumbnail":{"name":"thumbnail_20250513-24.png","hash":"thumbnail_20250513_24_770ed9dea0","ext":".png","mime":"image/png","path":null,"width":245,"height":138,"size":11.93,"sizeInBytes":11934,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/thumbnail_20250513_24_770ed9dea0.png"},"medium":{"name":"medium_20250513-24.png","hash":"medium_20250513_24_770ed9dea0","ext":".png","mime":"image/png","path":null,"width":750,"height":421,"size":45.23,"sizeInBytes":45231,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/medium_20250513_24_770ed9dea0.png"},"large":{"name":"large_20250513-24.png","hash":"large_20250513_24_770ed9dea0","ext":".png","mime":"image/png","path":null,"width":1000,"height":562,"size":62.27,"sizeInBytes":62274,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/large_20250513_24_770ed9dea0.png"},"small":{"name":"small_20250513-24.png","hash":"small_20250513_24_770ed9dea0","ext":".png","mime":"image/png","path":null,"width":500,"height":281,"size":27.34,"sizeInBytes":27335,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/small_20250513_24_770ed9dea0.png"}},"hash":"20250513_24_770ed9dea0","ext":".png","mime":"image/png","size":18.8,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/20250513_24_770ed9dea0.png","previewUrl":null,"provider":"@strapi/provider-upload-aws-s3","provider_metadata":null,"createdAt":"2025-05-20T07:54:30.053Z","updatedAt":"2025-05-20T07:54:30.053Z","publishedAt":"2025-05-20T07:54:30.053Z"}]}},"__N_SSG":true},"page":"/articles/[id]","query":{"id":"n0q7w0c5cubhhhsfmv7g75fd"},"buildId":"QTcQf_D8J2NMGF1e92-0w","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>
