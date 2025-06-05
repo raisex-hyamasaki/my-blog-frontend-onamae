@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  repository_dispatch:  # ✅ StrapiからのWebhookに反応
 
 jobs:
   deploy:
@@ -34,3 +35,4 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           server-dir: /blog.raisex.jp/     # ←適宜修正（例：/blog/ など）
           local-dir: out/
+          dangerous-clean-slate: true   # ✅ これを追加（失敗の原因を根本回避）
