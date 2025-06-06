@@ -1,5 +1,6 @@
 // components/Seo.tsx
 import Head from 'next/head'
+import { ReactNode } from 'react'  // ✅ これを追加！
 
 type SeoProps = {
   title: string
