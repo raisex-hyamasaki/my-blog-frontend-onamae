@@ -6,6 +6,7 @@ import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import Seo from '@/components/Seo' // ✅ SEOコンポーネントを追加
 
 const PAGE_SIZE = 15
 
@@ -59,6 +60,14 @@ export default function Home({ articles }: { articles: Article[] }) {
 
   return (
     <main className="max-w-6xl mx-auto p-4 sm:p-8">
+      {/* ✅ SEOタグ自動生成 */}
+      <Seo
+        title="レイズクロスTechBlog | さいたま市大宮区システム会社raisex運営"
+        description="最新の技術トレンド、プログラミング、ソフトウェア開発、ツールのレビュー、プロジェクト管理等についての考察をお届け"
+        url="https://blog.raisex.jp/"
+        image={articles[0]?.thumbnail?.url ? `https://blog.raisex.jp${articles[0].thumbnail.url}` : undefined}
+      />
+
       <div className="mb-10">
         <Image
           src="/hero.jpg"

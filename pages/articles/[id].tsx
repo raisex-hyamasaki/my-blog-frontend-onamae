@@ -1,6 +1,9 @@
 // pages/articles/[id].tsx
 // getStaticProps + getStaticPaths による静的HTML対応
 
+// pages/articles/[id].tsx
+// getStaticProps + getStaticPaths による静的HTML対応
+
 'use client'
 
 import { GetStaticPaths, GetStaticProps } from 'next'
@@ -14,6 +17,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Mermaid from '@/components/Mermaid'
 import ModalImage from '@/components/ModalImage'
+import Seo from '@/components/Seo'
 
 interface Article {
   id: number
@@ -67,6 +71,13 @@ export default function ArticlePage({ article }: Props) {
 
   return (
     <div className="max-w-[1024px] mx-auto px-4">
+      <Seo
+        title="レイズクロスTechBlog | さいたま市大宮区システム会社raisex運営"
+        description="最新の技術トレンド、プログラミング、ソフトウェア開発、ツールのレビュー、プロジェクト管理等についての考察をお届け"
+        url={`https://blog.raisex.jp/articles/${article.documentId}`}
+        image={thumbnailUrl ? `https://blog.raisex.jp${thumbnailUrl}` : undefined}
+      />
+
       <Head>
         <title>{article.title} | レイズクロス Tech Blog</title>
       </Head>
@@ -229,13 +240,12 @@ export default function ArticlePage({ article }: Props) {
   )
 }
 
-// ✅ documentId に対応した静的パス生成
 export const getStaticPaths: GetStaticPaths = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${apiUrl}/api/articles?pagination[pageSize]=9999`)
   const json = await res.json()
 
-  console.log(`Fetched ${json.data.length} articles from Strapi`) // ✅ デバッグ用
+  console.log(`Fetched ${json.data.length} articles from Strapi`)
 
   const paths = (json.data || [])
     .filter((article: any) => article.documentId)
@@ -249,7 +259,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-// ✅ documentId で個別記事取得
 export const getStaticProps: GetStaticProps<Props> = async (context) => {
   const { id } = context.params as { id: string }
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
