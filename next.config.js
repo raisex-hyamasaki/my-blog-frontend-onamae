@@ -4,10 +4,11 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export', // ✅ 追加：静的HTML出力対応
+  output: 'export', // ✅ 静的HTML出力
+  trailingSlash: true, // ✅ これを追加：index.htmlで出力されるようにする！
   images: {
     domains: ['18.183.140.58'],
-    unoptimized: true, // ✅ next/image → 通常の <img> に変換
+    unoptimized: true, // ✅ <img>として出力
   },
   experimental: {
     instrumentationHook: true,
@@ -29,4 +30,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-

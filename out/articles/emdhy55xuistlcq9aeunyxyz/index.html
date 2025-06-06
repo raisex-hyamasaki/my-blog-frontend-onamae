@@ -1,0 +1,220 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="最新の技術トレンド、プログラミング、ソフトウェア開発、ツールのレビュー、プロジェクト管理等についての考察をお届け"/><meta property="og:url" content="https://blog.raisex.jp/articles/emdhy55xuistlcq9aeunyxyz"/><meta property="og:title" content="レイズクロスTechBlog | さいたま市大宮区システム会社raisex運営"/><meta property="og:description" content="最新の技術トレンド、プログラミング、ソフトウェア開発、ツールのレビュー、プロジェクト管理等についての考察をお届け"/><meta property="og:image" content="https://blog.raisex.jphttps://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/medium_20250513_11_bfd0628b18.png"/><meta property="og:type" content="article"/><meta name="twitter:card" content="summary_large_image"/><title>DynamoDBの並列Scan<!-- --> | レイズクロス Tech Blog</title><meta name="next-head-count" content="11"/><link rel="preload" href="/_next/static/css/7d757bdfdfb985a7.css" as="style"/><link rel="stylesheet" href="/_next/static/css/7d757bdfdfb985a7.css" data-n-g=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-42372ed130431b0a.js"></script><script src="/_next/static/chunks/webpack-2c547fd4592db0a6.js" defer=""></script><script src="/_next/static/chunks/framework-e952fed463eb8e34.js" defer=""></script><script src="/_next/static/chunks/main-72cf801a60c05482.js" defer=""></script><script src="/_next/static/chunks/pages/_app-b6737859a806843a.js" defer=""></script><script src="/_next/static/chunks/a2bf56a3-f921f321ae1e0e8d.js" defer=""></script><script src="/_next/static/chunks/61-43a5fb199f2ef164.js" defer=""></script><script src="/_next/static/chunks/257-c12ad0b16790f4c5.js" defer=""></script><script src="/_next/static/chunks/pages/articles/%5Bid%5D-c5730984a51dce88.js" defer=""></script><script src="/_next/static/QFbkZlg1wljFeRkEGmC7O/_buildManifest.js" defer=""></script><script src="/_next/static/QFbkZlg1wljFeRkEGmC7O/_ssgManifest.js" defer=""></script></head><body><div id="__next"><div class="max-w-[1024px] mx-auto px-4"><header class="sticky top-0 z-20 bg-white border-b border-gray-200 h-12 flex items-center justify-between px-4"><a class="text-blue-600 no-underline hover:text-gray-600 text-lg font-bold" href="/">📋 レイズクロス Tech Blog</a><div class="flex gap-3"><a href="https://twitter.com/share" target="_blank" rel="noopener noreferrer"><img src="/icons/x.svg" alt="Share on X" class="h-7 w-7"/></a><a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener noreferrer"><img src="/icons/facebook.svg" alt="Share on Facebook" class="h-7 w-7"/></a><a href="https://social-plugins.line.me/lineit/share" target="_blank" rel="noopener noreferrer"><img src="/icons/line.svg" alt="Share on LINE" class="h-7 w-7"/></a></div></header><article class="prose prose-slate max-w-none pt-6"><h1 class="text-3xl font-bold border-b pb-2">DynamoDBの並列Scan</h1><div class="text-sm text-gray-500 mb-4">投稿更新日: <!-- -->2025/6/6 8:55:11</div><div class="flex flex-wrap gap-2 mb-4"><span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#<!-- -->AWS</span><span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#<!-- -->Backend</span><span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">#<!-- -->DynamoDB</span></div><div class="w-full flex justify-center mb-6"><img src="https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/medium_20250513_11_bfd0628b18.png" alt="サムネイル" class="w-full max-w-[800px] h-auto rounded"/></div><p>前回の記事「 [DynamoDBからの全データ取得におけるプラクティス]<a href="https://blog.raisex.jp/articles/o0cmjsrwp73fm9jd2i3s0d80" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">https://blog.raisex.jp/articles/o0cmjsrwp73fm9jd2i3s0d80</a>)  」では、<strong>パーティション分散と並列Query</strong>を活用した全データ取得の効果を検証しました。</p>
+<p>今回の記事では、もう一つの手法である<strong>並列Scan</strong>について取り上げ、どのような効果が得られるのかを実験します。</p>
+<hr/>
+<h1>並列Scanとは？</h1>
+<p><strong>並列Scan</strong>は、DynamoDBのパーティション分散を利用し、データのスキャン処理を複数のセグメント（Segment）に分割して並列で実行する方法です。</p>
+<p>通常のScan操作は1つのプロセスで順次処理を行うため、データ量が増えるほど時間がかかります。</p>
+<p>一方、並列Scanでは複数のワーカーを用いて並列処理を行うため、大量データのスキャンを効率化できます。</p>
+<h2>基本動作</h2>
+<ul>
+<li><strong>Segment</strong>: データを分割する単位。</li>
+<li><strong>TotalSegments</strong>: 全体の分割数。</li>
+<li>各ワーカーが指定されたSegmentを担当し、全体のデータセットを並列に処理します。</li>
+</ul>
+<hr/>
+<h1>実験内容</h1>
+<p>以下の条件で並列Scanを実施し、処理時間を測定しました。</p>
+<ul>
+<li>データ量: 3万件、10万件</li>
+<li>メモリ量: 512MB、2048MB</li>
+<li>セグメント数: 2, 3, 4, 5, 10</li>
+</ul>
+<h3>ソースコード</h3>
+<p>以下は実験に使用したAWS Lambda用のPythonコードです。</p>
+<pre><div class="relative my-4"><button class="absolute top-2 right-2 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600">Copy</button><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre-wrap;word-spacing:normal;word-break:break-word;line-height:1.5;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:0.75rem;margin:0;overflow:auto;border-radius:0.5rem;overflow-x:auto"><code class="language-python" style="white-space:pre;background:hsl(220, 13%, 18%);color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;word-spacing:normal;word-break:normal;line-height:1.5;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none"><span class="token" style="color:hsl(286, 60%, 67%)">import</span><span> boto3
+</span><span></span><span class="token" style="color:hsl(286, 60%, 67%)">import</span><span> os
+</span><span></span><span class="token" style="color:hsl(286, 60%, 67%)">from</span><span> concurrent</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>futures </span><span class="token" style="color:hsl(286, 60%, 67%)">import</span><span> ThreadPoolExecutor
+</span>
+<span>dynamodb </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> boto3</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>resource</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;dynamodb&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span><span>table </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> dynamodb</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>Table</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;test_datas&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span>
+<span></span><span class="token" style="color:hsl(220, 10%, 40%);font-style:italic"># 最大ワーカー数</span><span>
+</span><span>max_workers </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">min</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(29, 54%, 61%)">32</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> os</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>cpu_count</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span> </span><span class="token" style="color:hsl(207, 82%, 66%)">*</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">5</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span>
+<span></span><span class="token" style="color:hsl(286, 60%, 67%)">def</span><span> </span><span class="token" style="color:hsl(207, 82%, 66%)">parallel_scan</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>segment</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> total_segments</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>    </span><span class="token" style="color:hsl(286, 60%, 67%)">print</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token string-interpolation" style="color:hsl(95, 38%, 62%)">f&#x27;segment = </span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">{</span><span class="token string-interpolation interpolation">segment</span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">}</span><span class="token string-interpolation" style="color:hsl(95, 38%, 62%)">, total_segments = </span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">{</span><span class="token string-interpolation interpolation">total_segments</span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">}</span><span class="token string-interpolation" style="color:hsl(95, 38%, 62%)">&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span><span>    items </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">[</span><span class="token" style="color:hsl(220, 14%, 71%)">]</span><span>
+</span><span>    options </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span><span>        </span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;Segment&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span> segment</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span>
+</span><span>        </span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;TotalSegments&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span> total_segments
+</span><span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span><span>    done </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">False</span><span>
+</span>
+<span>    </span><span class="token" style="color:hsl(286, 60%, 67%)">while</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">True</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>        response </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> table</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>scan</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(207, 82%, 66%)">**</span><span>options</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span><span>        next_token </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> response</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>get</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;LastEvaluatedKey&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">None</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span><span>        items</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>extend</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>response</span><span class="token" style="color:hsl(220, 14%, 71%)">[</span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;Items&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">]</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span><span>        </span><span class="token" style="color:hsl(286, 60%, 67%)">if</span><span> next_token</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>            options</span><span class="token" style="color:hsl(220, 14%, 71%)">[</span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;ExclusiveStartKey&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">]</span><span> </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> next_token
+</span><span>        </span><span class="token" style="color:hsl(286, 60%, 67%)">else</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>            </span><span class="token" style="color:hsl(286, 60%, 67%)">break</span><span>
+</span><span>    </span><span class="token" style="color:hsl(286, 60%, 67%)">return</span><span> items
+</span>
+<span></span><span class="token" style="color:hsl(286, 60%, 67%)">def</span><span> </span><span class="token" style="color:hsl(207, 82%, 66%)">lambda_handler</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>event</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> context</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>    total_segments </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">2</span><span>  </span><span class="token" style="color:hsl(220, 10%, 40%);font-style:italic"># 並列度を調整</span><span>
+</span>
+<span>    </span><span class="token" style="color:hsl(220, 10%, 40%);font-style:italic"># ThreadPoolExecutorを使用して並列スキャンを実行</span><span>
+</span><span>    </span><span class="token" style="color:hsl(286, 60%, 67%)">with</span><span> ThreadPoolExecutor</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>max_workers</span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span>max_workers</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span> </span><span class="token" style="color:hsl(286, 60%, 67%)">as</span><span> executor</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>        futures </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">[</span><span>executor</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>submit</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>parallel_scan</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> segment</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> total_segments</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span> </span><span class="token" style="color:hsl(286, 60%, 67%)">for</span><span> segment </span><span class="token" style="color:hsl(286, 60%, 67%)">in</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">range</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>total_segments</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span class="token" style="color:hsl(220, 14%, 71%)">]</span><span>
+</span><span>        results </span><span class="token" style="color:hsl(207, 82%, 66%)">=</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">[</span><span class="token" style="color:hsl(220, 14%, 71%)">]</span><span>
+</span><span>        </span><span class="token" style="color:hsl(286, 60%, 67%)">for</span><span> future </span><span class="token" style="color:hsl(286, 60%, 67%)">in</span><span> futures</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span>
+</span><span>            results</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>extend</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span>future</span><span class="token" style="color:hsl(220, 14%, 71%)">.</span><span>result</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span>
+<span>        </span><span class="token" style="color:hsl(286, 60%, 67%)">print</span><span class="token" style="color:hsl(220, 14%, 71%)">(</span><span class="token string-interpolation" style="color:hsl(95, 38%, 62%)">f&#x27;</span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">{</span><span class="token string-interpolation interpolation" style="color:hsl(95, 38%, 62%)">len</span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">(</span><span class="token string-interpolation interpolation">results</span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">)</span><span class="token string-interpolation interpolation" style="color:hsl(220, 14%, 71%)">}</span><span class="token string-interpolation" style="color:hsl(95, 38%, 62%)">件&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">)</span><span>
+</span><span>    </span><span class="token" style="color:hsl(286, 60%, 67%)">return</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span><span>        </span><span class="token" style="color:hsl(95, 38%, 62%)">&#x27;StatusCode&#x27;</span><span class="token" style="color:hsl(220, 14%, 71%)">:</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">200</span><span>
+</span><span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span></code></pre></div></pre>
+<hr/>
+<h2>実験結果</h2>
+<h3>データ量: 3万件</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table class="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed"><thead class="bg-cyan-100 text-black"><tr><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">メモリ量</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">セグメント数</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">処理時間</th></tr></thead><tbody><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">512MB</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">2</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">15秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">3</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14.4秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14.6秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">5</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14.4秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">10</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14.3秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">2048MB</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">2</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">3</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4.3秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4.1秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">5</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">10</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4.3秒</td></tr></tbody></table>
+<hr/>
+<h3>データ量: 10万件</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table class="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed"><thead class="bg-cyan-100 text-black"><tr><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">メモリ量</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">セグメント数</th><th class="w-1/4 border border-gray-400 px-2 py-1 text-left font-medium whitespace-pre-wrap">処理時間</th></tr></thead><tbody><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">512MB</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">2</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">49秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">3</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">49秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">52.3秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">5</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">53秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">10</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">52秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">2048MB</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">2</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">13.1秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">3</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">4</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">13.6秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">5</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14.6秒</td></tr><tr><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap"></td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">10</td><td class="w-1/4 border border-gray-300 px-2 py-1 whitespace-pre-wrap">14.2秒</td></tr></tbody></table>
+<hr/>
+<h2>まとめ</h2>
+<h3>パフォーマンス</h3>
+<ul>
+<li><strong>メモリ量の影響</strong>:
+メモリを2048MBに増加させると処理時間が大幅に短縮。</li>
+<li><strong>セグメント数の影響</strong>:
+セグメント数の増加による処理時間の改善は限定的。</li>
+</ul>
+<h3>コストと効率</h3>
+<ul>
+<li><strong>普通のScanと比較</strong>:
+メモリ量を増やした並列Scanの方が高速。ただし、メモリ量を増やす分、コストが増加する点には注意が必要です。</li>
+<li><strong>並列Queryと比較</strong>:
+パーティションキーを活用した並列Queryの方がさらに高速で効率的。並列Scanは特定のユースケース（例: パーティションキーが不明、全件取得が必要）で有効です。</li>
+</ul>
+<hr/>
+<h2>結論</h2>
+<p><strong>並列Scanは特定の状況で有効な手法ですが、パフォーマンス最適化を考えるなら、並列Queryの方がより効果的です。</strong></p>
+<p>次のような場合に並列Scanを検討してください:</p>
+<ul>
+<li>全データをスキャンする必要がある。</li>
+<li>パーティションキーの設計が不十分でQueryが使えない。</li>
+</ul>
+<p>効率的なDynamoDB運用の為には、データモデル設計を見直し、並列Queryを優先することをおすすめします！</p>
+<hr/><div class="text-center mt-8"><a class="inline-block bg-gray-800 text-white no-underline px-4 py-2 rounded hover:bg-gray-700" href="/">← 記事一覧に戻る</a></div><div class="my-12 text-center"><p class="font-bold text-gray-800">合同会社raisexでは一緒に働く仲間を募集中です。</p><p class="text-sm text-gray-600 mb-4">ご興味のある方は以下の採用情報をご確認ください。</p><div class="flex justify-center"><div class="engage-recruit-widget" data-height="300" data-width="500" data-url="https://en-gage.net/raisex_jobs/widget/?banner=1"></div></div></div></article></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"article":{"id":259,"documentId":"emdhy55xuistlcq9aeunyxyz","title":"DynamoDBの並列Scan","content":"前回の記事「 [DynamoDBからの全データ取得におけるプラクティス]https://blog.raisex.jp/articles/o0cmjsrwp73fm9jd2i3s0d80)  」では、**パーティション分散と並列Query**を活用した全データ取得の効果を検証しました。\n\n今回の記事では、もう一つの手法である**並列Scan**について取り上げ、どのような効果が得られるのかを実験します。\n\n---\n\n# 並列Scanとは？\n\n**並列Scan**は、DynamoDBのパーティション分散を利用し、データのスキャン処理を複数のセグメント（Segment）に分割して並列で実行する方法です。\n\n通常のScan操作は1つのプロセスで順次処理を行うため、データ量が増えるほど時間がかかります。\n\n一方、並列Scanでは複数のワーカーを用いて並列処理を行うため、大量データのスキャンを効率化できます。\n\n## 基本動作\n\n- **Segment**: データを分割する単位。\n- **TotalSegments**: 全体の分割数。\n- 各ワーカーが指定されたSegmentを担当し、全体のデータセットを並列に処理します。\n\n---\n\n# 実験内容\n\n以下の条件で並列Scanを実施し、処理時間を測定しました。\n\n- データ量: 3万件、10万件\n- メモリ量: 512MB、2048MB\n- セグメント数: 2, 3, 4, 5, 10\n\n### ソースコード\n\n以下は実験に使用したAWS Lambda用のPythonコードです。\n\n```python\nimport boto3\nimport os\nfrom concurrent.futures import ThreadPoolExecutor\n\ndynamodb = boto3.resource('dynamodb')\ntable = dynamodb.Table('test_datas')\n\n# 最大ワーカー数\nmax_workers = min(32, os.cpu_count() * 5)\n\ndef parallel_scan(segment, total_segments):\n    print(f'segment = {segment}, total_segments = {total_segments}')\n    items = []\n    options = {\n        'Segment': segment,\n        'TotalSegments': total_segments\n    }\n    done = False\n\n    while True:\n        response = table.scan(**options)\n        next_token = response.get('LastEvaluatedKey', None)\n        items.extend(response['Items'])\n        if next_token:\n            options['ExclusiveStartKey'] = next_token\n        else:\n            break\n    return items\n\ndef lambda_handler(event, context):\n    total_segments = 2  # 並列度を調整\n\n    # ThreadPoolExecutorを使用して並列スキャンを実行\n    with ThreadPoolExecutor(max_workers=max_workers) as executor:\n        futures = [executor.submit(parallel_scan, segment, total_segments) for segment in range(total_segments)]\n        results = []\n        for future in futures:\n            results.extend(future.result())\n\n        print(f'{len(results)}件')\n    return {\n        'StatusCode': 200\n    }\n\n```\n\n---\n\n## 実験結果\n\n### データ量: 3万件\n\n| メモリ量 | セグメント数 | 処理時間 |\n| --- | --- | --- |\n| 512MB | 2 | 15秒 |\n|  | 3 | 14.4秒 |\n|  | 4 | 14.6秒 |\n|  | 5 | 14.4秒 |\n|  | 10 | 14.3秒 |\n| 2048MB | 2 | 4秒 |\n|  | 3 | 4.3秒 |\n|  | 4 | 4.1秒 |\n|  | 5 | 4秒 |\n|  | 10 | 4.3秒 |\n\n---\n\n### データ量: 10万件\n\n| メモリ量 | セグメント数 | 処理時間 |\n| --- | --- | --- |\n| 512MB | 2 | 49秒 |\n|  | 3 | 49秒 |\n|  | 4 | 52.3秒 |\n|  | 5 | 53秒 |\n|  | 10 | 52秒 |\n| 2048MB | 2 | 13.1秒 |\n|  | 3 | 14秒 |\n|  | 4 | 13.6秒 |\n|  | 5 | 14.6秒 |\n|  | 10 | 14.2秒 |\n\n---\n\n## まとめ\n\n### パフォーマンス\n\n- **メモリ量の影響**:\nメモリを2048MBに増加させると処理時間が大幅に短縮。\n- **セグメント数の影響**:\nセグメント数の増加による処理時間の改善は限定的。\n\n### コストと効率\n\n- **普通のScanと比較**:\nメモリ量を増やした並列Scanの方が高速。ただし、メモリ量を増やす分、コストが増加する点には注意が必要です。\n- **並列Queryと比較**:\nパーティションキーを活用した並列Queryの方がさらに高速で効率的。並列Scanは特定のユースケース（例: パーティションキーが不明、全件取得が必要）で有効です。\n\n---\n\n## 結論\n\n**並列Scanは特定の状況で有効な手法ですが、パフォーマンス最適化を考えるなら、並列Queryの方がより効果的です。**\n\n次のような場合に並列Scanを検討してください:\n\n- 全データをスキャンする必要がある。\n- パーティションキーの設計が不十分でQueryが使えない。\n\n効率的なDynamoDB運用の為には、データモデル設計を見直し、並列Queryを優先することをおすすめします！\n\n---\n\n","createdAt":"2025-05-19T08:50:57.685Z","updatedAt":"2025-06-05T23:55:11.827Z","publishedAt":"2025-06-05T23:55:11.838Z","docId":"gl8fxc0imylqstbwjwcwpnsf","tags":[{"id":10,"documentId":"cxt2tbnsy05cazm17p3pp1a3","createdAt":"2025-05-19T09:46:58.860Z","updatedAt":"2025-05-19T09:46:58.860Z","publishedAt":"2025-05-19T09:46:58.868Z","name":"AWS"},{"id":12,"documentId":"c3lesvkdvjiq7y5zfx9mx0tu","createdAt":"2025-05-19T09:47:14.973Z","updatedAt":"2025-05-19T09:47:14.973Z","publishedAt":"2025-05-19T09:47:14.980Z","name":"Backend"},{"id":14,"documentId":"ufw8l9386d4flb8sddy84mft","createdAt":"2025-05-19T09:47:52.868Z","updatedAt":"2025-05-19T09:47:52.868Z","publishedAt":"2025-05-19T09:47:52.876Z","name":"DynamoDB"}],"thumbnail":[{"id":15,"documentId":"hszel53rqwh0ryeez8krf8t8","name":"20250513-11.png","alternativeText":null,"caption":null,"width":1503,"height":844,"formats":{"thumbnail":{"name":"thumbnail_20250513-11.png","hash":"thumbnail_20250513_11_bfd0628b18","ext":".png","mime":"image/png","path":null,"width":245,"height":138,"size":9.08,"sizeInBytes":9076,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/thumbnail_20250513_11_bfd0628b18.png"},"medium":{"name":"medium_20250513-11.png","hash":"medium_20250513_11_bfd0628b18","ext":".png","mime":"image/png","path":null,"width":750,"height":421,"size":34.34,"sizeInBytes":34341,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/medium_20250513_11_bfd0628b18.png"},"large":{"name":"large_20250513-11.png","hash":"large_20250513_11_bfd0628b18","ext":".png","mime":"image/png","path":null,"width":1000,"height":562,"size":49.02,"sizeInBytes":49018,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/large_20250513_11_bfd0628b18.png"},"small":{"name":"small_20250513-11.png","hash":"small_20250513_11_bfd0628b18","ext":".png","mime":"image/png","path":null,"width":500,"height":281,"size":20.57,"sizeInBytes":20567,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/small_20250513_11_bfd0628b18.png"}},"hash":"20250513_11_bfd0628b18","ext":".png","mime":"image/png","size":15.11,"url":"https://stg-raisex-tech-blog.s3.ap-northeast-1.amazonaws.com/20250513_11_bfd0628b18.png","previewUrl":null,"provider":"@strapi/provider-upload-aws-s3","provider_metadata":null,"createdAt":"2025-05-20T07:45:16.265Z","updatedAt":"2025-05-20T07:45:16.265Z","publishedAt":"2025-05-20T07:45:16.265Z"}]}},"__N_SSG":true},"page":"/articles/[id]","query":{"id":"emdhy55xuistlcq9aeunyxyz"},"buildId":"QFbkZlg1wljFeRkEGmC7O","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>

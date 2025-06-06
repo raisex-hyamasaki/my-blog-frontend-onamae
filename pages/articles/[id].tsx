@@ -1,9 +1,6 @@
 // pages/articles/[id].tsx
 // getStaticProps + getStaticPaths による静的HTML対応
 
-// pages/articles/[id].tsx
-// getStaticProps + getStaticPaths による静的HTML対応
-
 'use client'
 
 import { GetStaticPaths, GetStaticProps } from 'next'
@@ -76,7 +73,10 @@ export default function ArticlePage({ article }: Props) {
         description="最新の技術トレンド、プログラミング、ソフトウェア開発、ツールのレビュー、プロジェクト管理等についての考察をお届け"
         url={`https://blog.raisex.jp/articles/${article.documentId}`}
         image={thumbnailUrl ? `https://blog.raisex.jp${thumbnailUrl}` : undefined}
-      />
+      >
+        <link rel="canonical" href={`https://blog.raisex.jp/articles/${article.documentId}`} />
+        <meta name="robots" content="index, follow" />
+      </Seo>
 
       <Head>
         <title>{article.title} | レイズクロス Tech Blog</title>
@@ -244,8 +244,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${apiUrl}/api/articles?pagination[pageSize]=9999`)
   const json = await res.json()
-
-  console.log(`Fetched ${json.data.length} articles from Strapi`)
 
   const paths = (json.data || [])
     .filter((article: any) => article.documentId)
