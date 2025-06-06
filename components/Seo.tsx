@@ -6,6 +6,7 @@ type SeoProps = {
   description?: string
   url?: string
   image?: string
+  children?: ReactNode  // ✅ これを追加
 }
 
 export default function Seo({ title, description, url, image }: SeoProps) {
