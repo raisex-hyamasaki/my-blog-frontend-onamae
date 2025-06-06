@@ -56,6 +56,8 @@ export default function ArticlePage({ article }: Props) {
   if (!article) return <div>記事が見つかりませんでした。</div>
 
   const thumbnailUrl = article.thumbnail?.[0]?.formats?.medium?.url ?? null
+  const fullUrl = `https://blog.raisex.jp/articles/${article.documentId}`
+  const fullImage = thumbnailUrl ? `https://blog.raisex.jp${thumbnailUrl}` : undefined
 
   const isInternalLink = (url: string) => {
     try {
@@ -69,13 +71,37 @@ export default function ArticlePage({ article }: Props) {
   return (
     <div className="max-w-[1024px] mx-auto px-4">
       <Seo
-        title="レイズクロスTechBlog | さいたま市大宮区システム会社raisex運営"
+        title={article.title + ' | レイズクロスTechBlog'}
         description="最新の技術トレンド、プログラミング、ソフトウェア開発、ツールのレビュー、プロジェクト管理等についての考察をお届け"
-        url={`https://blog.raisex.jp/articles/${article.documentId}`}
-        image={thumbnailUrl ? `https://blog.raisex.jp${thumbnailUrl}` : undefined}
+        url={fullUrl}
+        image={fullImage}
       >
-        <link rel="canonical" href={`https://blog.raisex.jp/articles/${article.documentId}`} />
+        <link rel="canonical" href={fullUrl} />
         <meta name="robots" content="index, follow" />
+
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content="最新の技術トレンド等を紹介" />
+        <meta property="og:url" content={fullUrl} />
+        {fullImage && <meta property="og:image" content={fullImage} />}
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content="最新の技術トレンド等を紹介" />
+        {fullImage && <meta name="twitter:image" content={fullImage} />}
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: article.title,
+            datePublished: article.updatedAt,
+            author: { '@type': 'Organization', name: 'raisex' },
+            publisher: { '@type': 'Organization', name: 'raisex' },
+            image: fullImage,
+            mainEntityOfPage: fullUrl,
+          })
+        }} />
       </Seo>
 
       <Head>
@@ -101,11 +127,9 @@ export default function ArticlePage({ article }: Props) {
 
       <article className="prose prose-slate max-w-none pt-6">
         <h1 className="text-3xl font-bold border-b pb-2">{article.title}</h1>
-
         <div className="text-sm text-gray-500 mb-4">
           投稿更新日: {new Date(article.updatedAt).toLocaleString()}
         </div>
-
         {article.tags?.length ? (
           <div className="flex flex-wrap gap-2 mb-4">
             {article.tags.map((tag) => (
@@ -126,15 +150,14 @@ export default function ArticlePage({ article }: Props) {
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
-            img: (props) =>
-              typeof props.src === 'string' ? (
-                <div className="text-center my-6">
-                  <ModalImage
-                    {...(props as { src: string; alt?: string })}
-                    className="mx-auto w-full max-w-[800px] h-auto cursor-zoom-in"
-                  />
-                </div>
-              ) : null,
+            img: (props) => typeof props.src === 'string' ? (
+              <div className="text-center my-6">
+                <ModalImage
+                  {...(props as { src: string; alt?: string })}
+                  className="mx-auto w-full max-w-[800px] h-auto cursor-zoom-in"
+                />
+              </div>
+            ) : null,
             table: ({ children }) => (
               <table className="border border-gray-400 w-full text-sm my-4 whitespace-pre-wrap table-fixed">
                 {children}
@@ -151,19 +174,16 @@ export default function ArticlePage({ article }: Props) {
                 {children}
               </td>
             ),
-            a: ({ href, children }) =>
-              href ? (
-                <a
-                  href={href}
-                  target={isInternalLink(href) ? '_self' : '_blank'}
-                  rel={isInternalLink(href) ? undefined : 'noopener noreferrer'}
-                  className="text-blue-600 underline"
-                >
-                  {children}
-                </a>
-              ) : (
-                <>{children}</>
-              ),
+            a: ({ href, children }) => href ? (
+              <a
+                href={href}
+                target={isInternalLink(href) ? '_self' : '_blank'}
+                rel={isInternalLink(href) ? undefined : 'noopener noreferrer'}
+                className="text-blue-600 underline"
+              >
+                {children}
+              </a>
+            ) : <>{children}</>,
             code(props: any) {
               const { className, children } = props
               const codeString = String(children).replace(/\n$/, '')
@@ -251,10 +271,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       params: { id: article.documentId },
     }))
 
-  return {
-    paths,
-    fallback: false,
-  }
+  return { paths, fallback: false }
 }
 
 export const getStaticProps: GetStaticProps<Props> = async (context) => {
